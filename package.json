@@ -1,0 +1,24 @@
+{
+  "name": "og",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.81.0",
+    "sax": "^1.2.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jacktuck/og.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jacktuck/og/issues"
+  },
+  "homepage": "https://github.com/jacktuck/og#readme",
+  "description": ""
+}
