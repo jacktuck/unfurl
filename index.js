@@ -22,7 +22,7 @@ stop parsing after abort
 
 var _ = require('lodash')
 var request = require('request')
-var parser = require('sax').createStream(false,{
+var parser = require('sax').parser(false,{
   lowercase: true
 })
 
@@ -82,35 +82,27 @@ var twitProvider = [
 
 var providers = _.concat(ogProvider, twitProvider)
 
-og('https://crugo.com')
-
-function og (url,opts) {
-  if (!_.isPlainObject(opts)) opts = {}
-
-  opts = _.defaults(opts,{
+function og (url, callback, opts) {
+  opts = _.defaults(opts || {} ,{
     twitterCard: true
   })
 
   let o = {}
 
-  parser.on('error',function (err) {
-    console.error(err)
-
-    this._parser.error = null
-    this._parser.resume()
-  })
+  parser.onerror = function (e) {
+    callback(e)
+  };
 
   parser.ontext = function (t) {
-    let tag = this._parser.tagName
-
-    console.log('ontext',t)
-    console.log('tag',tag)
+    // let tag = this._parser.tagName
+    // console.log('tag',tag)
   }
 
   parser.onopentag = function (n) {
     var name = n.name
     var attributes = n.attributes
     var ctx = (opts.twitterCard) ? providers : ogProvider
+    console.log('onopentag',name, Date.now())
 
 
     if (name !== 'meta') return
@@ -122,29 +114,50 @@ function og (url,opts) {
   }
 
   parser.onclosetag = function (tag) {
-    console.log('onclosetag',tag)
+    // console.log('onclosetag',tag, Date.now())
 
     if (tag === 'head') {
-      console.log('ALERT')
+      // console.log('ALERT')
+      callback(null, o)
       req.abort() //Parse as little as possible.
+
     }
   }
 
-  var req = request('https://crugo.com',{
+  var req = request(url, {
     headers: {
       'user-agent': 'facebookexternalhit' //Serve prerendered page for SPAs if we can.
     }
   })
 
-  req.pipe(parser)
-
-  parser.on('end',() => {
-    console.log('SAX END')
-
-    console.log('O', o)
+  req.on('abort',() => {
+    // console.log('aborted')
   })
 
   req.on('end',() => {
-    console.log('REQUEST END')
+    // console.log('REQUEST END')
+  })
+
+  req.on('data',(data) => {
+    console.log('REQUEST DATA')
+    parser.write(data)
+    parser.flush()
   })
 }
+
+console.time('og')
+og('https://www.crugo.com', (err, result) => {
+  console.log('foo')
+  console.log(err, result)
+  console.timeEnd('og')
+})
+
+
+
+//
+//
+// var openGraphScraper = require('open-graph-scraper');
+// console.time('openGraphScraper')
+// openGraphScraper({url: 'http://www.bbc.co.uk/news'}, function (err, result) {
+//   console.timeEnd('openGraphScraper')
+// });
