@@ -153,7 +153,7 @@ function og (url, callback, opts) {
 }
 
 console.time('og')
-og('http://shoptalkshow.com/', (err, result) => {
+og('http://demo.borland.com/testsite/stadyn_largepagewithimages.html', (err, result) => {
   console.timeEnd('og')
   // console.log(err, result)
 })
@@ -161,7 +161,7 @@ og('http://shoptalkshow.com/', (err, result) => {
 
 var openGraphScraper = require('open-graph-scraper')
 console.time('openGraphScraper')
-openGraphScraper({url: 'http://shoptalkshow.com/'}, function (err, result) {
+openGraphScraper({url: 'http://demo.borland.com/testsite/stadyn_largepagewithimages.html'}, function (err, result) {
   console.timeEnd('openGraphScraper')
   // console.log(err, result)
 })
