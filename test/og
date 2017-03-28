@@ -1,11 +1,13 @@
-var requsest = 0
+var requests = 0
 var og = require('../')
 
 ;(function work () {
-  og('https://crugo.com', (err, result) => {
-    console.log('err', err)
-    console.log('result', result)
-    console.log('requsest', ++requsest)
-    work()
-  })
+  og('https://medium.freecodecamp.com/how-you-can-land-a-6-figure-job-in-tech-with-no-connections-6eed0de26ea4')
+    .then(result => {
+      console.log('result', result)
+      console.log('requests', ++requests)
+      work()
+    })
+    .catch(err => console.log('err', err))
+
 })()

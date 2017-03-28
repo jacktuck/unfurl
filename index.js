@@ -1,8 +1,13 @@
-var sax = require('sax')
-var _ = require('lodash')
-var request = require('request')
+let sax = require('sax')
+let _ = require('lodash')
+let request = require('request')
+let debug = require('debug')('og')
 
-var ogProvider = [
+// TODO make a proxy for these fields...
+// zip up the images / video etc
+// add option for allowing multiple of video or image or audio
+
+let ogp = [
   'og:title',
   'og:type',
   'og:image',
@@ -29,7 +34,7 @@ var ogProvider = [
   'og:video:type'
 ]
 
-var tcProvider = [
+let twitter = [
   'twitter:card',
   'twitter:site',
   'twitter:site:id',
@@ -56,91 +61,138 @@ var tcProvider = [
   'twitter:app:url:googleplay'
 ]
 
+let oEmbed = [
+  'type',
+  'version',
+  'title',
+  'author_name',
+  'author_url',
+  'provider_name',
+  'provider_url',
+  'cache_age',
+  'thumbnail_url',
+  'thumbnail_width',
+  'thumbnail_height'
+]
+
+let multi = [
+  'og:image',
+  'og:image:url',
+  'og:image:secure_url',
+  'og:image:width',
+  'og:image:height',
+  'og:image:type',
+  'twitter:image',
+  'twitter:image:height',
+  'twitter:image:width',
+  'twitter:image:alt',
+  'twitter:player',
+  'twitter:player:width',
+  'twitter:player:height',
+  'twitter:player:stream',
+  'og:video',
+  'og:video:url',
+  'og:video:secure_url',
+  'og:video:width',
+  'og:video:height',
+  'og:video:type',
+  'og:audio',
+  'og:audio:url',
+  'og:audio:secure_url',
+  'og:audio:type'
+]
+
+let allProviders = _.concat(ogp, twitter)
+
 let fallbacks = Object.create(null)
 
-var providers = _.concat(ogProvider, tcProvider)
-
-module.exports = (url, callback, opts) => {
-  var parser = sax.parser(false, {
-    lowercase: true
-  })
-
-  callback = _.once(callback)
-
+module.exports = async function (url, opts) {
   opts = _.defaults(opts || Object.create(null), {
-    twitterCard: true,
-    title: true,
-    metaDescription: true
+    ogp: true,
+    twitter: true,
+    oEmbed: true,
+    shouldFallbackDescription: true,
+    shouldFallbackTitle: true
   })
 
-  console.log('opts.twitterCard', opts.twitterCard)
+  let metadata = await scrape(url, opts)
 
-  var o = Object.create(null)
+  // if (opts.ogp || opts.twitter) {
+  // }
 
-  var req = request.get({
+  return metadata
+}
+
+function fetch (url) {
+  return request.get({
     url,
+    gzip: true,
     headers: {
-      'user-agent': 'facebookexternalhit' //Serve prerendered page for SPAs if we can.
+      'user-agent': 'facebookexternalhit'
     }
   })
+}
 
-  parser.onerror = function (err) {
-    callback(err)
-  };
+async function scrape (url, opts) {
+  return new Promise((resolve, reject) => {
+    let parser = sax.parser(false, {
+      lowercase: true
+    })
 
-  parser.ontext = function (text) {
-    var tag = parser.tagName
-    console.log('tag',tag)
-    console.log('text',text)
+    let obj = Object.create(null)
 
-    if (tag === 'title') fallbacks.title = text
-  }
+    let req = fetch(url)
 
-  parser.onopentag = function (n) {
-    var name = n.name
-    var attributes = n.attributes
-    var ctx = (opts.twitterCard) ? providers : ogProvider
-    // console.log('onopentag',name, Date.now())
-
-    console.log('attributes', attributes)
-
-    let predicate = attributes.property || attributes.name
-
-    if (name !== 'meta') return
-    if (!_.includes(ctx, predicate)) return
-
-    var prettyName = _.camelCase(predicate)
-
-    o[prettyName] = attributes.content
-  }
-
-  parser.onclosetag = function (tag) {
-    // console.log('onclosetag',tag)
-
-    if (tag === 'head') {
-      // console.log('ABORTING')
-      callback(null, o)
-      req.abort() //Parse as little as possible.
-      console.log('fallbacks', fallbacks)
+    parser.onerror = function (err) {
+      reject(err)
     }
-  }
 
-  req.on('data',(data) => {
-    if (false === parser.write(data)) req.pause()
-    else parser.flush()
-  })
+    parser.ontext = function (text) {
+      let tag = parser.tagName
 
-  req.on('drain', () => {
-    console.log('REQUEST DRAIN')
-    req.resume()
-  })
+      if (tag === 'title') fallbacks.title = text
+    }
 
-  req.on('abort',() => {
-    // console.log('REQUEST ABORT')
-  })
+    parser.onopentag = function ({ name, attributes: attr }) {
+      let ctx = (opts.twitter) ? allProviders : ogp
 
-  req.on('end',() => {
-    // console.log('REQUEST END')
-    callback(null, o)
+      let predicate = attr.property || attr.name
+
+      if (name !== 'meta') return
+      if (!_.includes(ctx, predicate)) return
+
+      let prettyName = _.camelCase(predicate)
+
+      obj[prettyName] = attr.content
+    }
+
+    parser.onclosetag = function (tag) {
+      // debug('onclosetag',tag)
+
+      if (tag === 'head') {
+        // debug('ABORTING')
+        resolve(obj)
+        req.abort() // Parse as little as possible.
+      }
+    }
+
+    req.on('data', (data) => {
+      if (parser.write(data) === false) req.pause()
+      else parser.flush()
+    })
+
+    req.on('drain', () => {
+      // debug('REQUEST DRAIN')
+      req.resume()
+    })
+
+    req.on('abort', () => {
+      // debug('REQUEST ABORT')
+    })
+
+    req.on('end', () => {
+      // debug('REQUEST END')
+      resolve(obj)
+    })
   })
 }

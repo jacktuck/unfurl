@@ -8,6 +8,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "debug": "^2.6.3",
     "request": "^2.81.0",
     "sax": "^1.2.2"
   },

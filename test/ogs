@@ -1,11 +1,11 @@
-var requsest = 0
+var requests = 0
 var openGraphScraper = require('open-graph-scraper')
 
 ;(function work () {
-  openGraphScraper({url: 'https://crugo.com'}, function (err, result) {
+  openGraphScraper({url: 'https://medium.freecodecamp.com/how-you-can-land-a-6-figure-job-in-tech-with-no-connections-6eed0de26ea4'}, function (err, result) {
     console.log('err', err)
     console.log('result', result)
-    console.log('requsest', ++requsest)
+    console.log('requests', ++requests)
     work()
   })
 })()
