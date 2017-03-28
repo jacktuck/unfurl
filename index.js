@@ -1,6 +1,9 @@
+let pify = require('pify')
 let sax = require('sax')
 let _ = require('lodash')
 let request = require('request')
+let promisedRequest = pify(request)
+
 let debug = require('debug')('og')
 
 // TODO make a proxy for these fields...
@@ -61,7 +64,7 @@ let twitter = [
   'twitter:app:url:googleplay'
 ]
 
-let oEmbed = [
+let oembed = [
   'type',
   'version',
   'title',
@@ -110,22 +113,31 @@ module.exports = async function (url, opts) {
   opts = _.defaults(opts || Object.create(null), {
     ogp: true,
     twitter: true,
-    oEmbed: true,
+    oembed: true,
     shouldFallbackDescription: true,
     shouldFallbackTitle: true
   })
 
   let metadata = await scrape(url, opts, fallbacks)
+  if (metadata.oembed) {
+    let foo = (await fetch(metadata.oembed, true)).body
+
+
+    console.log('FOO', foo)
+  }
 
   debug('fallbacks', fallbacks)
+  debug('metadata', metadata)
   // if (opts.ogp || opts.twitter) {
   // }
 
   return metadata
 }
 
-function fetch (url) {
-  return request.get({
+function fetch (url, promisify = false) {
+  debug('fetching', url)
+  let r = promisify ? promisedRequest : request
+  return r.get({
     url,
     gzip: true,
     headers: {
@@ -151,16 +163,19 @@ async function scrape (url, opts, fallbacks) {
     parser.ontext = function (text) {
       let tag = parser.tagName
 
-      if (tag === 'title') fallbacks.title = text
+      if (opts.shouldFallbackTitle && tag === 'title') fallbacks.title = text
     }
 
     parser.onopentag = function ({ name, attributes: attr }) {
       let ctx = (opts.twitter) ? allProviders : ogp
 
-      let predicate = attr.property || attr.name
+      if (opts.oembed && attr.type === 'application/json+oembed') obj.oembed = attr.href
+      if (opts.shouldFallbackDescription && attr.property === 'description') fallbacks.description = attr.content
 
       if (name !== 'meta') return
-      if (predicate === 'description') fallbacks.description = attr.content
+
+      let predicate = attr.property || attr.name
+
       if (!_.includes(ctx, predicate)) return
 
       let prettyName = _.camelCase(predicate)
