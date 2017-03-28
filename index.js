@@ -1,30 +1,6 @@
-/*
-
-var og = require('og-scraper')
-
-Usage: og({url | data},options)
-
-Examples:
-og('https://google.com')
-
-og('https://google.com',{
-  fallback: false //defaults to true!
-})
-
-
-
-TODO
-make sure html is returned,otherwise abort
-abort after some reasonable byte limit
-stop parsing after abort
-*/
-
-
+var sax = require('sax')
 var _ = require('lodash')
 var request = require('request')
-var parser = require('sax').parser(false,{
-  lowercase: true
-})
 
 var ogProvider = [
   'og:title',
@@ -53,7 +29,7 @@ var ogProvider = [
   'og:video:type'
 ]
 
-var twitProvider = [
+var tcProvider = [
   'twitter:card',
   'twitter:site',
   'twitter:site:id',
@@ -77,24 +53,48 @@ var twitProvider = [
   'twitter:app:url:ipad',
   'twitter:app:name:googleplay',
   'twitter:app:id:googleplay',
-  'twitter:app:url:googleplay',
+  'twitter:app:url:googleplay'
 ]
 
-var providers = _.concat(ogProvider, twitProvider)
+let fallbacks = {}
 
-function og (url, callback, opts) {
-  opts = _.defaults(opts || {} ,{
-    twitterCard: true
+var providers = _.concat(ogProvider, tcProvider)
+
+module.exports = (url, callback, opts) => {
+  var parser = sax.parser(false, {
+    lowercase: true
   })
 
+  callback = _.once(callback)
+
+  opts = _.defaults(opts || {}, {
+    twitterCard: true,
+    title: true,
+    metaDescription: true
+  })
+
+  console.log('opts.twitterCard', opts.twitterCard)
+
   var o = {}
-  parser.onerror = function (e) {
-    callback(e)
+
+  var req = request.get({
+    url,
+    // gzip: true,
+    headers: {
+      'user-agent': 'facebookexternalhit' //Serve prerendered page for SPAs if we can.
+    }
+  })
+
+  parser.onerror = function (err) {
+    callback(err)
   };
 
-  parser.ontext = function (t) {
-    // var tag = this._parser.tagName
-    // console.log('tag',tag)
+  parser.ontext = function (text) {
+    var tag = parser.tagName
+    console.log('tag',tag)
+    console.log('text',text)
+
+    if (tag === 'title') fallbacks.title = text
   }
 
   parser.onopentag = function (n) {
@@ -103,11 +103,14 @@ function og (url, callback, opts) {
     var ctx = (opts.twitterCard) ? providers : ogProvider
     // console.log('onopentag',name, Date.now())
 
+    console.log('attributes', attributes)
+
+    let predicate = attributes.property || attributes.name
 
     if (name !== 'meta') return
-    if (!_.includes(ctx, attributes.property)) return
+    if (!_.includes(ctx, predicate)) return
 
-    var prettyName = _.camelCase(attributes.property)
+    var prettyName = _.camelCase(predicate)
 
     o[prettyName] = attributes.content
   }
@@ -116,29 +119,20 @@ function og (url, callback, opts) {
     // console.log('onclosetag',tag)
 
     if (tag === 'head') {
-      // console.log('ALERT')
+      // console.log('ABORTING')
       callback(null, o)
       req.abort() //Parse as little as possible.
+      console.log('fallbacks', fallbacks)
     }
   }
 
-  var req = request.get({
-    url,
-    headers: {
-      'user-agent': 'facebookexternalhit' //Serve prerendered page for SPAs if we can.
-    }
-  })
-
-
-// console.log(req)
   req.on('data',(data) => {
-    // console.log('data', data, data.byteLength * 0.001)
     if (false === parser.write(data)) req.pause()
     else parser.flush()
   })
 
   req.on('drain', () => {
-    // console.log('REQUEST DRAIN')
+    console.log('REQUEST DRAIN')
     req.resume()
   })
 
@@ -148,20 +142,6 @@ function og (url, callback, opts) {
 
   req.on('end',() => {
     // console.log('REQUEST END')
+    callback(null, o)
   })
-
 }
-
-console.time('og')
-og('http://demo.borland.com/testsite/stadyn_largepagewithimages.html', (err, result) => {
-  console.timeEnd('og')
-  // console.log(err, result)
-})
-
-
-var openGraphScraper = require('open-graph-scraper')
-console.time('openGraphScraper')
-openGraphScraper({url: 'http://demo.borland.com/testsite/stadyn_largepagewithimages.html'}, function (err, result) {
-  console.timeEnd('openGraphScraper')
-  // console.log(err, result)
-})
