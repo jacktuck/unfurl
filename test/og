@@ -1,0 +1,11 @@
+var requsest = 0
+var og = require('../')
+
+;(function work () {
+  og('https://crugo.com', (err, result) => {
+    console.log('err', err)
+    console.log('result', result)
+    console.log('requsest', ++requsest)
+    work()
+  })
+})()

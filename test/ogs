@@ -1,0 +1,11 @@
+var requsest = 0
+var openGraphScraper = require('open-graph-scraper')
+
+;(function work () {
+  openGraphScraper({url: 'https://crugo.com'}, function (err, result) {
+    console.log('err', err)
+    console.log('result', result)
+    console.log('requsest', ++requsest)
+    work()
+  })
+})()

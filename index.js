@@ -56,7 +56,7 @@ var tcProvider = [
   'twitter:app:url:googleplay'
 ]
 
-let fallbacks = {}
+let fallbacks = Object.create(null)
 
 var providers = _.concat(ogProvider, tcProvider)
 
@@ -67,7 +67,7 @@ module.exports = (url, callback, opts) => {
 
   callback = _.once(callback)
 
-  opts = _.defaults(opts || {}, {
+  opts = _.defaults(opts || Object.create(null), {
     twitterCard: true,
     title: true,
     metaDescription: true
@@ -75,11 +75,10 @@ module.exports = (url, callback, opts) => {
 
   console.log('opts.twitterCard', opts.twitterCard)
 
-  var o = {}
+  var o = Object.create(null)
 
   var req = request.get({
     url,
-    // gzip: true,
     headers: {
       'user-agent': 'facebookexternalhit' //Serve prerendered page for SPAs if we can.
     }
