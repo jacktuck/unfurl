@@ -1,6 +1,6 @@
 /*
 
-let og = require('og-scraper')
+var og = require('og-scraper')
 
 Usage: og({url | data},options)
 
@@ -87,14 +87,13 @@ function og (url, callback, opts) {
     twitterCard: true
   })
 
-  let o = {}
-
+  var o = {}
   parser.onerror = function (e) {
     callback(e)
   };
 
   parser.ontext = function (t) {
-    // let tag = this._parser.tagName
+    // var tag = this._parser.tagName
     // console.log('tag',tag)
   }
 
@@ -102,7 +101,7 @@ function og (url, callback, opts) {
     var name = n.name
     var attributes = n.attributes
     var ctx = (opts.twitterCard) ? providers : ogProvider
-    console.log('onopentag',name, Date.now())
+    // console.log('onopentag',name, Date.now())
 
 
     if (name !== 'meta') return
@@ -114,50 +113,55 @@ function og (url, callback, opts) {
   }
 
   parser.onclosetag = function (tag) {
-    // console.log('onclosetag',tag, Date.now())
+    // console.log('onclosetag',tag)
 
     if (tag === 'head') {
       // console.log('ALERT')
       callback(null, o)
       req.abort() //Parse as little as possible.
-
     }
   }
 
-  var req = request(url, {
+  var req = request.get({
+    url,
     headers: {
       'user-agent': 'facebookexternalhit' //Serve prerendered page for SPAs if we can.
     }
   })
 
+
+// console.log(req)
+  req.on('data',(data) => {
+    // console.log('data', data, data.byteLength * 0.001)
+    if (false === parser.write(data)) req.pause()
+    else parser.flush()
+  })
+
+  req.on('drain', () => {
+    // console.log('REQUEST DRAIN')
+    req.resume()
+  })
+
   req.on('abort',() => {
-    // console.log('aborted')
+    // console.log('REQUEST ABORT')
   })
 
   req.on('end',() => {
     // console.log('REQUEST END')
   })
 
-  req.on('data',(data) => {
-    console.log('REQUEST DATA')
-    parser.write(data)
-    parser.flush()
-  })
 }
 
 console.time('og')
-og('https://www.crugo.com', (err, result) => {
-  console.log('foo')
-  console.log(err, result)
+og('http://shoptalkshow.com/', (err, result) => {
   console.timeEnd('og')
+  // console.log(err, result)
 })
 
 
-
-//
-//
-// var openGraphScraper = require('open-graph-scraper');
-// console.time('openGraphScraper')
-// openGraphScraper({url: 'http://www.bbc.co.uk/news'}, function (err, result) {
-//   console.timeEnd('openGraphScraper')
-// });
+var openGraphScraper = require('open-graph-scraper')
+console.time('openGraphScraper')
+openGraphScraper({url: 'http://shoptalkshow.com/'}, function (err, result) {
+  console.timeEnd('openGraphScraper')
+  // console.log(err, result)
+})
