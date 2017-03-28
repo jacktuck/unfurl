@@ -104,9 +104,9 @@ let multi = [
 
 let allProviders = _.concat(ogp, twitter)
 
-let fallbacks = Object.create(null)
-
 module.exports = async function (url, opts) {
+  let fallbacks = Object.create(null)
+
   opts = _.defaults(opts || Object.create(null), {
     ogp: true,
     twitter: true,
@@ -115,8 +115,9 @@ module.exports = async function (url, opts) {
     shouldFallbackTitle: true
   })
 
-  let metadata = await scrape(url, opts)
+  let metadata = await scrape(url, opts, fallbacks)
 
+  debug('fallbacks', fallbacks)
   // if (opts.ogp || opts.twitter) {
   // }
 
@@ -133,7 +134,7 @@ function fetch (url) {
   })
 }
 
-async function scrape (url, opts) {
+async function scrape (url, opts, fallbacks) {
   return new Promise((resolve, reject) => {
     let parser = sax.parser(false, {
       lowercase: true
@@ -159,6 +160,7 @@ async function scrape (url, opts) {
       let predicate = attr.property || attr.name
 
       if (name !== 'meta') return
+      if (predicate === 'description') fallbacks.description = attr.content
       if (!_.includes(ctx, predicate)) return
 
       let prettyName = _.camelCase(predicate)
