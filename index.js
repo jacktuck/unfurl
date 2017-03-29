@@ -34,10 +34,12 @@ let ogp = [
   'og:video:secure_url',
   'og:video:width',
   'og:video:height',
-  'og:video:type'
+  'og:video:type',
+  'og:video:tag'
 ]
 
 let twitter = [
+  'twitter:url',
   'twitter:card',
   'twitter:site',
   'twitter:site:id',
@@ -78,7 +80,7 @@ let oembed = [
   'thumbnail_height'
 ]
 
-let multi = [
+let shouldZip = [
   'og:image',
   'og:image:url',
   'og:image:secure_url',
@@ -95,6 +97,7 @@ let multi = [
   'twitter:player:stream',
   'og:video',
   'og:video:url',
+  'og:video:tag',
   'og:video:secure_url',
   'og:video:width',
   'og:video:height',
@@ -105,31 +108,28 @@ let multi = [
   'og:audio:type'
 ]
 
-let allProviders = _.concat(ogp, twitter)
-
 module.exports = async function (url, opts) {
-  let fallbacks = Object.create(null)
-
   opts = _.defaults(opts || Object.create(null), {
     ogp: true,
     twitter: true,
     oembed: true,
-    shouldFallbackDescription: true,
-    shouldFallbackTitle: true
+    other: true
   })
 
-  let metadata = await scrape(url, opts, fallbacks)
-  if (metadata.oembed) {
-    let foo = (await fetch(metadata.oembed, true)).body
+  let metadata = await scrape(url, opts)
 
+  if (opts.oembed && metadata.oembed) {
+    let oembedData = await fetch(metadata.oembed, true)
 
-    console.log('FOO', foo)
+    if (_.get(oembedData, 'body')) {
+      metadata.oembed = _(JSON.parse(oembedData.body))
+        .pickBy((v, k) => _.includes(oembed, k))
+        .mapKeys((v, k) => _.camelCase(k))
+        .value()
+    } else {
+      metadata.oembed = null
+    }
   }
-
-  debug('fallbacks', fallbacks)
-  debug('metadata', metadata)
-  // if (opts.ogp || opts.twitter) {
-  // }
 
   return metadata
 }
@@ -146,13 +146,13 @@ function fetch (url, promisify = false) {
   })
 }
 
-async function scrape (url, opts, fallbacks) {
+async function scrape (url, opts) {
+  let obj = Object.create(null)
+
   return new Promise((resolve, reject) => {
     let parser = sax.parser(false, {
       lowercase: true
     })
-
-    let obj = Object.create(null)
 
     let req = fetch(url)
 
@@ -163,24 +163,39 @@ async function scrape (url, opts, fallbacks) {
     parser.ontext = function (text) {
       let tag = parser.tagName
 
-      if (opts.shouldFallbackTitle && tag === 'title') fallbacks.title = text
+      if (tag === 'title' && opts.other) {
+        (obj.other || (obj.other = {})).title = text
+      }
     }
 
     parser.onopentag = function ({ name, attributes: attr }) {
-      let ctx = (opts.twitter) ? allProviders : ogp
+      let predicate = attr.property || attr.name
+      let prettyPredicate = _.camelCase(predicate)
 
-      if (opts.oembed && attr.type === 'application/json+oembed') obj.oembed = attr.href
-      if (opts.shouldFallbackDescription && attr.property === 'description') fallbacks.description = attr.content
+      if (opts.oembed && attr.type === 'application/json+oembed') {
+        obj.oembed = attr.href
+        return
+      }
 
       if (name !== 'meta') return
 
-      let predicate = attr.property || attr.name
+      if (opts.ogp && _.includes(ogp, predicate)) {
+        (obj.ogp || (obj.ogp = {}))[prettyPredicate] = attr.content
+        return
+      }
 
-      if (!_.includes(ctx, predicate)) return
+      if (opts.twitter && _.includes(twitter, predicate)) {
+        (obj.twitter || (obj.twitter = {}))[prettyPredicate] = attr.content
+        return
+      }
 
-      let prettyName = _.camelCase(predicate)
+      // debug('Should make other property', prettyPredicate)
+      // debug('attr', attr)
 
-      obj[prettyName] = attr.content
+      if (opts.other) {
+        (obj.other || (obj.other = {}))[prettyPredicate] = attr.content
+        return
+      }
     }
 
     parser.onclosetag = function (tag) {

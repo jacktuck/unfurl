@@ -6,7 +6,7 @@ var og = require('../')
     .then(result => {
       console.log('result', result)
       console.log('requests', ++requests)
-      work()
+      // work()
     })
     .catch(err => console.log('err', err))
 })()
