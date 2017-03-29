@@ -127,7 +127,7 @@ function fetch (url, promisify = false) {
 }
 
 async function scrape (url, opts) {
-  let obj = Object.create(null)
+  let unfurled = Object.create(null)
 
   return new Promise((resolve, reject) => {
     let parser = sax.parser(false, {
@@ -144,73 +144,66 @@ async function scrape (url, opts) {
       let tag = parser.tagName
 
       if (tag === 'title' && opts.other) {
-        (obj.other || (obj.other = {})).title = text
+        (unfurled.other || (unfurled.other = {})).title = text
       }
     }
 
+    function rollup (target, name, val) {
+      let zipee
+
+      let shouldZip = _.some(zipable, function (k) {
+        let isZippable = _.startsWith(name, k)
+        if (isZippable) zipee = k
+        return isZippable
+      })
+      // debug('zipee', zipee)
+      // debug('name', name)
+
+      if (shouldZip) {
+        target = _.last((target[zipee] || (target[zipee] = [{}])))
+
+        let namePart = name.slice(zipee.length)
+
+        let prop = !namePart ? 'url' : _.camelCase(namePart)
+        target[prop] = val
+
+        return
+      }
+
+      target[name] = val
+    }
+
     parser.onopentag = function ({ name, attributes: attr }) {
-      let dest = attr.property || attr.name
-      let prettyDest = _.camelCase(dest)
+      let prop = attr.property || attr.name
 
       if (opts.oembed && attr.type === 'application/json+oembed') {
-        obj.oembed = attr.href
+        unfurled.oembed = attr.href
         return
       }
 
       if (name !== 'meta') return
 
-      // debug('dest', dest)
-      // debug('prettyDest', prettyDest)
+      if (opts.ogp && _.includes(ogp, prop)) {
+        let target = (unfurled.ogp || (unfurled.ogp = {}))
 
-      let zipee
-
-      let shouldZip = _.some(zipable, function (k) {
-        let isZippable = _.startsWith(dest, k)
-        if (isZippable) zipee = _.camelCase(k)
-        return isZippable
-      })
-      debug('zipee', zipee)
-
-      // debug('shouldZip', shouldZip)
-
-      if (opts.ogp && _.includes(ogp, dest)) {
-        let target = (obj.ogp || (obj.ogp = {})) // [prettyDest]
-        if (shouldZip) {
-          target = _.last((target[zipee] || (target[zipee] = [{}])))
-
-          let namePart = prettyDest.slice(zipee.length)
-
-          let prop = !namePart ? 'url' : _.camelCase(namePart)
-          target[prop] = attr.content
-
-          return
-        }
-
-        target[prettyDest] = attr.content
+        rollup(target, prop, attr.content)
 
         return
       }
 
-      if (opts.twitter && _.includes(twitter, dest)) {
-        let target = (obj.ogp || (obj.ogp = {})) // [prettyDest]
-        if (shouldZip) {
-          target = _.last((target[zipee] || (target[zipee] = [{}])))
+      if (opts.twitter && _.includes(twitter, prop)) {
+        let target = (unfurled.twitter || (unfurled.twitter = {})) // [prettyDest]
 
-          let namePart = prettyDest.slice(zipee.length)
-
-          let prop = !namePart ? 'url' : _.camelCase(namePart)
-          target[prop] = attr.content
-
-          return
-        }
-
-        target[prettyDest] = attr.content
+        rollup(target, prop, attr.content)
 
         return
       }
 
       if (opts.other) {
-        (obj.other || (obj.other = {}))[prettyDest] = attr.content
+        let target = (unfurled.other || (unfurled.other = {}))
+
+        rollup(target, prop, attr.content)
+
         return
       }
     }
@@ -220,8 +213,8 @@ async function scrape (url, opts) {
 
       if (tag === 'head') {
         // debug('ABORTING')
-        debug('DONE', require('util').inspect(obj, false, null))
-        resolve(obj)
+        // debug('DONE', require('util').inspect(unfurled, false, null))
+        resolve(unfurled)
         req.abort() // Parse as little as possible.
       }
     }
@@ -242,7 +235,7 @@ async function scrape (url, opts) {
 
     req.on('end', () => {
       // debug('REQUEST END')
-      resolve(obj)
+      resolve(unfurled)
     })
   })
 }
