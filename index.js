@@ -80,32 +80,12 @@ let oembed = [
   'thumbnail_height'
 ]
 
-let shouldZip = [
+let zipable = [
   'og:image',
-  'og:image:url',
-  'og:image:secure_url',
-  'og:image:width',
-  'og:image:height',
-  'og:image:type',
   'twitter:image',
-  'twitter:image:height',
-  'twitter:image:width',
-  'twitter:image:alt',
   'twitter:player',
-  'twitter:player:width',
-  'twitter:player:height',
-  'twitter:player:stream',
   'og:video',
-  'og:video:url',
-  'og:video:tag',
-  'og:video:secure_url',
-  'og:video:width',
-  'og:video:height',
-  'og:video:type',
-  'og:audio',
-  'og:audio:url',
-  'og:audio:secure_url',
-  'og:audio:type'
+  'og:audio'
 ]
 
 module.exports = async function (url, opts) {
@@ -135,7 +115,7 @@ module.exports = async function (url, opts) {
 }
 
 function fetch (url, promisify = false) {
-  debug('fetching', url)
+  // debug('fetching', url)
   let r = promisify ? promisedRequest : request
   return r.get({
     url,
@@ -169,8 +149,8 @@ async function scrape (url, opts) {
     }
 
     parser.onopentag = function ({ name, attributes: attr }) {
-      let predicate = attr.property || attr.name
-      let prettyPredicate = _.camelCase(predicate)
+      let dest = attr.property || attr.name
+      let prettyDest = _.camelCase(dest)
 
       if (opts.oembed && attr.type === 'application/json+oembed') {
         obj.oembed = attr.href
@@ -179,21 +159,58 @@ async function scrape (url, opts) {
 
       if (name !== 'meta') return
 
-      if (opts.ogp && _.includes(ogp, predicate)) {
-        (obj.ogp || (obj.ogp = {}))[prettyPredicate] = attr.content
+      // debug('dest', dest)
+      // debug('prettyDest', prettyDest)
+
+      let zipee
+
+      let shouldZip = _.some(zipable, function (k) {
+        let isZippable = _.startsWith(dest, k)
+        if (isZippable) zipee = _.camelCase(k)
+        return isZippable
+      })
+      debug('zipee', zipee)
+
+      // debug('shouldZip', shouldZip)
+
+      if (opts.ogp && _.includes(ogp, dest)) {
+        let target = (obj.ogp || (obj.ogp = {})) // [prettyDest]
+        if (shouldZip) {
+          target = (target[zipee] || (target[zipee]=[{}]))[0]
+
+          let namePart = prettyDest.slice(zipee.length)
+
+          let prop = !namePart ? 'url' : _.camelCase(namePart)
+          target[prop] = attr.content
+
+          return
+        }
+
+        target[prettyDest] = attr.content
+
         return
       }
 
-      if (opts.twitter && _.includes(twitter, predicate)) {
-        (obj.twitter || (obj.twitter = {}))[prettyPredicate] = attr.content
+      if (opts.twitter && _.includes(twitter, dest)) {
+        let target = (obj.ogp || (obj.ogp = {})) // [prettyDest]
+        if (shouldZip) {
+          target = (target[zipee] || (target[zipee]=[{}]))[0]
+
+          let namePart = prettyDest.slice(zipee.length)
+
+          let prop = !namePart ? 'url' : _.camelCase(namePart)
+          target[prop] = attr.content
+
+          return
+        }
+
+        target[prettyDest] = attr.content
+
         return
       }
-
-      // debug('Should make other property', prettyPredicate)
-      // debug('attr', attr)
 
       if (opts.other) {
-        (obj.other || (obj.other = {}))[prettyPredicate] = attr.content
+        (obj.other || (obj.other = {}))[prettyDest] = attr.content
         return
       }
     }
@@ -203,6 +220,7 @@ async function scrape (url, opts) {
 
       if (tag === 'head') {
         // debug('ABORTING')
+        debug('DONE', require('util').inspect(obj, false, null))
         resolve(obj)
         req.abort() // Parse as little as possible.
       }
