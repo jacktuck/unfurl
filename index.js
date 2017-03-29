@@ -176,7 +176,7 @@ async function scrape (url, opts) {
       if (opts.ogp && _.includes(ogp, dest)) {
         let target = (obj.ogp || (obj.ogp = {})) // [prettyDest]
         if (shouldZip) {
-          target = (target[zipee] || (target[zipee]=[{}]))[0]
+          target = _.last((target[zipee] || (target[zipee] = [{}])))
 
           let namePart = prettyDest.slice(zipee.length)
 
@@ -194,7 +194,7 @@ async function scrape (url, opts) {
       if (opts.twitter && _.includes(twitter, dest)) {
         let target = (obj.ogp || (obj.ogp = {})) // [prettyDest]
         if (shouldZip) {
-          target = (target[zipee] || (target[zipee]=[{}]))[0]
+          target = _.last((target[zipee] || (target[zipee] = [{}])))
 
           let namePart = prettyDest.slice(zipee.length)
 
