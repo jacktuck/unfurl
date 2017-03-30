@@ -2,7 +2,7 @@ var requests = 0
 var og = require('../')
 
 function work () {
-  og('https://medium.freecodecamp.com/how-you-can-land-a-6-figure-job-in-tech-with-no-connections-6eed0de26ea4')
+  og('http://127.0.0.1:8080/test/imgur')
     .then(result => {
       // console.log('result', result)
       console.log('requests', ++requests)
@@ -10,4 +10,5 @@ function work () {
     .catch(err => console.error)
 }//()
 
-setInterval(work, 100)
+// setInterval(work, 100)
+work()

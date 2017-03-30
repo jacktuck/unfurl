@@ -4,83 +4,13 @@ let _ = require('lodash')
 let request = require('request')
 let promisedRequest = pify(request)
 
-let debug = require('debug')('og')
+let debug = require('debug')('unfurled')
 
-// TODO make a proxy for these fields...
-// zip up the images / video etc
-// add option for allowing multiple of video or image or audio
+let ogp = require('./lib/ogp')
+let twitter = require('./lib/twitter')
+let oembed = require('./lib/oembed')
 
-let ogp = [
-  'og:title',
-  'og:type',
-  'og:image',
-  'og:image:url',
-  'og:image:secure_url',
-  'og:image:width',
-  'og:image:height',
-  'og:image:type',
-  'og:url',
-  'og:audio',
-  'og:audio:url',
-  'og:audio:secure_url',
-  'og:audio:type',
-  'og:description',
-  'og:determiner',
-  'og:locale',
-  'og:locale:alternate',
-  'og:site_name',
-  'og:video',
-  'og:video:url',
-  'og:video:secure_url',
-  'og:video:width',
-  'og:video:height',
-  'og:video:type',
-  'og:video:tag'
-]
-
-let twitter = [
-  'twitter:url',
-  'twitter:card',
-  'twitter:site',
-  'twitter:site:id',
-  'twitter:creator',
-  'twitter:creator:id',
-  'twitter:title',
-  'twitter:description',
-  'twitter:image',
-  'twitter:image:height',
-  'twitter:image:width',
-  'twitter:image:alt',
-  'twitter:player',
-  'twitter:player:width',
-  'twitter:player:height',
-  'twitter:player:stream',
-  'twitter:app:name:iphone',
-  'twitter:app:id:iphone',
-  'twitter:app:url:iphone',
-  'twitter:app:name:ipad',
-  'twitter:app:id:ipad',
-  'twitter:app:url:ipad',
-  'twitter:app:name:googleplay',
-  'twitter:app:id:googleplay',
-  'twitter:app:url:googleplay'
-]
-
-let oembed = [
-  'type',
-  'version',
-  'title',
-  'author_name',
-  'author_url',
-  'provider_name',
-  'provider_url',
-  'cache_age',
-  'thumbnail_url',
-  'thumbnail_width',
-  'thumbnail_height'
-]
-
-let zipable = [
+let shouldRollup = [
   'og:image',
   'twitter:image',
   'twitter:player',
@@ -115,7 +45,8 @@ module.exports = async function (url, opts) {
 }
 
 function fetch (url, promisify = false) {
-  // debug('fetching', url)
+  debug('fetch url=', url)
+
   let r = promisify ? promisedRequest : request
   return r.get({
     url,
@@ -127,6 +58,9 @@ function fetch (url, promisify = false) {
 }
 
 async function scrape (url, opts) {
+  debug('scrape url=', url)
+  debug('scrape opts=', opts)
+
   let unfurled = Object.create(null)
 
   return new Promise((resolve, reject) => {
@@ -149,32 +83,42 @@ async function scrape (url, opts) {
     }
 
     function rollup (target, name, val) {
-      let zipee
-
-      let shouldZip = _.some(zipable, function (k) {
-        let isZippable = _.startsWith(name, k)
-        if (isZippable) zipee = k
-        return isZippable
+      let rollupAs = _.find(shouldRollup, function (k) {
+        return _.startsWith(name, k)
       })
-      // debug('zipee', zipee)
+
+      // debug('rollupAs', rollupAs)
       // debug('name', name)
 
-      if (shouldZip) {
-        target = _.last((target[zipee] || (target[zipee] = [{}])))
-
-        let namePart = name.slice(zipee.length)
-
+      if (rollupAs) {
+        let namePart = name.slice(rollupAs.length)
         let prop = !namePart ? 'url' : _.camelCase(namePart)
-        target[prop] = val
+        rollupAs = _.camelCase(rollupAs)
+
+        target = (target[rollupAs] || (target[rollupAs] = [{}]))
+
+        let last = _.last(target)
+        last = (last[prop] ? (target.push({}) && _.last(target)) : last)
+
+        debug('rollup prop=', prop)
+        debug('rollup val=', val)
+
+        last[prop] = val
 
         return
       }
+
+      let prop = _.camelCase(name)
+
+      debug('rollup prop=', prop)
+      debug('rollup val=', val)
 
       target[name] = val
     }
 
     parser.onopentag = function ({ name, attributes: attr }) {
       let prop = attr.property || attr.name
+      let val = attr.content || attr.value
 
       if (opts.oembed && attr.type === 'application/json+oembed') {
         unfurled.oembed = attr.href
@@ -186,7 +130,7 @@ async function scrape (url, opts) {
       if (opts.ogp && _.includes(ogp, prop)) {
         let target = (unfurled.ogp || (unfurled.ogp = {}))
 
-        rollup(target, prop, attr.content)
+        rollup(target, prop, val)
 
         return
       }
@@ -194,7 +138,7 @@ async function scrape (url, opts) {
       if (opts.twitter && _.includes(twitter, prop)) {
         let target = (unfurled.twitter || (unfurled.twitter = {})) // [prettyDest]
 
-        rollup(target, prop, attr.content)
+        rollup(target, prop, val)
 
         return
       }
@@ -202,18 +146,16 @@ async function scrape (url, opts) {
       if (opts.other) {
         let target = (unfurled.other || (unfurled.other = {}))
 
-        rollup(target, prop, attr.content)
+        rollup(target, prop, val)
 
         return
       }
     }
 
     parser.onclosetag = function (tag) {
-      // debug('onclosetag',tag)
-
       if (tag === 'head') {
-        // debug('ABORTING')
-        // debug('DONE', require('util').inspect(unfurled, false, null))
+        debug('ABORTING')
+        debug('DONE', require('util').inspect(unfurled, false, null))
         resolve(unfurled)
         req.abort() // Parse as little as possible.
       }
@@ -225,16 +167,13 @@ async function scrape (url, opts) {
     })
 
     req.on('drain', () => {
-      // debug('REQUEST DRAIN')
       req.resume()
     })
 
     req.on('abort', () => {
-      // debug('REQUEST ABORT')
     })
 
     req.on('end', () => {
-      // debug('REQUEST END')
       resolve(unfurled)
     })
   })
