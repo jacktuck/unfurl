@@ -19,7 +19,9 @@ unfurled('http://example.com')
   .catch(console.error)
 ```
 
-Or, if you're cool ([u wot?](https://jakearchibald.com/2014/es7-async-functions/))
+Or, if you're cool ([async/await](https://jakearchibald.com/2014/es7-async-functions/))
+
+<img src="https://media.giphy.com/media/MqxZxTlvcY5BS/giphy.gif" width="350">
 
 ```
 var unfurled = require('unfurled')
