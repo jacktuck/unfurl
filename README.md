@@ -5,7 +5,7 @@
 
 ## Install
 
-`npm install unfurled`
+`yarn add unfurled`
 
 ## Usage
 
