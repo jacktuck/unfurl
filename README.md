@@ -1,5 +1,4 @@
-# Unfurled: Unfurl oEmbed, Twitter Cards and Open Graph metadata :zap:
-
+# Unfurled: Unfurl oEmbed, Twitter Cards and Open Graph metadata :sparkles:
 
 ## So, like, what does _unfurl_ even mean?
 
