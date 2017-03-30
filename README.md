@@ -1,17 +1,15 @@
 # Unfurled: Unfurl oEmbed, Twitter Cards and Open Graph metadata :sparkles:
 
-## So, like, what does _unfurl_ even mean? :art:
+## So, like, what does _unfurl_ even mean?
 >make or become spread out from a rolled or folded state, especially in order to be open to the wind.
 
-
-
-## Install It! :boom:
+## Install
 
 `npm install unfurled`
 
-## Use It! :tada:
-### unfurled(url, [opts])
+## Usage
 
+### unfurled(url, [opts])
 
 ```
 var unfurled = require('unfurled')
