@@ -2,12 +2,13 @@ var requests = 0
 var og = require('../')
 
 function work () {
+console.log('working')
   og('https://medium.freecodecamp.com/how-you-can-land-a-6-figure-job-in-tech-with-no-connections-6eed0de26ea4')
     .then(result => {
-      // console.log('result', result)
+      console.log('result', result)
       console.log('requests', ++requests)
     })
-    .catch(err => console.error)
+    .catch(err => console.error(err))
 }//()
 
-setInterval(work, 100)
+work()
