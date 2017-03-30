@@ -1,14 +1,16 @@
-# Unfurled: Unfurl oEmbed, Twitter Cards and Open Graph metadata
+# Unfurled: Unfurl oEmbed, Twitter Cards and Open Graph metadata :zap:
+
 
 ## So, like, what does _unfurl_ even mean?
 
 <img src="https://i.imgur.com/FpVpdij.png" width="700">
 
-## Install It!
+
+## Install It! :boom:
 
 `npm install unfurled`
 
-## Use It!
+## Use It! :tada:
 ### unfurled(url, [opts])
 
 
