@@ -1,4 +1,4 @@
-# Unfurled: Unfurl oEmbed, Twitter Cards and Open Graph metadata :sparkles:
+# Unfurled
 
 ## So, like, what does _unfurl_ even mean?
 >make or become spread out from a rolled or folded state, especially in order to be open to the wind.
