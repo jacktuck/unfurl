@@ -19,7 +19,7 @@ unfurled('http://example.com')
   .catch(console.error)
 ```
 
-Or, if you're cool ([async/await](https://jakearchibald.com/2014/es7-async-functions/))
+_Or if you're cool and use [ES7 async await](https://jakearchibald.com/2014/es7-async-functions/)_
 
 <img src="https://media.giphy.com/media/MqxZxTlvcY5BS/giphy.gif" width="350">
 
