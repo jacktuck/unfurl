@@ -11,6 +11,16 @@
 
 ### unfurled(url, [opts])
 
+#### opts
+* ogp _defaults to true_
+  _Should open graph metadata be returned_
+* twitter _defaults to true_
+  _Should twitter-card metadata be returned_
+* oembed _defaults to true_
+  _Should oembed metadata be returned_
+* other _defaults to true_
+  _Should all other metadata be returned e.g. description and title_
+
 ```
 var unfurled = require('unfurled')
 

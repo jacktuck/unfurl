@@ -30,6 +30,7 @@ module.exports = async function (url, opts) {
 
   if (opts.oembed && metadata.oembed) {
     let oembedData = await fetch(metadata.oembed, true)
+    // debug('oembedData=', oembedData.body)
 
     if (_.get(oembedData, 'body')) {
       metadata.oembed = _(JSON.parse(oembedData.body))
@@ -40,6 +41,7 @@ module.exports = async function (url, opts) {
       metadata.oembed = null
     }
   }
+  // debug('metadata', metadata)
 
   return metadata
 }
@@ -83,6 +85,8 @@ async function scrape (url, opts) {
     }
 
     function rollup (target, name, val) {
+      if (!name || !val) return
+
       let rollupAs = _.find(shouldRollup, function (k) {
         return _.startsWith(name, k)
       })
@@ -155,9 +159,10 @@ async function scrape (url, opts) {
     parser.onclosetag = function (tag) {
       if (tag === 'head') {
         debug('ABORTING')
-        debug('DONE', require('util').inspect(unfurled, false, null))
         resolve(unfurled)
+
         req.abort() // Parse as little as possible.
+        parser.flush(true)
       }
     }
 

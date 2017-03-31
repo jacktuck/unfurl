@@ -7,16 +7,15 @@
     "test": "test"
   },
   "dependencies": {
-    "allora": "^1.0.0",
     "debug": "^2.6.3",
     "lodash": "^4.17.4",
-    "node-expat": "^2.3.15",
-    "open-graph-scraper": "^2.4.2",
     "pify": "^2.3.0",
     "request": "^2.81.0",
-    "sax": "^1.2.2"
+    "sax": "git+https://github.com/jacktuck/sax-js.git"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "open-graph-scraper": "^2.4.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
