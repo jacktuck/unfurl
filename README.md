@@ -11,15 +11,14 @@
 
 ### unfurled(url, [opts])
 
-
-The first argument can be either a `url` string or an `options` object. The only required option is `uri`; all others are optional.
-
+#### url - `string (of url) || object` of:
 - `uri` || `url` - fully qualified uri or a parsed url object from `url.parse()`
 - `baseUrl` - fully qualified uri string used as the base url
 - `headers` - http headers (default: `{ 'user-agent': 'facebookexternalhit' }`)
 
 ---
 
+#### opts - `object` of:
 * `ogp` - get open graph metadata (`true || false`) (default: `true`)
 * `twitter` - get twitter-card metadata (`true || false`)  (default: `true`)
 * `oembed` - get oembed metadata (`true || false`) (default: `true`)
