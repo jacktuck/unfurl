@@ -20,10 +20,10 @@ The first argument can be either a `url` string or an `options` object. The only
 
 ---
 
-* `ogp` get open graph metadata (`true || false`) (default: `true`)
-* `twitter` get twitter-card metadata (`true || false`)  (default: `true`)
-* `oembed` get oembed metadata (`true || false`) (default: `true`)
-* `other` get other metadata too (e.g. description and title) (`true || false`) (default: `true`)
+* `ogp` - get open graph metadata (`true || false`) (default: `true`)
+* `twitter` - get twitter-card metadata (`true || false`)  (default: `true`)
+* `oembed` - get oembed metadata (`true || false`) (default: `true`)
+* `other` - get other metadata too (e.g. description and title) (`true || false`) (default: `true`)
 
 ```
 var unfurled = require('unfurled')
