@@ -9,7 +9,7 @@
 
 ## Usage
 
-### unfurled(url, [opts])
+### unfurled(url [,opts])
 
 #### url - `string (of url) || object` of:
 - `uri` || `url` - fully qualified uri or a parsed url object from `url.parse()`
