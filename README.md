@@ -24,7 +24,7 @@
 * `oembed` - get oembed metadata (`true || false`) (default: `true`)
 * `other` - get other metadata too (e.g. description and title) (`true || false`) (default: `true`)
 
-```
+```js
 var unfurled = require('unfurled')
 
 unfurled('http://example.com')
@@ -36,7 +36,7 @@ _Or if you're cool and use [ES7 async await](https://jakearchibald.com/2014/es7-
 
 <img src="https://media.giphy.com/media/MqxZxTlvcY5BS/giphy.gif" width="350">
 
-```
+```js
 var unfurled = require('unfurled')
 
 var result = await unfurled('http://example.com')
