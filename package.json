@@ -1,17 +1,14 @@
 {
   "name": "unfurled",
   "version": "1.0.0",
-  "description": "",
+  "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "dependencies": {
     "debug": "^2.6.3",
+    "htmlparser2": "^3.9.2",
     "lodash": "^4.17.4",
     "pify": "^2.3.0",
-    "request": "^2.81.0",
-    "sax": "git+https://github.com/jacktuck/sax-js.git"
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "open-graph-scraper": "^2.4.2"
@@ -19,7 +16,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "oembed",
+    "twitter-cards",
+    "open-graph",
+    "ogp",
+    "scraper",
+    "embed",
+    "iframe"
+  ],
+  "repository": "git://github.com/jacktuck/unfurled.git",
+  "author": "Jack Tuck",
   "license": "ISC"
 }

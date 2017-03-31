@@ -1,5 +1,5 @@
 let pify = require('pify')
-let sax = require('sax')
+let htmlparser2 = require('htmlparser2')
 let _ = require('lodash')
 let request = require('request')
 let promisedRequest = pify(request)
@@ -30,7 +30,7 @@ module.exports = async function (url, opts) {
 
   if (opts.oembed && metadata.oembed) {
     let oembedData = await fetch(metadata.oembed, true)
-    // debug('oembedData=', oembedData.body)
+    debug('oembedData=', oembedData.body)
 
     if (_.get(oembedData, 'body')) {
       metadata.oembed = _(JSON.parse(oembedData.body))
@@ -41,7 +41,7 @@ module.exports = async function (url, opts) {
       metadata.oembed = null
     }
   }
-  // debug('metadata', metadata)
+  debug('metadata', metadata)
 
   return metadata
 }
@@ -66,23 +66,13 @@ async function scrape (url, opts) {
   let unfurled = Object.create(null)
 
   return new Promise((resolve, reject) => {
-    let parser = sax.parser(false, {
-      lowercase: true
-    })
+    let parser = new htmlparser2.Parser({
+    	onopentag,
+      ontext,
+      onclosetag
+    }, {decodeEntities: true})
 
     let req = fetch(url)
-
-    parser.onerror = function (err) {
-      reject(err)
-    }
-
-    parser.ontext = function (text) {
-      let tag = parser.tagName
-
-      if (tag === 'title' && opts.other) {
-        (unfurled.other || (unfurled.other = {})).title = text
-      }
-    }
 
     function rollup (target, name, val) {
       if (!name || !val) return
@@ -90,9 +80,6 @@ async function scrape (url, opts) {
       let rollupAs = _.find(shouldRollup, function (k) {
         return _.startsWith(name, k)
       })
-
-      // debug('rollupAs', rollupAs)
-      // debug('name', name)
 
       if (rollupAs) {
         let namePart = name.slice(rollupAs.length)
@@ -120,7 +107,20 @@ async function scrape (url, opts) {
       target[name] = val
     }
 
-    parser.onopentag = function ({ name, attributes: attr }) {
+    function onerror (err) {
+      reject(err)
+    }
+
+
+    function ontext (text) {
+      let tag = parser.tagName
+
+      if (tag === 'title' && opts.other) {
+        (unfurled.other || (unfurled.other = {})).title = text
+      }
+    }
+
+    function onopentag (name, attr) {
       let prop = attr.property || attr.name
       let val = attr.content || attr.value
 
@@ -156,19 +156,18 @@ async function scrape (url, opts) {
       }
     }
 
-    parser.onclosetag = function (tag) {
+    // parser.onclosetag =
+    function onclosetag (tag) {
       if (tag === 'head') {
         debug('ABORTING')
         resolve(unfurled)
 
         req.abort() // Parse as little as possible.
-        parser.flush(true)
       }
     }
 
     req.on('data', (data) => {
-      if (parser.write(data) === false) req.pause()
-      else parser.flush()
+      parser.write(data)
     })
 
     req.on('drain', () => {
@@ -179,6 +178,7 @@ async function scrape (url, opts) {
     })
 
     req.on('end', () => {
+      parser.end()
       resolve(unfurled)
     })
   })
