@@ -48,11 +48,10 @@ module.exports = async function (url, opts) {
 
 function fetch (url, promisify = false) {
   debug('fetch url=', url)
-
   let r = promisify ? promisedRequest : request
   return r.get({
     url,
-    gzip: true,
+    // gzip: true,
     headers: {
       'user-agent': 'facebookexternalhit'
     }
@@ -104,15 +103,19 @@ async function scrape (url, opts) {
       debug('rollup prop=', prop)
       debug('rollup val=', val)
 
-      target[name] = val
+      target[prop] = val
     }
 
     function onerror (err) {
+      debug('ONERROR')
+
       reject(err)
     }
 
 
     function ontext (text) {
+      debug('ONTEXT')
+
       let tag = parser.tagName
 
       if (tag === 'title' && opts.other) {
@@ -121,6 +124,8 @@ async function scrape (url, opts) {
     }
 
     function onopentag (name, attr) {
+      debug('ONOPENTAG')
+
       let prop = attr.property || attr.name
       let val = attr.content || attr.value
 
@@ -140,7 +145,7 @@ async function scrape (url, opts) {
       }
 
       if (opts.twitter && _.includes(twitter, prop)) {
-        let target = (unfurled.twitter || (unfurled.twitter = {})) // [prettyDest]
+        let target = (unfurled.twitter || (unfurled.twitter = {}))
 
         rollup(target, prop, val)
 
@@ -160,15 +165,17 @@ async function scrape (url, opts) {
     function onclosetag (tag) {
       if (tag === 'head') {
         debug('ABORTING')
+
         resolve(unfurled)
 
         req.abort() // Parse as little as possible.
+        parser.end()
+        parser.reset()
+
       }
     }
 
-    req.on('data', (data) => {
-      parser.write(data)
-    })
+    req.on('data', (data) => parser.write(data))
 
     req.on('drain', () => {
       req.resume()
@@ -178,7 +185,8 @@ async function scrape (url, opts) {
     })
 
     req.on('end', () => {
-      parser.end()
+      debug('REQ END')
+      // parser.end()
       resolve(unfurled)
     })
   })

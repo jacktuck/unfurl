@@ -3,13 +3,12 @@ var unfurl = require('../')
 var util = require('util')
 
 function work () {
-  unfurl('https://medium.freecodecamp.com/how-you-can-land-a-6-figure-job-in-tech-with-no-connections-6eed0de26ea4')
+  unfurl('https://facebook.com')
     .then(result => {
       console.log('requests', ++requests)
-      // console.log('result', util.inspect(result, false, null))
+      console.log('result', util.inspect(result, false, null))
     })
-    .catch(err => console.error)
+    .catch(err => console.error(err))
 }
-
-setInterval(work, 100)
-// work()
+work()
+// setInterval(work, 250)

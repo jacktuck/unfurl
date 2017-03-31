@@ -4,9 +4,9 @@ var openGraphScraper = require('open-graph-scraper')
 //https://medium.freecodecamp.com/how-you-can-land-a-6-figure-job-in-tech-with-no-connections-6eed0de26ea4
 
 function work () {
-  openGraphScraper({url: 'https://medium.freecodecamp.com/how-you-can-land-a-6-figure-job-in-tech-with-no-connections-6eed0de26ea4'}, function (err, result) {
+  openGraphScraper({url: 'https://facebook.com'}, function (err, result) {
     console.log('requests', ++requests)
   })
 }
 
-setInterval(work, 100)
+setInterval(work, 250)
