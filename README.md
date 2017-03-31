@@ -11,15 +11,19 @@
 
 ### unfurled(url, [opts])
 
-#### opts
-* ogp _defaults to true_
-  _Should open graph metadata be returned_
-* twitter _defaults to true_
-  _Should twitter-card metadata be returned_
-* oembed _defaults to true_
-  _Should oembed metadata be returned_
-* other _defaults to true_
-  _Should all other metadata be returned e.g. description and title_
+
+The first argument can be either a `url` string or an `options` object. The only required option is `uri`; all others are optional.
+
+- `uri` || `url` - fully qualified uri or a parsed url object from `url.parse()`
+- `baseUrl` - fully qualified uri string used as the base url
+- `headers` - http headers (default: `{ 'user-agent': 'facebookexternalhit' }`)
+
+---
+
+* `ogp` get open graph metadata (`true || false`) (default: `true`)
+* `twitter` get twitter-card metadata (`true || false`)  (default: `true`)
+* `oembed` get oembed metadata (`true || false`) (default: `true`)
+* `other` get other metadata too (e.g. description and title) (`true || false`) (default: `true`)
 
 ```
 var unfurled = require('unfurled')
