@@ -24,6 +24,7 @@
 * `oembed` - get oembed metadata (`true || false`) (default: `true`)
 * `other` - get other metadata too (e.g. description and title) (`true || false`) (default: `true`)
 
+## Examples
 ```js
 var unfurled = require('unfurled')
 
