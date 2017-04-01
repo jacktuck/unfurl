@@ -44,7 +44,7 @@ var result = await unfurled('http://example.com')
 ```
 
 ## Response
-_Response from scraping _https://imgur.com/gallery/fhAIf_
+_Response from scraping https://imgur.com/gallery/fhAIf_
 
 ```js
 {
