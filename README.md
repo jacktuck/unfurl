@@ -1,5 +1,4 @@
 [![bitHound Overall Score](https://www.bithound.io/github/jacktuck/unfurled/badges/score.svg)](https://www.bithound.io/github/jacktuck/unfurled)
-
 [![bitHound Dependencies](https://www.bithound.io/github/jacktuck/unfurled/badges/dependencies.svg)](https://www.bithound.io/github/jacktuck/unfurled/master/dependencies/npm)
 
 
