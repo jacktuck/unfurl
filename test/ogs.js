@@ -9,4 +9,4 @@ function work () {
   })
 }
 
-setInterval(work, 250)
+// setInterval(work, 250)
