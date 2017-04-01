@@ -29,11 +29,14 @@ module.exports = async function (url, opts) {
   let metadata = await scrape(url, opts)
 
   if (opts.oembed && metadata.oembed) {
-    let oembedData = await fetch(metadata.oembed, true)
+    let oembedData = await fetch({
+      url: metadata.oembed,
+      json: true
+    }, true)
     debug('oembedData=', oembedData.body)
 
     if (_.get(oembedData, 'body')) {
-      metadata.oembed = _(JSON.parse(oembedData.body))
+      metadata.oembed = _(oembedData.body)
         .pickBy((v, k) => _.includes(oembed, k))
         .mapKeys((v, k) => _.camelCase(k))
         .value()
@@ -48,14 +51,19 @@ module.exports = async function (url, opts) {
 
 function fetch (url, promisify = false) {
   debug('fetch url=', url)
+
+  if (!_.isPlainObject(url)) url = { url }
+  debug('url', url)
+
   let r = promisify ? promisedRequest : request
-  return r.get({
-    url,
-    // gzip: true,
+
+  let params = _.merge(url, {
     headers: {
       'user-agent': 'facebookexternalhit'
     }
   })
+
+  return r.get(params)
 }
 
 async function scrape (url, opts) {
@@ -66,9 +74,11 @@ async function scrape (url, opts) {
 
   return new Promise((resolve, reject) => {
     let parser = new htmlparser2.Parser({
-    	onopentag,
+      onopentag,
       ontext,
-      onclosetag
+      onclosetag,
+      onend,
+      onerror
     }, {decodeEntities: true})
 
     let req = fetch(url)
@@ -111,7 +121,6 @@ async function scrape (url, opts) {
 
       reject(err)
     }
-
 
     function ontext (text) {
       debug('ONTEXT')
@@ -156,22 +165,15 @@ async function scrape (url, opts) {
         let target = (unfurled.other || (unfurled.other = {}))
 
         rollup(target, prop, val)
-
-        return
       }
     }
 
-    // parser.onclosetag =
     function onclosetag (tag) {
       if (tag === 'head') {
         debug('ABORTING')
 
-        resolve(unfurled)
-
         req.abort() // Parse as little as possible.
-        parser.end()
         parser.reset()
-
       }
     }
 
@@ -182,12 +184,18 @@ async function scrape (url, opts) {
     })
 
     req.on('abort', () => {
+      debug('ON ABORT')
     })
 
     req.on('end', () => {
-      debug('REQ END')
-      // parser.end()
+      debug('REQ ENDED')
+
       resolve(unfurled)
+      parser.end()
     })
+
+    function onend () {
+      debug('PARSER ENDED')
+    }
   })
 }

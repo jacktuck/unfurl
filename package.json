@@ -14,7 +14,7 @@
     "open-graph-scraper": "^2.4.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "standard --fix"
   },
   "keywords": [
     "oembed",
@@ -23,7 +23,10 @@
     "ogp",
     "scraper",
     "embed",
-    "iframe"
+    "iframe",
+    "metadata",
+    "nodejs",
+    "fast"
   ],
   "repository": "git://github.com/jacktuck/unfurled.git",
   "author": "Jack Tuck",

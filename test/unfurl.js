@@ -3,7 +3,7 @@ var unfurl = require('../')
 var util = require('util')
 
 function work () {
-  unfurl('https://facebook.com')
+  unfurl('https://imgur.com/gallery/fhAIf')
     .then(result => {
       console.log('requests', ++requests)
       console.log('result', util.inspect(result, false, null))
