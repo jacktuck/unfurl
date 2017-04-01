@@ -189,7 +189,7 @@ async function scrape (url, opts) {
 
     req.on('end', () => {
       debug('REQ ENDED')
-
+      debug('unfurled', require('util').inspect(unfurled, false, null))
       resolve(unfurled)
       parser.end()
     })
