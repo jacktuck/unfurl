@@ -40,7 +40,10 @@ _Or if you're cool and use [ES7 async await](https://jakearchibald.com/2014/es7-
 ```js
 var unfurled = require('unfurled')
 
-var result = await unfurled('http://example.com')
+;(async function () {
+  let result = await unfurl('https://imgur.com/gallery/fhAIf')
+  console.log('result', result)
+})().catch(console.error)
 ```
 
 ## Response
