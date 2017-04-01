@@ -11,7 +11,7 @@
 
 ### unfurled(url [,opts])
 
-#### url - `string of url || object of`:
+#### url - `string` of url || `object` of:
 - `uri` || `url` - fully qualified uri or a parsed url object from `url.parse()`
 - `baseUrl` - fully qualified uri string used as the base url
 - `headers` - http headers (default: `{ 'user-agent': 'facebookexternalhit' }`)
