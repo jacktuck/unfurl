@@ -48,57 +48,59 @@ _Response from scraping https://imgur.com/gallery/fhAIf_
 
 ```js
 {
- other: {
-   viewport: 'width=1138',
-   robots: 'follow, index',
-   keywords: 'images, funny, image host, image sharing, reaction gif, viral images, current events, cute, visual storytelling, gif',
-   description: 'Album with topic of No Topic, tagged with  and ; uploaded by kikiistgeil. When I log in to imgur and now I have to fight zombies',
-   copyright: 'Copyright 2017 Imgur, Inc.',
-   msapplicationTileColor: '#2cd63c',
-   msapplicationTileImage: '//s.imgur.com/images/favicon-144.png',
-   pDomainVerify: 'a1e7abe8af908cc6dfaf935dd9a20384',
-   fbAdmins: '12301369',
-   fbAppId: '127621437303857',
-   alAndroidUrl: 'imgur://imgur.com/gallery/fhAIf?from=fbreferral',
-   alAndroidAppName: 'Imgur',
-   alAndroidPackage: 'com.imgur.mobile',
-   alIosUrl: 'imgur://imgur.com/gallery/fhAIf?from=fbreferral',
-   alIosAppStoreId: '639881495',
-   alIosAppName: 'Imgur',
-   alWebUrl: 'http://imgur.com/gallery/fhAIf',
-   twitterDomain: 'imgur.com',
-   author: 'Imgur',
-   articleAuthor: 'Imgur',
-   articlePublisher: 'https://www.facebook.com/imgur'
- },
- oembed: {
-   version: '1.0',
-   type: 'rich',
-   providerName: 'Imgur',
-   providerUrl: 'https://imgur.com',
-   width: 540,
-   height: 500,
-   html: '<blockquote class="imgur-embed-pub" lang="en" data-id="a/fhAIf"><a href="http://imgur.com/a/fhAIf">When I log in to imgur and now I have to fight zombies</a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>'
- },
- ogp: {
-   ogUrl: 'http://imgur.com/gallery/fhAIf',
-   ogSiteName: 'Imgur',
-   ogTitle: 'When I log in to imgur and now I have to fight zombies',
-   ogType: 'article',
-   ogImage: [
-     [Object]
-   ],
-   ogDescription: 'Imgur: The most awesome images on the Internet.'
- },
- twitter: {
-   twitterSite: '@imgur',
-   twitterAppIdGoogleplay: 'com.imgur.mobile',
-   twitterTitle: 'When I log in to imgur and now I have to fight zombies',
-   twitterCard: 'summary_large_image',
-   twitterImage: [
-     [Object]
-   ],
-   twitterDescription: 'Imgur: The most awesome images on the Internet.'
- }
+	other: {
+		viewport: 'width=1138',
+		robots: 'follow, index',
+		keywords: 'images, funny, image host, image sharing, reaction gif, viral images, current events, cute, visual storytelling, gif',
+		description: 'Album with topic of No Topic, tagged with  and ; uploaded by kikiistgeil. When I log in to imgur and now I have to fight zombies',
+		copyright: 'Copyright 2017 Imgur, Inc.',
+		msapplicationTileColor: '#2cd63c',
+		msapplicationTileImage: '//s.imgur.com/images/favicon-144.png',
+		pDomainVerify: 'a1e7abe8af908cc6dfaf935dd9a20384',
+		fbAdmins: '12301369',
+		fbAppId: '127621437303857',
+		alAndroidUrl: 'imgur://imgur.com/gallery/fhAIf?from=fbreferral',
+		alAndroidAppName: 'Imgur',
+		alAndroidPackage: 'com.imgur.mobile',
+		alIosUrl: 'imgur://imgur.com/gallery/fhAIf?from=fbreferral',
+		alIosAppStoreId: '639881495',
+		alIosAppName: 'Imgur',
+		alWebUrl: 'http://imgur.com/gallery/fhAIf',
+		twitterDomain: 'imgur.com',
+		author: 'Imgur',
+		articleAuthor: 'Imgur',
+		articlePublisher: 'https://www.facebook.com/imgur'
+	},
+	oembed: {
+		version: '1.0',
+		type: 'rich',
+		providerName: 'Imgur',
+		providerUrl: 'https://imgur.com',
+		width: 540,
+		height: 500,
+		html: '<blockquote class="imgur-embed-pub" lang="en" data-id="a/fhAIf"><a href="http://imgur.com/a/fhAIf">When I log in to imgur and now I have to fight zombies</a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>'
+	},
+	ogp: {
+		ogUrl: 'http://imgur.com/gallery/fhAIf',
+		ogSiteName: 'Imgur',
+		ogTitle: 'When I log in to imgur and now I have to fight zombies',
+		ogType: 'article',
+		ogImage: [{
+			url: 'http://i.imgur.com/SIarU3i.jpg?fb',
+			width: '600',
+			height: '315'
+		}],
+		ogDescription: 'Imgur: The most awesome images on the Internet.'
+	},
+	twitter: {
+		twitterSite: '@imgur',
+		twitterAppIdGoogleplay: 'com.imgur.mobile',
+		twitterTitle: 'When I log in to imgur and now I have to fight zombies',
+		twitterCard: 'summary_large_image',
+		twitterImage: [{
+			url: 'https://i.imgur.com/SIarU3ih.jpg'
+		}],
+		twitterDescription: 'Imgur: The most awesome images on the Internet.'
+	}
 }
 ```
