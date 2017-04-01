@@ -66,7 +66,6 @@ async function scrape (url, opts) {
       onopentag,
       ontext,
       onclosetag,
-      onend,
       onerror
     }, {decodeEntities: true})
 
@@ -89,8 +88,6 @@ async function scrape (url, opts) {
         let last = _.last(target)
         last = (last[prop] ? (target.push({}) && _.last(target)) : last)
         last[prop] = val
-
-        return
       }
 
       let prop = _.camelCase(name)
@@ -120,27 +117,17 @@ async function scrape (url, opts) {
 
       if (name !== 'meta') return
 
+      let target
+
       if (opts.ogp && _.includes(ogp, prop)) {
-        let target = (unfurled.ogp || (unfurled.ogp = {}))
-
-        rollup(target, prop, val)
-
-        return
+        target = (unfurled.ogp || (unfurled.ogp = {}))
+      } else if (opts.twitter && _.includes(twitter, prop)) {
+        target = (unfurled.twitter || (unfurled.twitter = {}))
+      } else if (opts.other) {
+        target = (unfurled.other || (unfurled.other = {}))
       }
 
-      if (opts.twitter && _.includes(twitter, prop)) {
-        let target = (unfurled.twitter || (unfurled.twitter = {}))
-
-        rollup(target, prop, val)
-
-        return
-      }
-
-      if (opts.other) {
-        let target = (unfurled.other || (unfurled.other = {}))
-
-        rollup(target, prop, val)
-      }
+      rollup(target, prop, val)
     }
 
     function onclosetag (tag) {
