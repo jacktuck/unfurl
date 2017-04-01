@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/dc49062a0a024ac2baf4e4311ec5a599)](https://www.codacy.com/app/jacktuck/unfurled?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=jacktuck/unfurled&amp;utm_campaign=Badge_Grade)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/jacktuck/unfurled/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/jacktuck/unfurled/?branch=master)
 [![bitHound Overall Score](https://www.bithound.io/github/jacktuck/unfurled/badges/score.svg)](https://www.bithound.io/github/jacktuck/unfurled)
 [![bitHound Dependencies](https://www.bithound.io/github/jacktuck/unfurled/badges/dependencies.svg)](https://www.bithound.io/github/jacktuck/unfurled/master/dependencies/npm)
