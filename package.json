@@ -4,13 +4,13 @@
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "index.js",
   "dependencies": {
-    "debug": "^2.6.3",
     "htmlparser2": "^3.9.2",
     "lodash": "^4.17.4",
     "pify": "^2.3.0",
     "request": "^2.81.0"
   },
   "devDependencies": {
+    "debug": "^2.6.3",
     "open-graph-scraper": "^2.4.2"
   },
   "scripts": {

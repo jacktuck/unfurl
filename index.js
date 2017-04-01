@@ -3,9 +3,6 @@ let htmlparser2 = require('htmlparser2')
 let _ = require('lodash')
 let request = require('request')
 let promisedRequest = pify(request)
-
-let debug = require('debug')('unfurled')
-
 let ogp = require('./lib/ogp')
 let twitter = require('./lib/twitter')
 let oembed = require('./lib/oembed')
@@ -33,7 +30,6 @@ module.exports = async function (url, opts) {
       url: metadata.oembed,
       json: true
     }, true)
-    debug('oembedData=', oembedData.body)
 
     if (_.get(oembedData, 'body')) {
       metadata.oembed = _(oembedData.body)
@@ -44,16 +40,12 @@ module.exports = async function (url, opts) {
       metadata.oembed = null
     }
   }
-  debug('metadata', metadata)
 
   return metadata
 }
 
 function fetch (url, promisify = false) {
-  debug('fetch url=', url)
-
   if (!_.isPlainObject(url)) url = { url }
-  debug('url', url)
 
   let r = promisify ? promisedRequest : request
 
@@ -67,9 +59,6 @@ function fetch (url, promisify = false) {
 }
 
 async function scrape (url, opts) {
-  debug('scrape url=', url)
-  debug('scrape opts=', opts)
-
   let unfurled = Object.create(null)
 
   return new Promise((resolve, reject) => {
@@ -99,32 +88,20 @@ async function scrape (url, opts) {
 
         let last = _.last(target)
         last = (last[prop] ? (target.push({}) && _.last(target)) : last)
-
-        debug('rollup prop=', prop)
-        debug('rollup val=', val)
-
         last[prop] = val
 
         return
       }
 
       let prop = _.camelCase(name)
-
-      debug('rollup prop=', prop)
-      debug('rollup val=', val)
-
       target[prop] = val
     }
 
     function onerror (err) {
-      debug('ONERROR')
-
       reject(err)
     }
 
     function ontext (text) {
-      debug('ONTEXT')
-
       let tag = parser.tagName
 
       if (tag === 'title' && opts.other) {
@@ -133,8 +110,6 @@ async function scrape (url, opts) {
     }
 
     function onopentag (name, attr) {
-      debug('ONOPENTAG')
-
       let prop = attr.property || attr.name
       let val = attr.content || attr.value
 
@@ -170,8 +145,6 @@ async function scrape (url, opts) {
 
     function onclosetag (tag) {
       if (tag === 'head') {
-        debug('ABORTING')
-
         req.abort() // Parse as little as possible.
         parser.reset()
       }
@@ -183,19 +156,9 @@ async function scrape (url, opts) {
       req.resume()
     })
 
-    req.on('abort', () => {
-      debug('ON ABORT')
-    })
-
     req.on('end', () => {
-      debug('REQ ENDED')
-      debug('unfurled', require('util').inspect(unfurled, false, null))
       resolve(unfurled)
       parser.end()
     })
-
-    function onend () {
-      debug('PARSER ENDED')
-    }
   })
 }
