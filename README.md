@@ -52,8 +52,7 @@ var unfurled = require('unfurled')
 })().catch(console.error)
 ```
 
-## Response
-_Response from scraping https://imgur.com/gallery/fhAIf_
+## Response (from https://imgur.com/gallery/fhAIf)
 
 Note: Discovered metadata keys should be camelCased
 
