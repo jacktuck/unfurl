@@ -55,6 +55,8 @@ var unfurled = require('unfurled')
 ## Response
 _Response from scraping https://imgur.com/gallery/fhAIf_
 
+Note: Discovered metadata keys should be camelCased
+
 ```js
 {
 	other: {
