@@ -1,8 +1,6 @@
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/jacktuck/unfurled/badges/quality-score.png?style=flat-square)](https://scrutinizer-ci.com/g/jacktuck/unfurled/?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/dc49062a0a024ac2baf4e4311ec5a599?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurled)
-[![Code Climate](https://codeclimate.com/github/jacktuck/unfurled/badges/gpa.svg)](https://codeclimate.com/github/jacktuck/unfurled)
-[![bitHound Overall Score](https://www.bithound.io/github/jacktuck/unfurled/badges/score.svg?style=flat-square)](https://www.bithound.io/github/jacktuck/unfurled)
-[![bitHound Dependencies](https://www.bithound.io/github/jacktuck/unfurled/badges/dependencies.svg?style=flat-square)](https://www.bithound.io/github/jacktuck/unfurled/master/dependencies/npm)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurled.svg?style=flat-square)](https://scrutinizer-ci.com/g/jacktuck/unfurled/?branch=master)
+[![Codacy Badge](https://img.shields.io/codacy/grade/dc49062a0a024ac2baf4e4311ec5a599.svg?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurled)
+[![Code Climate](https://img.shields.io/codeclimate/github/jacktuck/unfurled.svg?style=flat-square)](https://codeclimate.com/github/jacktuck/unfurled)
 
 
 # Unfurled
