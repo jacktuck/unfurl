@@ -9,6 +9,10 @@
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
 
+<img width="600" src="https://cdn-images-1.medium.com/max/1600/1*QOMaDLcO8rExD0ctBV3BWg.png">
+
+[Source](https://medium.com/slack-developer-blog/everything-you-ever-wanted-to-know-about-unfurling-but-were-afraid-to-ask-or-how-to-make-your-e64b4bb9254)
+
 ## Install
 
 `yarn add unfurled`
