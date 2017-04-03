@@ -7,6 +7,8 @@ let ogp = require('./lib/ogp')
 let twitter = require('./lib/twitter')
 let oembed = require('./lib/oembed')
 
+let debug = require('debug')('unfurled')
+
 let shouldRollup = [
   'og:image',
   'twitter:image',
@@ -15,7 +17,7 @@ let shouldRollup = [
   'og:audio'
 ]
 
-module.exports = async function (url, opts) {
+async function main (url, opts) {
   opts = _.defaults(opts || Object.create(null), {
     ogp: true,
     twitter: true,
@@ -107,8 +109,15 @@ async function scrape (url, opts) {
     }
 
     function onopentag (name, attr) {
+      debug('name', name)
+      debug('attr', attr)
+
+
       let prop = attr.property || attr.name
       let val = attr.content || attr.value
+
+      debug('prop', prop)
+      debug('val', val)
 
       if (opts.oembed && attr.type === 'application/json+oembed') {
         unfurled.oembed = attr.href
@@ -137,6 +146,19 @@ async function scrape (url, opts) {
       }
     }
 
+    req.on('response', function ({ headers }) {
+      let validContentTypes = [
+        'text/html',
+        'application/xhtml+xml'
+      ]
+
+      let contentType = (headers['content-type'] || '').split(/;|;\s/)
+
+      if (_.intersection(validContentTypes, contentType).length === 0) {
+        req.abort()
+      }
+    })
+
     req.on('data', (data) => parser.write(data))
 
     req.on('drain', () => {
@@ -149,3 +171,5 @@ async function scrape (url, opts) {
     })
   })
 }
+
+module.exports = main
