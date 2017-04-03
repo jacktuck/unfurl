@@ -174,7 +174,3 @@ async function scrape (url, opts) {
 }
 
 module.exports = main
-
-main('https://www.tvnz.co.nz/one-news/sport/other/hobby-horsing-bizarre-new-craze-sweeping-scandinavia')
-  .then(r => console.log(require('util').inspect(r, false, null)))
-  .catch(console.error)
