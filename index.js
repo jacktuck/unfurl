@@ -90,6 +90,8 @@ async function scrape (url, opts) {
         let last = _.last(target)
         last = (last[prop] ? (target.push({}) && _.last(target)) : last)
         last[prop] = val
+
+        return
       }
 
       let prop = _.camelCase(name)
@@ -111,7 +113,6 @@ async function scrape (url, opts) {
     function onopentag (name, attr) {
       debug('name', name)
       debug('attr', attr)
-
 
       let prop = attr.property || attr.name
       let val = attr.content || attr.value
@@ -173,3 +174,7 @@ async function scrape (url, opts) {
 }
 
 module.exports = main
+
+main('https://www.tvnz.co.nz/one-news/sport/other/hobby-horsing-bizarre-new-craze-sweeping-scandinavia')
+  .then(r => console.log(require('util').inspect(r, false, null)))
+  .catch(console.error)
