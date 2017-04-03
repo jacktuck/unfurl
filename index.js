@@ -1,8 +1,9 @@
-let pify = require('pify')
-let htmlparser2 = require('htmlparser2')
 let _ = require('lodash')
+let pify = require('pify')
 let request = require('request')
 let promisedRequest = pify(request)
+let htmlparser2 = require('htmlparser2')
+
 let ogp = require('./lib/ogp')
 let twitter = require('./lib/twitter')
 let oembed = require('./lib/oembed')
