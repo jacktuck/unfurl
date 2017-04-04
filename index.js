@@ -111,14 +111,14 @@ async function scrape (url, opts) {
     }
 
     function onopentag (name, attr) {
-      debug('name', name)
-      debug('attr', attr)
+      // debug('name', name)
+      // debug('attr', attr)
 
       let prop = attr.property || attr.name
       let val = attr.content || attr.value
 
-      debug('prop', prop)
-      debug('val', val)
+      // debug('prop', prop)
+      // debug('val', val)
 
       if (opts.oembed && attr.type === 'application/json+oembed') {
         unfurled.oembed = attr.href
@@ -143,7 +143,6 @@ async function scrape (url, opts) {
     function onclosetag (tag) {
       if (tag === 'head') {
         req.abort() // Parse as little as possible.
-        parser.reset()
       }
     }
 
@@ -166,7 +165,14 @@ async function scrape (url, opts) {
       req.resume()
     })
 
+    req.on('abort', () => {
+      // debug('ABORTED')
+      parser.reset()
+    })
+
     req.on('end', () => {
+      // debug('ENDED')
+
       resolve(unfurled)
       parser.end()
     })
@@ -174,3 +180,7 @@ async function scrape (url, opts) {
 }
 
 module.exports = main
+
+// main('https://www.tvnz.co.nz/one-news/sport/other/hobby-horsing-bizarre-new-craze-sweeping-scandinavia')
+//   .then(r => console.log(require('util').inspect(r, false, null)))
+//   .catch(console.error)

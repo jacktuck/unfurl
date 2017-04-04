@@ -4,13 +4,13 @@
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "index.js",
   "dependencies": {
+    "debug": "^2.6.3",
     "htmlparser2": "^3.9.2",
     "lodash": "^4.17.4",
     "pify": "^2.3.0",
     "request": "^2.81.0"
   },
   "devDependencies": {
-    "debug": "^2.6.3",
     "http-server": "^0.9.0",
     "microtime": "^2.1.2",
     "open-graph-scraper": "^2.4.2",
@@ -22,14 +22,22 @@
   "keywords": [
     "oembed",
     "twitter-cards",
+    "open-graph-protocol",
     "open-graph",
     "ogp",
     "scraper",
+    "scraping",
+    "embedding",
     "embed",
     "iframe",
     "metadata",
     "nodejs",
     "fast"
+  ],
+  "files": [
+    "README.md",
+    "index.js",
+    "lib/"
   ],
   "repository": "git://github.com/jacktuck/unfurled.git",
   "author": "Jack Tuck",
