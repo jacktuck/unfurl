@@ -29,7 +29,7 @@ async function bench() {
   await delay(3000) // Wait for http server to warm up
 
   let o = file => ogs({url: file})
-  let u = file => unfurl(file)
+  let u = file => unfurl(file, { oembed: false })
 
   var [ min, mean, max, rps ] = await runner(o)
   debug('ogs')

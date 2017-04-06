@@ -27,6 +27,7 @@ async function main (url, opts) {
   })
 
   let metadata = await scrape(url, opts)
+    .then(postProcess)
 
   if (opts.oembed && metadata.oembed) {
     let oembedData = await fetch({
@@ -73,31 +74,6 @@ async function scrape (url, opts) {
     }, {decodeEntities: true})
 
     let req = fetch(url)
-
-    function rollup (target, name, val) {
-      if (!name || !val) return
-
-      let rollupAs = _.find(shouldRollup, function (k) {
-        return _.startsWith(name, k)
-      })
-
-      if (rollupAs) {
-        let namePart = name.slice(rollupAs.length)
-        let prop = !namePart ? 'url' : _.camelCase(namePart)
-        rollupAs = _.camelCase(rollupAs)
-
-        target = (target[rollupAs] || (target[rollupAs] = [{}]))
-
-        let last = _.last(target)
-        last = (last[prop] ? (target.push({}) && _.last(target)) : last)
-        last[prop] = val
-
-        return
-      }
-
-      let prop = _.camelCase(name)
-      target[prop] = val
-    }
 
     function onerror (err) {
       reject(err)
@@ -173,15 +149,54 @@ async function scrape (url, opts) {
 
     req.on('end', () => {
       // debug('ENDED')
-
       resolve(unfurled)
       parser.end()
     })
   })
 }
 
-module.exports = main
+function rollup (target, name, val) {
+  if (!name || !val) return
 
-// main('https://www.tvnz.co.nz/one-news/sport/other/hobby-horsing-bizarre-new-craze-sweeping-scandinavia')
-//   .then(r => console.log(require('util').inspect(r, false, null)))
-//   .catch(console.error)
+  let rollupAs = _.find(shouldRollup, function (k) {
+    return _.startsWith(name, k)
+  })
+
+  if (rollupAs) {
+    let namePart = name.slice(rollupAs.length)
+    let prop = !namePart ? 'url' : _.camelCase(namePart)
+    rollupAs = _.camelCase(rollupAs)
+
+    target = (target[rollupAs] || (target[rollupAs] = [{}]))
+
+    let last = _.last(target)
+    last = (last[prop] ? (target.push({}) && _.last(target)) : last)
+    last[prop] = val
+
+    return
+  }
+
+  let prop = _.camelCase(name)
+  target[prop] = val
+}
+
+function postProcess (obj) {
+  let keys = [
+    'ogp.ogImage',
+    'twitter.twitterImage',
+    'twitter.twitterPlayer',
+    'ogp.ogVideo'
+  ]
+
+  return _.each(keys, key => {
+    let val = _.get(obj, key)
+
+    if (!val) return
+
+    val = _.orderBy(val, 'width', 'asc')
+
+    return _.set(obj, key, val)
+  }) && obj
+}
+
+module.exports = main
