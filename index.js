@@ -134,6 +134,18 @@ async function scrape (url, opts) {
 
       let contentType = (headers['content-type'] || '').split(/;|;\s/)
 
+      if (contentType[0].includes('video')) {
+        (unfurled.other || (unfurled.other = {}))._type = 'video'
+      }
+
+      if (contentType[0].includes('image')) {
+        (unfurled.other || (unfurled.other = {}))._type = 'image'
+      }
+
+      if (contentType[0].includes('audio')) {
+        (unfurled.other || (unfurled.other = {}))._type = 'audio'
+      }
+
       if (_.intersection(validContentTypes, contentType).length === 0) {
         req.abort()
       }
