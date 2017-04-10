@@ -70,19 +70,22 @@ async function scrape (url, opts) {
       onopentag,
       ontext,
       onclosetag,
-      onerror
+      onerror,
+      onopentagname
     }, {decodeEntities: true})
 
     let req = fetch(url)
+
+    function onopentagname (tag) {
+      this._tagname = tag
+    }
 
     function onerror (err) {
       reject(err)
     }
 
     function ontext (text) {
-      let tag = parser.tagName
-
-      if (tag === 'title' && opts.other) {
+      if (this._tagname === 'title' && opts.other) {
         (unfurled.other || (unfurled.other = {})).title = text
       }
     }
