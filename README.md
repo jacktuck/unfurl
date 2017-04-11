@@ -2,7 +2,7 @@
 [![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurled.svg?style=flat-square)](https://scrutinizer-ci.com/g/jacktuck/unfurled/?branch=master)
 [![Codacy Badge](https://img.shields.io/codacy/grade/dc49062a0a024ac2baf4e4311ec5a599.svg?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurled)
 [![David Badge](https://img.shields.io/david/jacktuck/unfurled.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurled)
-
+![NPM](https://img.shields.io/npm/v/unfurled.svg?style=flat-square)
 
 # Unfurled
 
