@@ -77,10 +77,13 @@ async function scrape (url, opts) {
     let req = fetch(url)
 
     function onopentagname (tag) {
+      debug('setting tagname to', tag)
+
       this._tagname = tag
     }
 
     function onerror (err) {
+      debug('error', err)
       reject(err)
     }
 
@@ -91,21 +94,13 @@ async function scrape (url, opts) {
     }
 
     function onopentag (name, attr) {
-      // debug('name', name)
-      // debug('attr', attr)
-
-      let prop = attr.property || attr.name
-      let val = attr.content || attr.value
-
-      // debug('prop', prop)
-      // debug('val', val)
+      let prop = attr.property || attr.name || attr.rel
+      let val = attr.content || attr.value || attr.href
 
       if (opts.oembed && attr.type === 'application/json+oembed') {
         unfurled.oembed = attr.href
         return
       }
-
-      if (name !== 'meta') return
 
       let target
 
@@ -158,12 +153,12 @@ async function scrape (url, opts) {
     })
 
     req.on('abort', () => {
-      // debug('ABORTED')
+      debug('request aborted')
       parser.reset()
     })
 
     req.on('end', () => {
-      // debug('ENDED')
+      debug('request ended')
       resolve(unfurled)
       parser.end()
     })
