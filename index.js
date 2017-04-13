@@ -89,7 +89,8 @@ async function scrape (url, opts) {
 
     function ontext (text) {
       if (this._tagname === 'title' && opts.other) {
-        (unfurled.other || (unfurled.other = {})).title = text
+        let other = (unfurled.other || (unfurled.other = {}))
+        other.title = (other.title || '') + text
       }
     }
 
