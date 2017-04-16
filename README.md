@@ -3,6 +3,9 @@
 [![Codacy Badge](https://img.shields.io/codacy/grade/dc49062a0a024ac2baf4e4311ec5a599.svg?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurled)
 [![David Badge](https://img.shields.io/david/jacktuck/unfurled.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurled)
 ![NPM](https://img.shields.io/npm/v/unfurled.svg?style=flat-square)
+[![Downloads](https://img.shields.io/npm/dm/unfurled.svg)](http://npm-stat.com/charts.html?package=unfurled)
+[![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg)](https://github.com/jacktuck/unfurled/blob/master/code-of-conduct.md)
+
 
 # Unfurled
 
