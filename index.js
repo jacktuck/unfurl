@@ -163,6 +163,12 @@ async function scrape (url, opts) {
       resolve(unfurled)
       parser.end()
     })
+
+    req.on('error', (err) => {
+      debug('request failed', err.message)
+      reject(err)
+      parser.end()
+    })
   })
 }
 
