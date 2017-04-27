@@ -4,11 +4,9 @@ var pify = require('pify')
 var ogs = require('open-graph-scraper')
 ogs = pify(ogs)
 
-var util = require('util')
 var debug = require('debug')('bench')
 
 var glob = require('glob')
-var path = require('path')
 var microtime = require('microtime')
 var _ = require('lodash')
 
@@ -25,41 +23,40 @@ glob.sync('bench/html/*').forEach(function (file) {
 
 files = _.flatten(Array(50).fill(files))
 
-async function bench() {
+async function bench () {
   await delay(3000) // Wait for http server to warm up
 
   let o = file => ogs({url: file})
   let u = file => unfurl(file, { oembed: false })
 
-  var [ min, mean, max, rps ] = await runner(o)
+  var [ min1, mean1, max1, rp1 ] = await runner(o)
   debug('ogs')
-  debug('min', min)
-  debug('mean', mean)
-  debug('max', max)
-  debug('rps', rps)
+  debug('min', min1)
+  debug('mean', mean1)
+  debug('max', max1)
+  debug('rp', rp1)
 
-  var [ min, mean, max, rps ] = await runner(u)
+  var [ min2, mean2, max2, rps2 ] = await runner(u)
   debug('unfurl')
-  debug('min', min)
-  debug('mean', mean)
-  debug('max', max)
-  debug('rps', rps)
+  debug('min', min2)
+  debug('mean', mean2)
+  debug('max', max2)
+  debug('rps', rps2)
 }
 
 bench()
   .then(() => server.kill('SIGHUP'))
 
-
-//fn is a bound function
+// fn is a bound function
 async function runner (fn) {
   let timing = []
 
   let elapsed = microtime.now()
 
-  for (file of files) {
+  for (let file of files) {
     try {
       let sent = microtime.now()
-      await fn(file) //Disable oembed otherwise unfurl would be making another n+1 network requests
+      await fn(file) // Disable oembed otherwise unfurl would be making another n+1 network requests
       let recv = microtime.now()
       let took = recv - sent
 
@@ -79,7 +76,6 @@ async function runner (fn) {
 
   return [ min, mean, max, rps ]
 }
-
 
 function delay (ms) {
   return new Promise((resolve, reject) => {

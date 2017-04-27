@@ -3,6 +3,12 @@
   "version": "1.1.5",
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "index.js",
+  "standard": {
+    "ignore": [
+       "/test/*.js",
+       "/bench/*.js"
+    ]
+  },
   "dependencies": {
     "debug": "^2.6.3",
     "htmlparser2": "^3.9.2",
@@ -20,7 +26,8 @@
     "standard": "^9.0.2"
   },
   "scripts": {
-    "test": "standard --fix && mocha '/test/**/*.js"
+    "bench": "DEBUG=* node --harmony ./bench/index.js",
+    "test": "standard --fix; mocha ./test/**/*.js"
   },
   "keywords": [
     "oembed",
