@@ -61,7 +61,7 @@ var unfurl = require('unfurl.js')
 
 ## Response (from https://imgur.com/gallery/fhAIf)
 
-_All keys will be camelCased for you_
+_All keys will be camelCased for you_ 🐫 
 
 ```js
 {
