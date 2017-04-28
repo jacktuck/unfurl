@@ -20,20 +20,21 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "connect": "^3.6.1",
-    "coveralls": "^2.11.9",
     "http-server": "^0.9.0",
-    "istanbul": "^1.1.0-alpha.1",
-    "mocha": "^2.5.3",
-    "mocha-lcov-reporter": "^1.2.0",
+    "mocha": "^3.3.0",
     "nyc": "^10.2.0",
     "open-graph-scraper": "^2.4.2",
     "serve-static": "^1.12.2",
-    "standard": "^9.0.2"
+    "standard": "^9.0.2",
+    "coveralls": "^2.11.9",
+    "istanbul": "^0.4.3",
+    "mocha": "^2.5.3",
+    "mocha-lcov-reporter": "^1.2.0"
   },
   "scripts": {
     "bench": "DEBUG=* node --harmony ./bench/index.js",
     "test": "mocha ./test/**/*.js && nyc --reporter=html --reporter=text mocha && standard --fix",
-    "coveralls": "node --harmony ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- test/*"
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "keywords": [
     "oembed",
