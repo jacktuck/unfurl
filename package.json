@@ -56,7 +56,7 @@
     "index.js",
     "lib/"
   ],
-  "repository": "git://github.com/jacktuck/unfurled.git",
+  "repository": "git://github.com/jacktuck/unfurl.git",
   "author": "Jack Tuck",
   "license": "ISC"
 }
