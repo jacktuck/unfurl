@@ -31,7 +31,7 @@
     "standard": "^9.0.2"
   },
   "scripts": {
-    "bench": "DEBUG=* node --harmony ./bench/index.js",
+    "bench": "DEBUG=bench node --harmony ./bench/index.js",
     "test": "mocha ./test/**/*.js && nyc --reporter=html --reporter=text mocha && standard --fix",
     "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },

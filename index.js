@@ -8,7 +8,7 @@ let ogp = require('./lib/ogp')
 let twitter = require('./lib/twitter')
 let oembed = require('./lib/oembed')
 
-let debug = require('debug')('pkg')
+let debug = require('debug')('unfurl')
 
 let shouldRollup = [
   'og:image',
@@ -66,7 +66,7 @@ async function scrape (url, opts) {
   let pkg = Object.create(null)
 
   return new Promise((resolve, reject) => {
-    let parser = new htmlparser2.Parser({
+    let parserStream = new htmlparser2.WritableStream({
       onopentag,
       ontext,
       onclosetag,
@@ -77,8 +77,6 @@ async function scrape (url, opts) {
     let req = fetch(url)
 
     function onopentagname (tag) {
-      debug('setting tagname to', tag)
-
       this._tagname = tag
     }
 
@@ -147,27 +145,23 @@ async function scrape (url, opts) {
       }
     })
 
-    req.on('data', (data) => parser.write(data))
-
-    req.on('drain', () => {
-      req.resume()
-    })
+    req.pipe(parserStream)
 
     req.on('abort', () => {
       debug('request aborted')
-      parser.reset()
+      parserStream._parser.reset()
     })
 
     req.on('end', () => {
       debug('request ended')
       resolve(pkg)
-      parser.end()
+      parserStream._parser.end()
     })
 
     req.on('error', (err) => {
       debug('request failed', err.message)
       reject(err)
-      parser.end()
+      parserStream._parser.end()
     })
   })
 }
