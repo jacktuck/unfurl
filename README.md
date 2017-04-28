@@ -4,7 +4,6 @@
 [![Codacy Badge](https://img.shields.io/codacy/grade/dc49062a0a024ac2baf4e4311ec5a599.svg?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurl)
 [![David Badge](https://img.shields.io/david/jacktuck/unfurl.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurl)
 ![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
-[![Downloads](https://img.shields.io/npm/dm/unfurl.js.svg)](http://npm-stat.com/charts.html?package=unfurl.js)
 [![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
 
 
