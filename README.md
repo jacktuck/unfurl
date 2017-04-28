@@ -19,7 +19,7 @@
 
 ## Install
 
-`yarn add unfurled`
+`yarn add unfurl.js`
 
 ## Usage
 
