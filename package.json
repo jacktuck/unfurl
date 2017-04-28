@@ -1,6 +1,6 @@
 {
   "name": "unfurl.js",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "index.js",
   "standard": {
