@@ -1,11 +1,11 @@
-[![Coverage Status](https://coveralls.io/repos/github/jacktuck/unfurl.js/badge.svg?branch=master)](https://coveralls.io/github/jacktuck/unfurl.js?branch=master)
-[![Code Climate](https://img.shields.io/codeclimate/github/jacktuck/unfurl.js.svg?style=flat-square)](https://codeclimate.com/github/jacktuck/unfurl.js)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurl.js.svg?style=flat-square)](https://scrutinizer-ci.com/g/jacktuck/unfurl.js/?branch=master)
-[![Codacy Badge](https://img.shields.io/codacy/grade/dc49062a0a024ac2baf4e4311ec5a599.svg?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurl.js)
-[![David Badge](https://img.shields.io/david/jacktuck/unfurl.js.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurl.js)
+[![Coverage Status](https://coveralls.io/repos/github/jacktuck/unfurl/badge.svg?branch=master)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
+[![Code Climate](https://img.shields.io/codeclimate/github/jacktuck/unfurl.svg?style=flat-square)](https://codeclimate.com/github/jacktuck/unfurl)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurl.svg?style=flat-square)](https://scrutinizer-ci.com/g/jacktuck/unfurl/?branch=master)
+[![Codacy Badge](https://img.shields.io/codacy/grade/dc49062a0a024ac2baf4e4311ec5a599.svg?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurl)
+[![David Badge](https://img.shields.io/david/jacktuck/unfurl.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurl)
 ![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
 [![Downloads](https://img.shields.io/npm/dm/unfurl.js.svg)](http://npm-stat.com/charts.html?package=unfurl.js)
-[![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg)](https://github.com/jacktuck/unfurl.js/blob/master/code-of-conduct.md)
+[![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
 
 
 # Unfurl.js
