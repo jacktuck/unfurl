@@ -40,9 +40,9 @@
 
 ## Examples
 ```js
-var unfurled = require('unfurled')
+var unfurl = require('unfurl.js')
 
-unfurled('http://example.com')
+unfurl('http://example.com')
   .then(console.log)
   .catch(console.error)
 ```
@@ -52,7 +52,7 @@ _Or if you're cool and use [ES7 async await](https://jakearchibald.com/2014/es7-
 <img src="https://media.giphy.com/media/MqxZxTlvcY5BS/giphy.gif" width="350">
 
 ```js
-var unfurled = require('unfurled')
+var unfurl = require('unfurl.js')
 
 ;(async function () {
   let result = await unfurl('https://imgur.com/gallery/fhAIf')
