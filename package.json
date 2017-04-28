@@ -5,8 +5,8 @@
   "main": "index.js",
   "standard": {
     "ignore": [
-       "/test/*.js",
-       "/bench/*.js"
+      "/test/*.js",
+      "/bench/*.js"
     ]
   },
   "dependencies": {
@@ -19,15 +19,18 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
+    "connect": "^3.6.1",
     "http-server": "^0.9.0",
     "microtime": "^2.1.2",
     "mocha": "^3.3.0",
+    "nyc": "^10.2.0",
     "open-graph-scraper": "^2.4.2",
+    "serve-static": "^1.12.2",
     "standard": "^9.0.2"
   },
   "scripts": {
     "bench": "DEBUG=* node --harmony ./bench/index.js",
-    "test": "standard --fix; mocha ./test/**/*.js"
+    "test": "mocha ./test/**/*.js && nyc --reporter=html --reporter=text mocha && standard --fix"
   },
   "keywords": [
     "oembed",
