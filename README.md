@@ -107,7 +107,7 @@ _All keys will be camelCased for you_
       url: 'http://i.imgur.com/SIarU3i.jpg?fb',
       width: '600',
       height: '315'
-		}],
+    }],
     ogDescription: 'Imgur: The most awesome images on the Internet.'
   },
   twitter: {
@@ -117,7 +117,7 @@ _All keys will be camelCased for you_
     twitterCard: 'summary_large_image',
     twitterImage: [{
       url: 'https://i.imgur.com/SIarU3ih.jpg'
-		}],
+    }],
     twitterDescription: 'Imgur: The most awesome images on the Internet.'
   }
 }
