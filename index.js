@@ -8,7 +8,7 @@ let ogp = require('./lib/ogp')
 let twitter = require('./lib/twitter')
 let oembed = require('./lib/oembed')
 
-let debug = require('debug')('unfurled')
+let debug = require('debug')('pkg')
 
 let shouldRollup = [
   'og:image',
@@ -18,7 +18,7 @@ let shouldRollup = [
   'og:audio'
 ]
 
-async function main (url, opts) {
+async function unfurl (url, opts) {
   opts = _.defaults(opts || Object.create(null), {
     ogp: true,
     twitter: true,
@@ -63,7 +63,7 @@ function fetch (url, promisify = false) {
 }
 
 async function scrape (url, opts) {
-  let unfurled = Object.create(null)
+  let pkg = Object.create(null)
 
   return new Promise((resolve, reject) => {
     let parser = new htmlparser2.Parser({
@@ -89,7 +89,7 @@ async function scrape (url, opts) {
 
     function ontext (text) {
       if (this._tagname === 'title' && opts.other) {
-        let other = (unfurled.other || (unfurled.other = {}))
+        let other = (pkg.other || (pkg.other = {}))
         other.title = (other.title || '') + text
       }
     }
@@ -99,18 +99,18 @@ async function scrape (url, opts) {
       let val = attr.content || attr.value || attr.href
 
       if (opts.oembed && attr.type === 'application/json+oembed') {
-        unfurled.oembed = attr.href
+        pkg.oembed = attr.href
         return
       }
 
       let target
 
       if (opts.ogp && _.includes(ogp, prop)) {
-        target = (unfurled.ogp || (unfurled.ogp = {}))
+        target = (pkg.ogp || (pkg.ogp = {}))
       } else if (opts.twitter && _.includes(twitter, prop)) {
-        target = (unfurled.twitter || (unfurled.twitter = {}))
+        target = (pkg.twitter || (pkg.twitter = {}))
       } else if (opts.other) {
-        target = (unfurled.other || (unfurled.other = {}))
+        target = (pkg.other || (pkg.other = {}))
       }
 
       rollup(target, prop, val)
@@ -131,15 +131,15 @@ async function scrape (url, opts) {
       let contentType = (headers['content-type'] || '').split(/;|;\s/)
 
       if (contentType[0].includes('video')) {
-        (unfurled.other || (unfurled.other = {}))._type = 'video'
+        _.set(pkg, 'other._type', 'video')
       }
 
       if (contentType[0].includes('image')) {
-        (unfurled.other || (unfurled.other = {}))._type = 'image'
+        _.set(pkg, 'other._type', 'image')
       }
 
       if (contentType[0].includes('audio')) {
-        (unfurled.other || (unfurled.other = {}))._type = 'audio'
+        _.set(pkg, 'other._type', 'audio')
       }
 
       if (_.intersection(validContentTypes, contentType).length === 0) {
@@ -160,7 +160,7 @@ async function scrape (url, opts) {
 
     req.on('end', () => {
       debug('request ended')
-      resolve(unfurled)
+      resolve(pkg)
       parser.end()
     })
 
@@ -216,4 +216,4 @@ function postProcess (obj) {
   }) && obj
 }
 
-module.exports = main
+module.exports = unfurl
