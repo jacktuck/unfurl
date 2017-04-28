@@ -1,14 +1,14 @@
-[![Coverage Status](https://coveralls.io/repos/github/jacktuck/unfurled/badge.svg?branch=master)](https://coveralls.io/github/jacktuck/unfurled?branch=master)
-[![Code Climate](https://img.shields.io/codeclimate/github/jacktuck/unfurled.svg?style=flat-square)](https://codeclimate.com/github/jacktuck/unfurled)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurled.svg?style=flat-square)](https://scrutinizer-ci.com/g/jacktuck/unfurled/?branch=master)
-[![Codacy Badge](https://img.shields.io/codacy/grade/dc49062a0a024ac2baf4e4311ec5a599.svg?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurled)
-[![David Badge](https://img.shields.io/david/jacktuck/unfurled.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurled)
-![NPM](https://img.shields.io/npm/v/unfurled.svg?style=flat-square)
-[![Downloads](https://img.shields.io/npm/dm/unfurled.svg)](http://npm-stat.com/charts.html?package=unfurled)
-[![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg)](https://github.com/jacktuck/unfurled/blob/master/code-of-conduct.md)
+[![Coverage Status](https://coveralls.io/repos/github/jacktuck/unfurl/badge.svg?branch=master)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
+[![Code Climate](https://img.shields.io/codeclimate/github/jacktuck/unfurl.svg?style=flat-square)](https://codeclimate.com/github/jacktuck/unfurl)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurl.svg?style=flat-square)](https://scrutinizer-ci.com/g/jacktuck/unfurl/?branch=master)
+[![Codacy Badge](https://img.shields.io/codacy/grade/dc49062a0a024ac2baf4e4311ec5a599.svg?style=flat-square)](https://www.codacy.com/app/jacktuck/unfurl)
+[![David Badge](https://img.shields.io/david/jacktuck/unfurl.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurl)
+![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
+[![Downloads](https://img.shields.io/npm/dm/unfurl.js.svg)](http://npm-stat.com/charts.html?package=unfurl.js)
+[![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
 
 
-# Unfurled
+# Unfurl.js
 
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
@@ -23,7 +23,7 @@
 
 ## Usage
 
-### unfurled(url [,opts])
+### unfurl(url [,opts])
 
 #### url - `string` of url _or_ `object` of:
 - `uri` || `url` - fully qualified uri or a parsed url object from `url.parse()`
