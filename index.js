@@ -40,8 +40,6 @@ async function unfurl (url, opts) {
         .pickBy((v, k) => _.includes(oembed, k))
         .mapKeys((v, k) => _.camelCase(k))
         .value()
-    } else {
-      metadata.oembed = null
     }
   }
 
@@ -87,8 +85,7 @@ async function scrape (url, opts) {
 
     function ontext (text) {
       if (this._tagname === 'title' && opts.other) {
-        let other = (pkg.other || (pkg.other = {}))
-        other.title = (other.title || '') + text
+        _.set(pkg, 'other.title', _.get(pkg, 'other.title', '') + text)
       }
     }
 
@@ -121,27 +118,12 @@ async function scrape (url, opts) {
     }
 
     req.on('response', function ({ headers }) {
-      let validContentTypes = [
-        'text/html',
-        'application/xhtml+xml'
-      ]
+      let contentType = _.get(headers, 'content-type', '')
 
-      let contentType = (headers['content-type'] || '').split(/;|;\s/)
-
-      if (contentType[0].includes('video')) {
-        _.set(pkg, 'other._type', 'video')
-      }
-
-      if (contentType[0].includes('image')) {
-        _.set(pkg, 'other._type', 'image')
-      }
-
-      if (contentType[0].includes('audio')) {
-        _.set(pkg, 'other._type', 'audio')
-      }
-
-      if (_.intersection(validContentTypes, contentType).length === 0) {
+      // Abort if content type is not text/html or varient
+      if (!_.includes(contentType, 'html')) {
         req.abort()
+        _.set(pkg, 'other._type', contentType)
       }
     })
 
