@@ -1,11 +1,10 @@
-[![Travis CI](https://img.shields.io/travis/jacktuck/unfurl.svg)](https://travis-ci.org/jacktuck/unfurl)
-[![Coverage Status](https://coveralls.io/repos/github/jacktuck/unfurl/badge.svg?branch=master)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
-[![NSP Status](https://nodesecurity.io/orgs/jacktuck/projects/126406aa-8412-4ba1-b371-9cf7e2d707e7/badge)](https://nodesecurity.io/orgs/jacktuck/projects/126406aa-8412-4ba1-b371-9cf7e2d707e7)
-[![Known Vulnerabilities](https://snyk.io/test/github/jacktuck/unfurl/badge.svg)](https://snyk.io/test/github/jacktuck/unfurl)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurl.svg)](https://scrutinier-ci.com/g/jacktuck/unfurl/?branch=master)
-[![David Badge](https://img.shields.io/david/jacktuck/unfurl.svg)](https://david-dm.org/jacktuck/unfurl)
-![NPM](https://img.shields.io/npm/v/unfurl.js.svg)
-[![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
+[![Travis CI](https://img.shields.io/travis/jacktuck/unfurl.svg?style=flat-square)](https://travis-ci.org/jacktuck/unfurl)
+[![Coverage Status](https://img.shields.io/coveralls/jacktuck/unfurl.svg?style=flat-square)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
+[![Known Vulnerabilities](https://snyk.io/test/github/jacktuck/unfurl/badge.svg?style=flat-square)](https://snyk.io/test/github/jacktuck/unfurl)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurl.svg?style=flat-square)](https://scrutinier-ci.com/g/jacktuck/unfurl/?branch=master)
+[![David Badge](https://img.shields.io/david/jacktuck/unfurl.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurl)
+![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
+[![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg?style=flat-square)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
 
 
 # Unfurl.js
