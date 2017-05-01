@@ -17,8 +17,12 @@ let srcs = {
     expected: require('./expected/medium')
   },
   giphy: {
-    url: 'http://localhost:8080/giphy.gif', // https://medium.freecodecamp.com/the-domain-name-system-dns-is-the-backbone-of-the-internet-heres-how-it-all-works-5706d0afa0fa
+    url: 'http://localhost:8080/giphy.gif', // Forgot
     expected: require('./expected/giphy')
+  },
+  youtube: {
+    url: 'http://localhost:8080/youtube.html', // https://www.youtube.com/watch?v=ikMKJwbMQ_M
+    expected: require('./expected/youtube')
   }
 }
 
@@ -46,6 +50,11 @@ describe('input-output', function () {
   it('should resolve metadata for medium.com (post)', function () {
     return expect(unfurl(srcs.medium.url)).to.be.fulfilled.and.to.eventually.become(srcs.medium.expected)
   })
+
+  it('should resolve metadata for youtube.com (video)', function () {
+    return expect(unfurl(srcs.youtube.url)).to.be.fulfilled.and.to.eventually.become(srcs.youtube.expected)
+  })
+
 
   it('should resolve metadata for image', function () {
     return expect(unfurl(srcs.giphy.url)).to.be.fulfilled.and.to.eventually.become(srcs.giphy.expected)

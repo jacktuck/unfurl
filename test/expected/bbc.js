@@ -1,5 +1,5 @@
 module.exports = { other:
-{ title: 'TED 2017: UK \'Iron Man\' demonstrates flying suit - BBC News\n    ',
+{ title: 'TED 2017: UK \'Iron Man\' demonstrates flying suit - BBC News',
   description: 'British inventor says the project is just a bit of fun and safer than a motorbike.',
   dnsPrefetch: 'http://ichef.bbci.co.uk/',
   xCountry: 'gb',

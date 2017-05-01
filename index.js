@@ -35,12 +35,10 @@ async function unfurl (url, opts) {
       json: true
     }, true)
 
-    if (_.get(oembedData, 'body')) {
-      metadata.oembed = _(oembedData.body)
-        .pickBy((v, k) => _.includes(oembed, k))
-        .mapKeys((v, k) => _.camelCase(k))
-        .value()
-    }
+    metadata.oembed = _(_.get(oembedData, 'body'))
+      .pickBy((v, k) => _.includes(oembed, k))
+      .mapKeys((v, k) => _.camelCase(k))
+      .value()
   }
 
   return metadata
@@ -104,7 +102,7 @@ async function scrape (url, opts) {
         target = (pkg.ogp || (pkg.ogp = {}))
       } else if (opts.twitter && _.includes(twitter, prop)) {
         target = (pkg.twitter || (pkg.twitter = {}))
-      } else if (opts.other) {
+      } else {
         target = (pkg.other || (pkg.other = {}))
       }
 
@@ -112,6 +110,8 @@ async function scrape (url, opts) {
     }
 
     function onclosetag (tag) {
+      this._tagname = ''
+
       if (tag === 'head') {
         req.abort() // Parse as little as possible.
       }

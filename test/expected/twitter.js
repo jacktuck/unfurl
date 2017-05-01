@@ -3,7 +3,7 @@ module.exports =
 { stylesheet: 'https://abs.twimg.com/a/1493253067/css/t1/twitter_more_2.bundle.css',
   dnsPrefetch: 'https://t.co',
   preload: 'https://abs.twimg.com/k/en/13.pages_permalink.en.d8c581e7b5ab577274c9.js',
-  title: 'Satisfying Videos on Twitter: "https://t.co/3fe2eQypS4"\n    \n\n\n',
+  title: 'Satisfying Videos on Twitter: "https://t.co/3fe2eQypS4"',
   msapplicationTileImage: '//abs.twimg.com/favicons/win8-tile-144.png',
   msapplicationTileColor: '#00aced',
   maskIcon: 'https://abs.twimg.com/a/1493253067/img/t1/favicon.svg',
