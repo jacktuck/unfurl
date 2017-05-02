@@ -1,3 +1,5 @@
+# Unfurl.js
+
 [![Travis CI](https://img.shields.io/travis/jacktuck/unfurl.svg?style=flat-square)](https://travis-ci.org/jacktuck/unfurl)
 [![Coverage Status](https://img.shields.io/coveralls/jacktuck/unfurl.svg?style=flat-square)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/jacktuck/unfurl/badge.svg?style=flat-square)](https://snyk.io/test/github/jacktuck/unfurl)
@@ -5,11 +7,6 @@
 [![David Badge](https://img.shields.io/david/jacktuck/unfurl.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurl)
 ![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
 [![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg?style=flat-square)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
-
-
-# Unfurl.js
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/jacktuck/unfurl.svg)](https://greenkeeper.io/)
 
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
