@@ -9,6 +9,8 @@
 
 # Unfurl.js
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/jacktuck/unfurl.svg)](https://greenkeeper.io/)
+
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
 
