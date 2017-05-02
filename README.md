@@ -1,6 +1,6 @@
 # Unfurl.js
 
-[![npm package](https://nodei.co/npm/unfurl.js.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/request/)
+[![npm package](https://nodei.co/npm/unfurl.js.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/unfurl.js/)
 
 [![Travis CI](https://img.shields.io/travis/jacktuck/unfurl.svg?style=flat-square)](https://travis-ci.org/jacktuck/unfurl)
 [![Coverage Status](https://img.shields.io/coveralls/jacktuck/unfurl.svg?style=flat-square)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
