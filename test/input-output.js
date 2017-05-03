@@ -26,15 +26,12 @@ let srcs = {
   }
 }
 
-console.log('srcs', srcs)
-
 describe('input-output', function () {
   before(function (done) {
     let serveStatic = require('serve-static')
     let connect = require('connect')
 
     connect().use(serveStatic(__dirname + '/html')).listen(8080, function () {
-      console.log('Server running on 8080...')
       done()
     })
   })
