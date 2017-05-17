@@ -10,7 +10,7 @@
     ]
   },
   "dependencies": {
-    "debug": "^2.6.3",
+    "debug": "^2.6.7",
     "htmlparser2": "^3.9.2",
     "lodash": "^4.17.4",
     "pify": "^2.3.0",
