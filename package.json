@@ -17,7 +17,7 @@
     "request": "^2.81.0"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "chai": "^4.0.2",
     "chai-as-promised": "^6.0.0",
     "connect": "^3.6.1",
     "coveralls": "^2.11.9",
