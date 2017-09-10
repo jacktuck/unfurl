@@ -13,9 +13,9 @@
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
 
+## Anatomy of an unfurl
 >Unfurled previews in Slack are handy because they give everyone a glimpse of what someone linked to, letting you know if it’s helpful or not as you go about your day processing dozens of channels and reading hundreds of short messages. A preview saves lots of time throughout your day, letting you decide whether or not something is worth reading about, or better skipped over. They also help with search and your own recollection of what you’ve seen in Slack.
 
-## Anatomy of an unfurl
 <img width="400" src="https://cdn-images-1.medium.com/max/1600/1*QOMaDLcO8rExD0ctBV3BWg.png">
 
 [Image source](https://medium.com/slack-developer-blog/everything-you-ever-wanted-to-know-about-unfurling-but-were-afraid-to-ask-or-how-to-make-your-e64b4bb9254)
