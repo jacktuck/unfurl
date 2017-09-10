@@ -13,13 +13,21 @@
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
 
+>Unfurled previews in Slack are handy because they give everyone a glimpse of what someone linked to, letting you know if it’s helpful or not as you go about your day processing dozens of channels and reading hundreds of short messages. A preview saves lots of time throughout your day, letting you decide whether or not something is worth reading about, or better skipped over. They also help with search and your own recollection of what you’ve seen in Slack.
+
+## Anatomy of an unfurl
 <img width="400" src="https://cdn-images-1.medium.com/max/1600/1*QOMaDLcO8rExD0ctBV3BWg.png">
 
-[Source](https://medium.com/slack-developer-blog/everything-you-ever-wanted-to-know-about-unfurling-but-were-afraid-to-ask-or-how-to-make-your-e64b4bb9254)
+[Image source](https://medium.com/slack-developer-blog/everything-you-ever-wanted-to-know-about-unfurling-but-were-afraid-to-ask-or-how-to-make-your-e64b4bb9254)
 
 ## Install
+**Using yarn**
 
 `yarn add unfurl.js`
+
+**Using npm**
+
+`npm install unfurl.js`
 
 ## Usage
 
@@ -42,7 +50,7 @@
 ```js
 var unfurl = require('unfurl.js')
 
-unfurl('http://example.com')
+unfurl('https://github.com/zeit/micro')
   .then(console.log)
   .catch(console.error)
 ```
@@ -55,7 +63,7 @@ _Or if you're cool and use [ES7 async await](https://jakearchibald.com/2014/es7-
 var unfurl = require('unfurl.js')
 
 ;(async function () {
-  let result = await unfurl('https://imgur.com/gallery/fhAIf')
+  let result = await unfurl('https://github.com/zeit/micro')
   console.log('result', result)
 })().catch(console.error)
 ```
