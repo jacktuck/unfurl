@@ -20,7 +20,7 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^7.0.0",
     "connect": "^3.6.1",
-    "coveralls": "^2.11.9",
+    "coveralls": "^3.0.0",
     "http-server": "^0.10.0",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^3.3.0",
