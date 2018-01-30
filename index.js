@@ -1,14 +1,17 @@
-let _ = require('lodash')
-let fetch = require('node-fetch')
-let htmlparser2 = require('htmlparser2')
+const get = require('lodash.get')
+const set  = require('lodash.set')
+const camelCase = require('lodash.camelcase')
 
-let ogp = require('./lib/ogp')
-let twitter = require('./lib/twitter')
-let oembed = require('./lib/oembed')
+const fetch = require('node-fetch')
+const htmlparser2 = require('htmlparser2')
 
-let debug = require('debug')('unfurl')
+const ogp = require('./lib/ogp')
+const twitter = require('./lib/twitter')
+const oembed = require('./lib/oembed')
 
-let shouldRollup = [
+const debug = require('debug')('unfurl')
+
+const shouldRollup = [
   'og:image',
   'twitter:image',
   'twitter:player',
@@ -16,31 +19,48 @@ let shouldRollup = [
   'og:audio'
 ]
 
-async function unfurl (url, opts) {
-  opts = _.defaults(opts || Object.create(null), {
-    ogp: true,
-    twitter: true,
-    oembed: true,
-    other: true
-  })
+async function unfurl (url, init = {}) {
+  const pkgOpts = {
+    ogp: get(init, 'ogp', true),
+    twitter: get(init, 'twitter', true),
+    oembed: get(init, 'oembed', true),
+    other: get(init, 'other', true)
+  }
 
-  let metadata = await scrape(url, opts)
+  const fetchOpts = {
+    timeout: get(init, 'timeout', 2000),
+    follow: get(init, 'follow', 5),
+    compress: get(init, 'compress', true)
+  }
+
+  let metadata = await scrape(url, pkgOpts, fetchOpts)
     .then(postProcess)
 
-  if (opts.oembed && metadata.oembed) {
-    let oembedData = await fetch(metadata.oembed, { compress:true })
+  if (pkgOpts.oembed && metadata.oembed) {
+    let oembedData = await fetch(metadata.oembed, fetchOpts)
       .then(res => res.json())
 
-    metadata.oembed = _(_.get(oembedData, 'body'))
-      .pickBy((v, k) => _.includes(oembed, k))
-      .mapKeys((v, k) => _.camelCase(k))
-      .value()
+
+    const unwind = get(oembedData, 'body', oembedData)
+
+    // Even if we don't find valid oembed data we'll return an obj rather than the url string
+    metadata.oembed = {}
+
+    for (const [k, v] of Object.entries(unwind)) {
+      const camelKey = camelCase(k)
+      if (!oembed.includes(camelKey)) {
+        continue
+      }
+
+
+      metadata.oembed[camelKey] = v
+    }
   }
 
   return metadata
 }
 
-async function scrape (url, opts) {
+async function scrape (url, pkgOpts, fetchOpts) {
   let pkg = Object.create(null)
 
   return new Promise(async (resolve, reject) => {
@@ -52,12 +72,14 @@ async function scrape (url, opts) {
       onopentagname
     }, {decodeEntities: true})
 
-    let res = await fetch(url, { compress:true })
+    let res = await fetch(url, fetchOpts)
       .then(res => res.body)
 
     res.pipe(parserStream)
   
     function onopentagname (tag) {
+      debug('<' + tag + '>')
+
       this._tagname = tag
     }
 
@@ -67,8 +89,8 @@ async function scrape (url, opts) {
     }
 
     function ontext (text) {
-      if (this._tagname === 'title' && opts.other) {
-        _.set(pkg, 'other.title', _.get(pkg, 'other.title', '') + text)
+      if (this._tagname === 'title' && pkgOpts.other) {
+        set(pkg, 'other.title', get(pkg, 'other.title', '') + text)
       }
     }
 
@@ -76,16 +98,22 @@ async function scrape (url, opts) {
       let prop = attr.property || attr.name || attr.rel
       let val = attr.content || attr.value || attr.href
 
-      if (opts.oembed && attr.type === 'application/json+oembed') {
+      if (!prop) return
+
+      debug(prop + '=' + val)
+
+      if (pkgOpts.oembed && attr.type === 'application/json+oembed') {
         pkg.oembed = attr.href
         return
       }
 
+      if (!val) return
+
       let target
 
-      if (opts.ogp && _.includes(ogp, prop)) {
+      if (pkgOpts.ogp && ogp.includes(prop)) {
         target = (pkg.ogp || (pkg.ogp = {}))
-      } else if (opts.twitter && _.includes(twitter, prop)) {
+      } else if (pkgOpts.twitter && twitter.includes(prop)) {
         target = (pkg.twitter || (pkg.twitter = {}))
       } else {
         target = (pkg.other || (pkg.other = {}))
@@ -95,8 +123,10 @@ async function scrape (url, opts) {
     }
 
     function onclosetag (tag) {
+      debug('</' + tag + '>')
+
       this._tagname = ''
-      debug('tag', tag)
+  
       if (tag === 'head') {
         res.unpipe(parserStream)
         parserStream.destroy()
@@ -106,15 +136,15 @@ async function scrape (url, opts) {
     }
 
     res.on('response', function ({ headers }) {
-      let contentType = _.get(headers, 'content-type', '')
+      let contentType = get(headers, 'content-type', '')
 
       // Abort if content type is not text/html or varient
-      if (!_.includes(contentType, 'html')) {
+      if (!contentType.includes('html')) {
         res.unpipe(parserStream)
         parserStream.destroy()
         res.destroy()
         parserStream._parser.reset() // Parse as little as possible.
-        _.set(pkg, 'other._type', contentType)
+        set(pkg, 'other._type', contentType)
       }
     })
 
@@ -133,29 +163,30 @@ async function scrape (url, opts) {
 function rollup (target, name, val) {
   if (!name || !val) return
 
-  let rollupAs = _.find(shouldRollup, function (k) {
-    return _.startsWith(name, k)
+  let rollupAs = shouldRollup.find(function (k) {
+    return name.startsWith(k)
   })
 
   if (rollupAs) {
     let namePart = name.slice(rollupAs.length)
-    let prop = !namePart ? 'url' : _.camelCase(namePart)
-    rollupAs = _.camelCase(rollupAs)
+    let prop = !namePart ? 'url' : camelCase(namePart)
+    rollupAs = camelCase(rollupAs)
 
     target = (target[rollupAs] || (target[rollupAs] = [{}]))
 
-    let last = _.last(target)
-    last = (last[prop] ? (target.push({}) && _.last(target)) : last)
+    let last = target[target.length - 1]
+    last = (last[prop] ? (target.push({}) && target[target.length - 1]) : last)
     last[prop] = val
 
     return
   }
 
-  let prop = _.camelCase(name)
+  let prop = camelCase(name)
   target[prop] = val
 }
 
 function postProcess (obj) {
+
   let keys = [
     'ogp.ogImage',
     'twitter.twitterImage',
@@ -163,15 +194,16 @@ function postProcess (obj) {
     'ogp.ogVideo'
   ]
 
-  return _.each(keys, key => {
-    let val = _.get(obj, key)
+  for (const key of keys) {
+    let val = get(obj, key)
+    if (!val) continue
+    
+    val = val.sort((a, b) => a.width - b.width) // asc sort
 
-    if (!val) return
+    set(obj, key, val)
+  }
 
-    val = _.orderBy(val, 'width', 'asc')
-
-    return _.set(obj, key, val)
-  }) && obj
+  return obj
 }
 
 module.exports = unfurl
