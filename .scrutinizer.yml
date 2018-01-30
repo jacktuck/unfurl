@@ -1,0 +1,2 @@
+filter:
+    paths: ["index.js", "lib/*"]
