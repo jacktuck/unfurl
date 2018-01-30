@@ -10,15 +10,26 @@ var glob = require('glob')
 var microtime = require('microtime')
 var _ = require('lodash')
 
-var exec = require('child_process').exec
+let serve = require('serve')
 
-let server = exec('./node_modules/.bin/http-server', ['-e', 'html'])
+// const dir = __dirname + '/../test/*.html'
+// console.log('html dir', dir)
+
+server = serve(__dirname + '/../test', {
+  port: 8888
+})
+
+// let server = exec('./node_modules/.bin/http-server', ['-e', 'html'])
 
 var files = []
 
-glob.sync('bench/html/*').forEach(function (file) {
-  debug('file', file)
-  files.push('http://localhost:8080/' + file)
+console.log('cwd',  __dirname + '/../test')
+
+glob.sync('*.html', {
+  cwd: __dirname + '/../test',
+}).forEach(function (file) {
+  debug('file', file, '@', 'http://localhost:8888/' + file)
+  files.push('http://localhost:8888/' + file)
 })
 
 files = _.flatten(Array(50).fill(files))
@@ -26,15 +37,17 @@ files = _.flatten(Array(50).fill(files))
 async function bench () {
   await delay(3000) // Wait for http server to warm up
 
+  console.log('warmed...')
+
   let o = file => ogs({url: file})
   let u = file => unfurl(file, { oembed: false })
 
-  var [ min1, mean1, max1, rp1 ] = await runner(o)
-  debug('ogs')
-  debug('min', min1)
-  debug('mean', mean1)
-  debug('max', max1)
-  debug('rp', rp1)
+  // var [ min1, mean1, max1, rp1 ] = await runner(o)
+  // debug('ogs')
+  // debug('min', min1)
+  // debug('mean', mean1)
+  // debug('max', max1)
+  // debug('rp', rp1)
 
   var [ min2, mean2, max2, rps2 ] = await runner(u)
   debug('unfurl')
@@ -45,7 +58,7 @@ async function bench () {
 }
 
 bench()
-  .then(() => server.kill('SIGHUP'))
+  .then(() => server.stop('SIGHUP'))
 
 // fn is a bound function
 async function runner (fn) {
@@ -56,13 +69,13 @@ async function runner (fn) {
   for (let file of files) {
     try {
       let sent = microtime.now()
-      await fn(file) // Disable oembed otherwise unfurl would be making another n+1 network requests
+      await fn(file) // Disable oembed otherwise unfurl would be making n^2 network requests
       let recv = microtime.now()
       let took = recv - sent
 
       timing.push(took)
     } catch (err) {
-      debug(err)
+      debug('ERR', err)
     }
   }
 

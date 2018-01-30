@@ -19,7 +19,7 @@ const tests = [
 
 const srcs = Object.assign({}, ...tests.map(test => ({
   [test]: {
-    url: `http://localhost:3000/${test}.source.html`,
+    url: `http://localhost:1337/${test}.source.html`,
     expected: JSON.parse(fs.readFileSync(`${__dirname}/${test}.expected.json`).toString())
   }
 })))
@@ -29,11 +29,10 @@ describe('input-output', function () {
 
   before(function (done) {
     server = serve(__dirname, {
-      port: 3000,
-      ignore: ['node_modules']
+      port: 1337
     })
 
-    delay(1000).then(_ => done())
+    delay(1500).then(_ => done())
     
   })
 
@@ -63,12 +62,5 @@ describe('input-output', function () {
 
   it('should resolve metadata for giphy', function () {
     return expect(unfurl(srcs.giphy.url)).to.be.fulfilled.and.to.eventually.become(srcs.giphy.expected)
-  })
-
-  after(function() {
-    // app.close()
-    // done()
-    // lol
-    // process.exit()
   })
 })

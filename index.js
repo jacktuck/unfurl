@@ -1,7 +1,5 @@
 let _ = require('lodash')
-let pify = require('pify')
-let request = require('request')
-let promisedRequest = pify(request)
+let fetch = require('node-fetch')
 let htmlparser2 = require('htmlparser2')
 
 let ogp = require('./lib/ogp')
@@ -30,10 +28,8 @@ async function unfurl (url, opts) {
     .then(postProcess)
 
   if (opts.oembed && metadata.oembed) {
-    let oembedData = await fetch({
-      url: metadata.oembed,
-      json: true
-    }, true)
+    let oembedData = await fetch(metadata.oembed, { compress:true })
+      .then(res => res.json())
 
     metadata.oembed = _(_.get(oembedData, 'body'))
       .pickBy((v, k) => _.includes(oembed, k))
@@ -44,24 +40,10 @@ async function unfurl (url, opts) {
   return metadata
 }
 
-function fetch (url, promisify = false) {
-  if (!_.isPlainObject(url)) url = { url }
-
-  let r = promisify ? promisedRequest : request
-
-  let params = _.merge(url, {
-    headers: {
-      'user-agent': 'facebookexternalhit'
-    }
-  })
-
-  return r.get(params)
-}
-
 async function scrape (url, opts) {
   let pkg = Object.create(null)
 
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     let parserStream = new htmlparser2.WritableStream({
       onopentag,
       ontext,
@@ -70,8 +52,11 @@ async function scrape (url, opts) {
       onopentagname
     }, {decodeEntities: true})
 
-    let req = fetch(url)
+    let res = await fetch(url, { compress:true })
+      .then(res => res.body)
 
+    res.pipe(parserStream)
+  
     function onopentagname (tag) {
       this._tagname = tag
     }
@@ -111,39 +96,36 @@ async function scrape (url, opts) {
 
     function onclosetag (tag) {
       this._tagname = ''
-
+      debug('tag', tag)
       if (tag === 'head') {
-        req.abort() // Parse as little as possible.
+        res.unpipe(parserStream)
+        parserStream.destroy()
+        res.destroy()
+        parserStream._parser.reset() // Parse as little as possible.
       }
     }
 
-    req.on('response', function ({ headers }) {
+    res.on('response', function ({ headers }) {
       let contentType = _.get(headers, 'content-type', '')
 
       // Abort if content type is not text/html or varient
       if (!_.includes(contentType, 'html')) {
-        req.abort()
+        res.unpipe(parserStream)
+        parserStream.destroy()
+        res.destroy()
+        parserStream._parser.reset() // Parse as little as possible.
         _.set(pkg, 'other._type', contentType)
       }
     })
 
-    req.pipe(parserStream)
-
-    req.on('abort', () => {
-      debug('request aborted')
-      parserStream._parser.reset()
-    })
-
-    req.on('end', () => {
-      debug('request ended')
+    res.on('end', () => {
+      debug('parsed')
       resolve(pkg)
-      parserStream._parser.end()
     })
 
-    req.on('error', (err) => {
-      debug('request failed', err.message)
+    res.on('error', (err) => {
+      debug('parse error', err.message)
       reject(err)
-      parserStream._parser.end()
     })
   })
 }
