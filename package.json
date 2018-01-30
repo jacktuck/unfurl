@@ -1,7 +1,7 @@
 {
   "name": "unfurl.js",
   "engines": {
-    "node": ">=7.0.0"
+    "node": ">=8.0.0"
   },
   "version": "2.0.0",
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
