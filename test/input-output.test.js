@@ -19,7 +19,7 @@ const tests = [
 
 const srcs = Object.assign({}, ...tests.map(test => ({
   [test]: {
-    url: `http://localhost:1337/${test}.source.html`,
+    url: `http://localhost:8080/${test}.source.html`,
     expected: JSON.parse(fs.readFileSync(`${__dirname}/${test}.expected.json`).toString())
   }
 })))
@@ -28,11 +28,14 @@ describe('input-output', function () {
   let server 
 
   before(function (done) {
+    // travis is slow
+    this.timeout(20000)
+
     server = serve(__dirname, {
-      port: 1337
+      port: 8080
     })
 
-    delay(1500).then(_ => done())
+    delay(10000).then(_ => done())
     
   })
 
