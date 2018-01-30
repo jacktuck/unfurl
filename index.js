@@ -1,5 +1,5 @@
 const get = require('lodash.get')
-const set  = require('lodash.set')
+const set = require('lodash.set')
 const camelCase = require('lodash.camelcase')
 
 const fetch = require('node-fetch')
