@@ -32,7 +32,7 @@ glob.sync('*.html', {
   files.push('http://localhost:8888/' + file)
 })
 
-files = _.flatten(Array(50).fill(files))
+files = _.flatten(Array(10).fill(files))
 
 async function bench () {
   await delay(3000) // Wait for http server to warm up
@@ -42,12 +42,12 @@ async function bench () {
   let o = file => ogs({url: file})
   let u = file => unfurl(file, { oembed: false })
 
-  // var [ min1, mean1, max1, rp1 ] = await runner(o)
-  // debug('ogs')
-  // debug('min', min1)
-  // debug('mean', mean1)
-  // debug('max', max1)
-  // debug('rp', rp1)
+  var [ min1, mean1, max1, rp1 ] = await runner(o)
+  debug('ogs')
+  debug('min', min1)
+  debug('mean', mean1)
+  debug('max', max1)
+  debug('rp', rp1)
 
   var [ min2, mean2, max2, rps2 ] = await runner(u)
   debug('unfurl')
