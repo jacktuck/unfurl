@@ -1,6 +1,8 @@
 {
   "name": "unfurl.js",
-  "engines" : { "node" : ">=7.0.0" },
+  "engines": {
+    "node": ">=7.0.0"
+  },
   "version": "2.0.0",
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "index.js",
@@ -36,7 +38,7 @@
   },
   "scripts": {
     "bench": "DEBUG=bench node --harmony ./bench/index.js",
-    "test": "nyc --reporter=html --reporter=text mocha ./test/*.test.js",
+    "test": "mocha ./test/*.test.js",
     "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha ./test/*.test.js --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "keywords": [
