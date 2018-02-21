@@ -21,12 +21,6 @@
 [Image source](https://medium.com/slack-developer-blog/everything-you-ever-wanted-to-know-about-unfurling-but-were-afraid-to-ask-or-how-to-make-your-e64b4bb9254)
 
 ## Install
-**Using yarn**
-
-`yarn add unfurl.js`
-
-**Using npm**
-
 `npm install unfurl.js`
 
 ## Usage
@@ -75,3 +69,5 @@ curl https://unfurl.now.sh/?url=https://github.com/zeit/micro
 ```
 
 _Thanks to [micro-unfurl](https://github.com/beeman/micro-unfurl)_
+
+[![Deploy to now](https://deploy.now.sh/static/button.svg)](https://deploy.now.sh/?repo=https://github.com/beeman/micro-unfurl)
