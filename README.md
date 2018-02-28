@@ -68,4 +68,6 @@ var unfurl = require('unfurl.js')
 curl https://unfurl.now.sh/?url=https://github.com/zeit/micro
 ```
 
+<img src="https://i.imgur.com/zL5WUwB.png">
+
 Credit to [micro-unfurl](https://github.com/beeman/micro-unfurl) and [now](https://zeit.co/now)
