@@ -68,6 +68,69 @@ var unfurl = require('unfurl.js')
 curl https://unfurl.now.sh/?url=https://github.com/zeit/micro
 ```
 
-<img src="https://i.imgur.com/zL5WUwB.png">
-
 Credit to [micro-unfurl](https://github.com/beeman/micro-unfurl) and [now](https://zeit.co/now)
+
+```
+{
+  "other": {
+    "dnsPrefetch": "https://user-images.githubusercontent.com/",
+    "stylesheet": "https://assets-cdn.github.com/assets/site-92f236714908.css",
+    "viewport": "width=device-width",
+    "title": "GitHub - zeit/micro: Asynchronous HTTP microservices\n  ",
+    "search": "/opensearch.xml",
+    "fluidIcon": "https://github.com/fluidicon.png",
+    "fbAppId": "1401488693436528",
+    "assets": "https://assets-cdn.github.com/",
+    "pjaxTimeout": "1000",
+    "requestId": "A378:1E00:331A1:4C5F5:5A9736E4",
+    "selectedLink": "repo_source",
+    "googleSiteVerification": "GXs5KoUUkNCoaAZn7wPN-t01Pywp9M3sEjnt_3_ZWPc",
+    "googleAnalytics": "UA-3769691-2",
+    "octolyticsHost": "collector.githubapp.com",
+    "octolyticsAppId": "github",
+    "octolyticsEventUrl": "https://collector.githubapp.com/github-external/browser_event",
+    "octolyticsDimensionRequestId": "A378:1E00:331A1:4C5F5:5A9736E4",
+    "octolyticsDimensionRegionEdge": "sea",
+    "octolyticsDimensionRegionRender": "iad",
+    "hydroEventsUrl": "https://github.com/hydro_browser_events",
+    "analyticsLocation": "/<user-name>/<repo-name>",
+    "dimension1": "Logged Out",
+    "hostname": "github.com",
+    "expectedHostname": "github.com",
+    "jsProxySiteDetectionPayload": "NGEwNjkzNDk2NzRmZDQwYmM1MjEyY2FiOWNiMWNiMzJkOTRlMTQ2YTYyZTYyMTdiYjk4YTZjZWM4NmI1OTI4Nnx7InJlbW90ZV9hZGRyZXNzIjoiMTMuNTcuMTkzLjMyIiwicmVxdWVzdF9pZCI6IkEzNzg6MUUwMDozMzFBMTo0QzVGNTo1QTk3MzZFNCIsInRpbWVzdGFtcCI6MTUxOTg1OTQyOSwiaG9zdCI6ImdpdGh1Yi5jb20ifQ==",
+    "enabledFeatures": "UNIVERSE_BANNER,FREE_TRIALS,MARKETPLACE_INSIGHTS,MARKETPLACE_INSIGHTS_CONVERSION_PERCENTAGES",
+    "htmlSafeNonce": "8ce9f95a3b17cee0d064b33f1ecf193e7c1e17da",
+    "alternate": "https://github.com/zeit/micro/commits/master.atom",
+    "description": "Asynchronous HTTP microservices",
+    "goImport": "github.com/zeit/micro git https://github.com/zeit/micro.git",
+    "octolyticsDimensionUserId": "14985020",
+    "octolyticsDimensionUserLogin": "zeit",
+    "octolyticsDimensionRepositoryId": "50224698",
+    "octolyticsDimensionRepositoryNwo": "zeit/micro",
+    "octolyticsDimensionRepositoryPublic": "true",
+    "octolyticsDimensionRepositoryIsFork": "false",
+    "octolyticsDimensionRepositoryNetworkRootId": "50224698",
+    "octolyticsDimensionRepositoryNetworkRootNwo": "zeit/micro",
+    "octolyticsDimensionRepositoryExploreGithubMarketplaceCiCtaShown": "false",
+    "canonical": "https://github.com/zeit/micro",
+    "browserStatsUrl": "https://api.github.com/_private/browser/stats",
+    "browserErrorsUrl": "https://api.github.com/_private/browser/errors",
+    "maskIcon": "https://assets-cdn.github.com/pinned-octocat.svg",
+    "icon": "https://assets-cdn.github.com/favicon.ico",
+    "themeColor": "#1e2327",
+    "manifest": "/manifest.json"
+  },
+  "ogp": {
+    "ogImage": [
+      {
+        "url": "https://avatars3.githubusercontent.com/u/14985020?s=400&v=4"
+      }
+    ],
+    "ogSiteName": "GitHub",
+    "ogType": "object",
+    "ogTitle": "zeit/micro",
+    "ogUrl": "https://github.com/zeit/micro",
+    "ogDescription": "Asynchronous HTTP microservices"
+  }
+}
+```
