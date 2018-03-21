@@ -1,6 +1,7 @@
 # Unfurl
 
 [![npm package](https://nodei.co/npm/unfurl.js.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/unfurl.js/)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl?ref=badge_shield)
 
 [![Travis CI](https://img.shields.io/travis/jacktuck/unfurl.svg?style=flat-square)](https://travis-ci.org/jacktuck/unfurl)
 [![Coverage Status](https://img.shields.io/coveralls/jacktuck/unfurl.svg?style=flat-square)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
@@ -134,3 +135,7 @@ Credit to [micro-unfurl](https://github.com/beeman/micro-unfurl) and [now](https
   }
 }
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl?ref=badge_large)
