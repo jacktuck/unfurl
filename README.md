@@ -7,8 +7,6 @@
 [![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg?style=flat-square)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl?ref=badge_shield)
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl?ref=badge_large)
-
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
 
