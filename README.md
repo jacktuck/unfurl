@@ -1,15 +1,11 @@
 # Unfurl
 
-[![npm package](https://nodei.co/npm/unfurl.js.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/unfurl.js/)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl?ref=badge_shield)
-
 [![Travis CI](https://img.shields.io/travis/jacktuck/unfurl.svg?style=flat-square)](https://travis-ci.org/jacktuck/unfurl)
 [![Coverage Status](https://img.shields.io/coveralls/jacktuck/unfurl.svg?style=flat-square)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/jacktuck/unfurl/badge.svg?style=flat-square)](https://snyk.io/test/github/jacktuck/unfurl)
-[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/g/jacktuck/unfurl.svg?style=flat-square)](https://scrutinizer-ci.com/g/jacktuck/unfurl/?branch=master)
-[![David Badge](https://img.shields.io/david/jacktuck/unfurl.svg?style=flat-square)](https://david-dm.org/jacktuck/unfurl)
 ![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
 [![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg?style=flat-square)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl?ref=badge_shield)
 
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
