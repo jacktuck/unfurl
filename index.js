@@ -41,18 +41,20 @@ function unfurl (url, init) {
     .then(res => {
       res.body.once('error', (err) => {
         debug('got error', err.message)
-        reject(err)
+
+        process.nextTick(function () {
+          throw err
+        })
       })
 
       const contentTypeHeader = res.headers.get('Content-Type')
-      const { type: mediaType, parameters: { charset }} = contentType.parse(contentTypeHeader)
+      const { type: mediaType, parameters: { charset } } = contentType.parse(contentTypeHeader)
 
       debug('mediaType', mediaType)
       debug('charset', charset)
 
       if (mediaType !== 'text/html') {
-        reset(res, parser)
-        set(pkg, 'other._type', contentType)
+        throw new Error('content-type must be text/html')
       }
 
       const multibyteEncodings = [
@@ -105,7 +107,7 @@ function handleStream (pkgOpts) {
       onopentagname,
       onend,
       onreset,
-      onerror,
+      onerror
     }, {decodeEntities: true})
 
     const pkg = {}
