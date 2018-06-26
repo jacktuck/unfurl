@@ -1,1 +1,58 @@
-{"other":{"viewport":"width=device-width, initial-scale=1","title":"Modern Software Over-Engineering Mistakes – RDX – Medium","canonical":"https://medium.com/@rdsubhas/10-modern-software-engineering-mistakes-bc67fbef4fc8","referrer":"unsafe-url","description":"Few things are guaranteed to increase all the time: Distance between stars, Entropy in the visible universe, and Fucking business requirements . Many articles say Dont over-engineer but don’t say why…","themeColor":"#000000","fbAppId":"542599432471018","publisher":"https://plus.google.com/103654360130207659246","author":"RDX","articlePublisher":"https://www.facebook.com/medium","articleAuthor":"https://medium.com/@rdsubhas","robots":"index, follow","articlePublishedTime":"2016-07-20T23:13:57.730Z","alIosAppName":"Medium","alIosAppStoreId":"828256236","alAndroidPackage":"com.medium.reader","alAndroidAppName":"Medium","alIosUrl":"medium://p/bc67fbef4fc8","alAndroidUrl":"medium://p/bc67fbef4fc8","alWebUrl":"https://medium.com/@rdsubhas/10-modern-software-engineering-mistakes-bc67fbef4fc8","search":"/osd.xml","alternate":"android-app://com.medium.reader/https/medium.com/p/bc67fbef4fc8","icon":"data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAArdJREFUWAntVs9vEkEUfvy8EBColRuNJ3uoCVTjqf442DMVC3qwaSGxxdr6+19QT4VWjFFPBaHaoz0aKCQV2h5tUhMSTrakEmTVQCCBhJWZZJcdZsURY7gwyWTf9+Z73/uYfSGrMBsNPPRwKXvYG7fuG+jfwH+5AYVCAWizLFkDH2JxKH7/Se14IvlHzZGR0/CN+4G3VCO1vStbK2vAOeGA7XSaKrDZ7DA2dp7KSxMer1cKcVwoFOC620XlUULWQLlcBtekE5LJBFW0sHiHygkJnU4HVyfpRl7PNBwcfBFoxFPWAGJUq1WY980RZAQuj4/DqeFhKo8SqLler6fOdnd2qJyQ+K0BRCgWiwJPfKLhur2wKGJpIHf90nO5uKMBoaD9F7hcbrBYLMIxftrto2A2mYkcC2AyEAgsEVparRZuzpKvZ9rjgUjkDcFjAUwG4rEY7O19IvTQdaOhQ0tvMIDDMQHRaITgsAAmA0ho2e8n9IxGE9yYmsI5t/safNzagq9HRwSHBTAb2Nh4D9lsltD03ZoHpVIJMzMeCIdXiTNWwGyA53kIriwTulbrEDx+8hSOGY2AXlM3i9kAEl9ffwe5XI7oMzvng2hz+BqNBpFnBX9loF6vw4vnQUIbNe5m+gWRjgZUKhXmqdVqgd981yHgOE7Eic045A4PMdZoNGKeNeho4O69+1jnwcNHol6lUoHXr16KOBwKifEVp1OMpcGFi5ekkIzRV3H7Hhww8eHQanPuWuvt2hpvGRzA3JNDVr5UKvH5fJ4/cdyMc+fOjuJcq6IVcVyRP2O3UX3wF3l7c4QTic1WtSRKp1KiSPDZCh/wL4n48/6+hEmHmUxG5Ep7KrAL8lIA/dWi4WrKELuNRkBU084XMEFsA63pkhzUajUJYgu7qUHKHYeQrfW/sfoG+jfQ8xv4BcB4Zn6oEl42AAAAAElFTkSuQmCC","appleTouchIcon":"data:image/png;base64,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","maskIcon":"https://cdn-static-1.medium.com/_/fp/icons/monogram-mask.KPLCSFEZviQN0jQ7veN2RQ.svg"},"ogp":{"ogTitle":"Modern Software Over-Engineering Mistakes – RDX – Medium","ogUrl":"https://medium.com/@rdsubhas/10-modern-software-engineering-mistakes-bc67fbef4fc8","ogImage":[{"url":"https://cdn-images-1.medium.com/max/1200/1*qF9NY-utSWs7zPJ4oSs5hg.png"}],"ogDescription":"Few things are guaranteed to increase all the time: Distance between stars, Entropy in the visible universe, and Fucking business…","ogType":"article","ogSiteName":"Medium"},"twitter":{"twitterDescription":"Few things are guaranteed to increase all the time: Distance between stars, Entropy in the visible universe, and Fucking business…","twitterImage":[{"src":"https://cdn-images-1.medium.com/max/1200/1*qF9NY-utSWs7zPJ4oSs5hg.png"}],"twitterCard":"summary_large_image","twitterCreator":"@rdsubhas","twitterSite":"@Medium","twitterLabel1":"Reading time","twitterData1":"11 min read","twitterAppNameIphone":"Medium","twitterAppIdIphone":"828256236","twitterAppUrlIphone":"medium://p/bc67fbef4fc8"}}
+{
+    "other": {
+        "viewport": "width=device-width, initial-scale=1.0, viewport-fit=contain",
+        "title": "Modern Software Over-Engineering Mistakes – RDX – Medium",
+        "canonical": "https://medium.com/@rdsubhas/10-modern-software-engineering-mistakes-bc67fbef4fc8",
+        "referrer": "unsafe-url",
+        "description": "Few things are guaranteed to increase all the time: Distance between stars, Entropy in the visible universe, and Fucking business requirements . Many articles say Dont over-engineer but don’t say why…",
+        "themeColor": "#000000",
+        "fbAppId": "542599432471018",
+        "publisher": "https://plus.google.com/103654360130207659246",
+        "author": "RDX",
+        "articlePublisher": "https://www.facebook.com/medium",
+        "articleAuthor": "https://medium.com/@rdsubhas",
+        "robots": "index, follow",
+        "articlePublishedTime": "2016-07-20T23:13:57.730Z",
+        "alIosAppName": "Medium",
+        "alIosAppStoreId": "828256236",
+        "alAndroidPackage": "com.medium.reader",
+        "alAndroidAppName": "Medium",
+        "alIosUrl": "medium://p/bc67fbef4fc8",
+        "alAndroidUrl": "medium://p/bc67fbef4fc8",
+        "alWebUrl": "https://medium.com/@rdsubhas/10-modern-software-engineering-mistakes-bc67fbef4fc8",
+        "search": "/osd.xml",
+        "alternate": "android-app://com.medium.reader/https/medium.com/p/bc67fbef4fc8",
+        "stylesheet": "https://cdn-static-1.medium.com/_/fp/css/main-branding-base.Zt9sdpDz0Ks1-tgltaB0Bg.css",
+        "icon": "https://cdn-static-1.medium.com/_/fp/icons/favicon-rebrand-medium.3Y6xpZ-0FSdWDnPM3hSBIA.ico",
+        "appleTouchIcon": "https://cdn-images-1.medium.com/fit/c/120/120/1*8I-HPL0bfoIzGied-dzOvA.png",
+        "maskIcon": "https://cdn-static-1.medium.com/_/fp/icons/monogram-mask.KPLCSFEZviQN0jQ7veN2RQ.svg"
+    },
+    "ogp": {
+        "ogTitle": "Modern Software Over-Engineering Mistakes – RDX – Medium",
+        "ogUrl": "https://medium.com/@rdsubhas/10-modern-software-engineering-mistakes-bc67fbef4fc8",
+        "ogImage": [
+            {
+                "url": "https://cdn-images-1.medium.com/max/1200/1*qF9NY-utSWs7zPJ4oSs5hg.png"
+            }
+        ],
+        "ogDescription": "Few things are guaranteed to increase all the time: Distance between stars, Entropy in the visible universe, and Fucking business…",
+        "ogType": "article",
+        "ogSiteName": "Medium"
+    },
+    "twitter": {
+        "twitterDescription": "Few things are guaranteed to increase all the time: Distance between stars, Entropy in the visible universe, and Fucking business…",
+        "twitterImage": [
+            {
+                "src": "https://cdn-images-1.medium.com/max/1200/1*qF9NY-utSWs7zPJ4oSs5hg.png"
+            }
+        ],
+        "twitterCard": "summary_large_image",
+        "twitterCreator": "@rdsubhas",
+        "twitterSite": "@Medium",
+        "twitterLabel1": "Reading time",
+        "twitterData1": "11 min read",
+        "twitterAppNameIphone": "Medium",
+        "twitterAppIdIphone": "828256236",
+        "twitterAppUrlIphone": "medium://p/bc67fbef4fc8"
+    }
+}
