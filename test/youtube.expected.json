@@ -24,19 +24,19 @@
         "fbAppId": "87741124305"
     },
     "oembed": {
-        "providerName": "YouTube",
         "html": "<iframe width=\"480\" height=\"270\" src=\"https://www.youtube.com/embed/2Vv-BfVoq4g?feature=oembed\" frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen></iframe>",
-        "type": "video",
-        "thumbnailWidth": 480,
-        "providerUrl": "https://www.youtube.com/",
-        "version": "1.0",
-        "thumbnailHeight": 360,
-        "title": "Ed Sheeran - Perfect (Official Music Video)",
-        "authorName": "Ed Sheeran",
-        "height": 270,
-        "width": 480,
         "thumbnailUrl": "https://i.ytimg.com/vi/2Vv-BfVoq4g/hqdefault.jpg",
-        "authorUrl": "https://www.youtube.com/user/EdSheeran"
+        "thumbnailHeight": 360,
+        "width": 480,
+        "providerUrl": "https://www.youtube.com/",
+        "authorUrl": "https://www.youtube.com/user/EdSheeran",
+        "authorName": "Ed Sheeran",
+        "version": "1.0",
+        "title": "Ed Sheeran - Perfect (Official Music Video)",
+        "providerName": "YouTube",
+        "thumbnailWidth": 480,
+        "type": "video",
+        "height": 270
     },
     "ogp": {
         "ogSiteName": "YouTube",
