@@ -1,10 +1,9 @@
-const iconv = require('iconv-lite')
-const contentType = require('content-type')
-
 const get = require('lodash.get')
 const set = require('lodash.set')
 const camelCase = require('lodash.camelcase')
 
+const iconv = require('iconv-lite')
+const contentType = require('content-type')
 const fetch = require('node-fetch')
 const htmlparser2 = require('htmlparser2')
 
@@ -22,7 +21,9 @@ const shouldRollup = [
   'og:audio'
 ]
 
-async function unfurl (url, init = {}) {
+function unfurl (url, init) {
+  init = init || {}
+
   const pkgOpts = {
     ogp: get(init, 'ogp', true),
     twitter: get(init, 'twitter', true),
@@ -36,82 +37,99 @@ async function unfurl (url, init = {}) {
     compress: get(init, 'compress', true)
   }
 
-  let metadata = await scrape(url, pkgOpts, fetchOpts)
-    .then(postProcess)
+  return fetch(url, fetchOpts)
+    .then(res => {
+      res.body.once('error', (err) => {
+        debug('got error', err.message)
+        reject(err)
+      })
 
-  if (pkgOpts.oembed && metadata.oembed) {
-    let oembedData = await fetch(metadata.oembed, fetchOpts)
-      .then(res => res.json())
+      const contentTypeHeader = res.headers.get('Content-Type')
+      const { type: mediaType, parameters: { charset }} = contentType.parse(contentTypeHeader)
 
+      debug('mediaType', mediaType)
+      debug('charset', charset)
 
-    const unwind = get(oembedData, 'body', oembedData)
-
-    // Even if we don't find valid oembed data we'll return an obj rather than the url string
-    metadata.oembed = {}
-
-    for (const [k, v] of Object.entries(unwind)) {
-      const camelKey = camelCase(k)
-      if (!oembed.includes(camelKey)) {
-        continue
+      if (mediaType !== 'text/html') {
+        reset(res, parser)
+        set(pkg, 'other._type', contentType)
       }
 
+      const multibyteEncodings = [
+        'CP932',
+        'CP936',
+        'CP949',
+        'CP950',
+        'GB2312',
+        'GBK',
+        'GB18030',
+        'Big5',
+        'Shift_JIS',
+        'EUC-JP'
+      ]
 
-      metadata.oembed[camelKey] = v
-    }
-  }
+      if (multibyteEncodings.includes(charset)) {
+        debug('converting multibyte encoding')
 
-  return metadata
+        res.body = res.body
+          .pipe(iconv.decodeStream(charset))
+          .pipe(iconv.encodeStream('utf-8'))
+      }
+
+      return res
+    })
+    .then(handleStream(pkgOpts))
+    .then(postProcess(pkgOpts))
 }
 
-async function scrape (url, pkgOpts, fetchOpts) {
-  let pkg = Object.create(null)
+function reset (res, parser) {
+  debug('got reset')
 
-  return new Promise(async (resolve, reject) => {
-    let parserStream = new htmlparser2.WritableStream({
+  parser.end()
+  parser.reset() // Parse as little as possible.
+
+  res.body.unpipe(parser)
+  res.body.resume()
+
+  if (typeof res.body.destroy === 'function') {
+    res.body.destroy()
+  }
+}
+
+function handleStream (pkgOpts) {
+  return res => new Promise((resolve, reject) => {
+    const parser = new htmlparser2.Parser({
       onopentag,
       ontext,
       onclosetag,
+      onopentagname,
+      onend,
+      onreset,
       onerror,
-      onopentagname
-    }, {
-      decodeEntities: true
-    })
+    }, {decodeEntities: true})
 
-    let res = await fetch(url, fetchOpts)
+    const pkg = {}
+    res.body.pipe(parser)
 
-    const { type: mediaType, parameters: { charset }} = contentType.parse(res.headers.get('Content-Type'))
-
-    if (mediaType !== 'text/html') {
-      return reject(new Error('Wrong media-type, must be text/html'))
+    function onend () {
+      debug('got parse end')
+      resolve(pkg)
     }
 
-    debug('mediaType', mediaType)
-    debug('charset', charset)
-
-    res.body.on('end', () => {
-      debug('parsed')
+    function onreset () {
+      debug('got parse reset')
       resolve(pkg)
-    })
-
-    res.body.on('error', (err) => {
-      debug('parse error', err.message)
-      reject(err)
-    })
-
-    res.body
-      .pipe(iconv.decodeStream(charset))
-      .pipe(iconv.encodeStream('utf-8'))
-      .pipe(parserStream)
-
-    function onopentagname (tag) {
-      // debug('<' + tag + '>')
-
-      this._tagname = tag
     }
 
     function onerror (err) {
-      debug('error', err)
+      debug('got parse error')
       reject(err)
+    }
+
+    function onopentagname (tag) {
+      debug('got open tag', tag)
+
+      this._tagname = tag
     }
 
     function ontext (text) {
@@ -121,12 +139,10 @@ async function scrape (url, pkgOpts, fetchOpts) {
     }
 
     function onopentag (name, attr) {
-      let prop = attr.property || attr.name || attr.rel
-      let val = attr.content || attr.value || attr.href
+      const prop = attr.property || attr.name || attr.rel
+      const val = attr.content || attr.value || attr.href
 
       if (!prop) return
-
-      // debug(prop + '=' + val)
 
       if (pkgOpts.oembed && attr.type === 'application/json+oembed') {
         pkg.oembed = attr.href
@@ -143,28 +159,19 @@ async function scrape (url, pkgOpts, fetchOpts) {
         target = (pkg.twitter || (pkg.twitter = {}))
       } else {
         target = (pkg.other || (pkg.other = {}))
-
-
-
-
-
-
       }
 
       rollup(target, prop, val)
     }
 
     function onclosetag (tag) {
-      // debug('</' + tag + '>')
+      debug('got close tag', tag)
 
       this._tagname = ''
 
-      // if (tag === 'head') {
-      //   res.unpipe(parserStream)
-      //   parserStream.destroy()
-      //   res.destroy()
-      //   parserStream._parser.reset() // Parse as little as possible.
-      // }
+      if (tag === 'head') {
+        reset(res, parser)
+      }
     }
   })
 }
@@ -180,7 +187,6 @@ function rollup (target, name, val) {
     let namePart = name.slice(rollupAs.length)
     let prop = !namePart ? 'url' : camelCase(namePart)
     rollupAs = camelCase(rollupAs)
-
     target = (target[rollupAs] || (target[rollupAs] = [{}]))
 
     let last = target[target.length - 1]
@@ -190,28 +196,46 @@ function rollup (target, name, val) {
     return
   }
 
-  let prop = camelCase(name)
+  const prop = camelCase(name)
   target[prop] = val
 }
 
-function postProcess (obj) {
-  let keys = [
-    'ogp.ogImage',
-    'twitter.twitterImage',
-    'twitter.twitterPlayer',
-    'ogp.ogVideo'
-  ]
+function postProcess (pkgOpts) {
+  return function (pkg) {
+    const keys = [
+      'ogp.ogImage',
+      'twitter.twitterImage',
+      'twitter.twitterPlayer',
+      'ogp.ogVideo'
+    ]
 
-  for (const key of keys) {
-    let val = get(obj, key)
-    if (!val) continue
-    
-    val = val.sort((a, b) => a.width - b.width) // asc sort
+    for (const key of keys) {
+      let val = get(pkg, key)
+      if (!val) continue
 
-    set(obj, key, val)
+      val = val.sort((a, b) => a.width - b.width) // asc sort
+
+      set(pkg, key, val)
+    }
+
+    if (pkgOpts.oembed && pkg.oembed) {
+      return fetch(pkg.oembed)
+        .then(res => res.json())
+        .then(oembedData => {
+          const unwind = get(oembedData, 'body', oembedData, {})
+
+          pkg.oembed = Object.entries(unwind)
+            .filter(([key]) => oembed.includes(key))
+            .reduce((obj, [key, value]) => Object.assign(obj, {
+              [camelCase(key)]: value
+            }), {})
+
+          return pkg
+        })
+    }
+
+    return pkg
   }
-
-  return obj
 }
 
 module.exports = unfurl
