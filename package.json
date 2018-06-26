@@ -23,11 +23,11 @@
     "node-fetch": "^1.7.3"
   },
   "devDependencies": {
-    "pify": "^2.3.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^7.0.0",
     "coveralls": "^3.0.0",
     "delay": "^2.0.0",
+    "finalhandler": "^1.1.1",
     "inliner": "^1.13.1",
     "istanbul": "^1.1.0-alpha.1",
     "microtime": "^2.1.7",
@@ -35,7 +35,9 @@
     "mocha-lcov-reporter": "^1.2.0",
     "nyc": "^11.0.1",
     "open-graph-scraper": "^3.0.0",
+    "pify": "^2.3.0",
     "serve": "^6.4.9",
+    "serve-static": "^1.13.2",
     "standard": "^10.0.2"
   },
   "scripts": {
