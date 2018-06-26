@@ -1,3 +1,6 @@
+const iconv = require('iconv-lite')
+const contentType = require('content-type')
+
 const get = require('lodash.get')
 const set = require('lodash.set')
 const camelCase = require('lodash.camelcase')
@@ -70,15 +73,38 @@ async function scrape (url, pkgOpts, fetchOpts) {
       onclosetag,
       onerror,
       onopentagname
-    }, {decodeEntities: true})
+    }, {
+      decodeEntities: true
+    })
 
     let res = await fetch(url, fetchOpts)
-      .then(res => res.body)
 
-    res.pipe(parserStream)
-  
+    const { type: mediaType, parameters: { charset }} = contentType.parse(res.headers.get('Content-Type'))
+
+    if (mediaType !== 'text/html') {
+      return reject(new Error('Wrong media-type, must be text/html'))
+    }
+
+    debug('mediaType', mediaType)
+    debug('charset', charset)
+
+    res.body.on('end', () => {
+      debug('parsed')
+      resolve(pkg)
+    })
+
+    res.body.on('error', (err) => {
+      debug('parse error', err.message)
+      reject(err)
+    })
+
+    res.body
+      .pipe(iconv.decodeStream(charset))
+      .pipe(iconv.encodeStream('utf-8'))
+      .pipe(parserStream)
+
     function onopentagname (tag) {
-      debug('<' + tag + '>')
+      // debug('<' + tag + '>')
 
       this._tagname = tag
     }
@@ -100,7 +126,7 @@ async function scrape (url, pkgOpts, fetchOpts) {
 
       if (!prop) return
 
-      debug(prop + '=' + val)
+      // debug(prop + '=' + val)
 
       if (pkgOpts.oembed && attr.type === 'application/json+oembed') {
         pkg.oembed = attr.href
@@ -117,46 +143,29 @@ async function scrape (url, pkgOpts, fetchOpts) {
         target = (pkg.twitter || (pkg.twitter = {}))
       } else {
         target = (pkg.other || (pkg.other = {}))
+
+
+
+
+
+
       }
 
       rollup(target, prop, val)
     }
 
     function onclosetag (tag) {
-      debug('</' + tag + '>')
+      // debug('</' + tag + '>')
 
       this._tagname = ''
-  
-      if (tag === 'head') {
-        res.unpipe(parserStream)
-        parserStream.destroy()
-        res.destroy()
-        parserStream._parser.reset() // Parse as little as possible.
-      }
+
+      // if (tag === 'head') {
+      //   res.unpipe(parserStream)
+      //   parserStream.destroy()
+      //   res.destroy()
+      //   parserStream._parser.reset() // Parse as little as possible.
+      // }
     }
-
-    res.on('response', function ({ headers }) {
-      let contentType = get(headers, 'content-type', '')
-
-      // Abort if content type is not text/html or varient
-      if (!contentType.includes('html')) {
-        res.unpipe(parserStream)
-        parserStream.destroy()
-        res.destroy()
-        parserStream._parser.reset() // Parse as little as possible.
-        set(pkg, 'other._type', contentType)
-      }
-    })
-
-    res.on('end', () => {
-      debug('parsed')
-      resolve(pkg)
-    })
-
-    res.on('error', (err) => {
-      debug('parse error', err.message)
-      reject(err)
-    })
   })
 }
 
@@ -186,7 +195,6 @@ function rollup (target, name, val) {
 }
 
 function postProcess (obj) {
-
   let keys = [
     'ogp.ogImage',
     'twitter.twitterImage',
