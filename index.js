@@ -183,38 +183,41 @@ function onclosetag (res, reset) {
   }
 }
 
+function reset (res, parser) {
+  const log = debug('unfurl:reset')
+
+  return function () {
+    log('hit')
+
+    parser.end()
+    parser.reset() // Parse as little as possible.
+
+    res.body.unpipe(parser)
+    res.body.resume()
+
+    if (typeof res.body.destroy === 'function') {
+      res.body.destroy()
+    }
+  }
+}
+
 function handleStream (pkgOpts) {
   return res => new Promise((resolve, reject) => {
     const pkg = {}
+    const parser = new htmlparser2.Parser({}, {
+      decodeEntities: true
+    })
 
-    const parser = new htmlparser2.Parser({
+    const _reset = reset(res, parser)
+
+    parser._cbs = {
       onopentag: onopentag(pkg, pkgOpts),
       ontext: ontext(pkg, pkgOpts),
-      onclosetag: onclosetag(res, reset()),
+      onclosetag: onclosetag(res, _reset),
       onend: onend(resolve, pkg),
       onreset: onreset(resolve, pkg),
       onerror: onerror(reject),
       onopentagname: onopentagname()
-    }, {
-      decodeEntities: true
-    })
-
-    function reset () {
-      const log = debug('unfurl:reset')
-
-      return function () {
-        log('hit')
-
-        parser.end()
-        parser.reset() // Parse as little as possible.
-
-        res.body.unpipe(parser)
-        res.body.resume()
-
-        if (typeof res.body.destroy === 'function') {
-          res.body.destroy()
-        }
-      }
     }
 
     res.body.pipe(parser)
