@@ -13,12 +13,19 @@ const oembed = require('./lib/oembed')
 
 const debug = require('debug')
 
-const shouldRollup = [
+const zippedKeys = [
   'og:image',
   'twitter:image',
   'twitter:player',
   'og:video',
   'og:audio'
+]
+
+const sortedKeys = [
+  'ogp.ogImage',
+  'twitter.twitterImage',
+  'twitter.twitterPlayer',
+  'ogp.ogVideo'
 ]
 
 function unfurl (url, init) {
@@ -37,17 +44,17 @@ function unfurl (url, init) {
     compress: get(init, 'compress', true)
   }
 
-  return handleUrl(url, fetchOpts)
+  return fetchUrl(url, fetchOpts)
     .then(handleStream(pkgOpts))
     .then(postProcess(pkgOpts))
 }
 
-function handleUrl (url, fetchOpts) {
-  const log = debug('unfurl:handleUrl')
+function fetchUrl (url, fetchOpts) {
+  const log = debug('unfurl:fetchUrl')
 
   return fetch(url, fetchOpts).then(res => {
     res.body.once('error', (err) => {
-      log('got error', err.message)
+      log('error', err.message)
 
       process.nextTick(function () {
         throw err
@@ -56,29 +63,18 @@ function handleUrl (url, fetchOpts) {
 
     const contentTypeHeader = res.headers.get('Content-Type')
     const { type: mediaType, parameters: { charset } } = contentType.parse(contentTypeHeader)
-
-    log('mediaType', mediaType)
+    log('contentType', mediaType)
     log('charset', charset)
 
     if (mediaType !== 'text/html') {
       throw new Error('content-type must be text/html')
     }
 
-    const multibyteEncodings = [
-      'CP932',
-      'CP936',
-      'CP949',
-      'CP950',
-      'GB2312',
-      'GBK',
-      'GB18030',
-      'Big5',
-      'Shift_JIS',
-      'EUC-JP'
-    ]
+    // See https://github.com/jacktuck/unfurl/pull/31
+    const multibyteEncodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
     if (multibyteEncodings.includes(charset)) {
-      log('converting multibyte encoding')
+      log('converting multibyte encoding from', charset, 'to utf-8')
 
       res.body = res.body
         .pipe(iconv.decodeStream(charset))
@@ -130,10 +126,9 @@ function ontext (pkg, pkgOpts) {
   return function (text) {
     log('tag', this._tagname)
     log('text', text)
-    log('current title', get(pkg, 'other.title', ''))
+
     if (this._tagname === 'title' && pkgOpts.other) {
       set(pkg, 'other.title', get(pkg, 'other.title', '') + text)
-      log('new title', get(pkg, 'other.title', ''))
     }
   }
 }
@@ -170,7 +165,7 @@ function onopentag (pkg, pkgOpts) {
       target = (pkg.other || (pkg.other = {}))
     }
 
-    rollup(target, prop, val)
+    zipup(target, prop, val)
   }
 }
 
@@ -226,18 +221,18 @@ function handleStream (pkgOpts) {
   })
 }
 
-function rollup (target, name, val) {
+function zipup (target, name, val) {
   if (!name || !val) return
 
-  let rollupAs = shouldRollup.find(function (k) {
+  let zipupAs = zippedKeys.find(function (k) {
     return name.startsWith(k)
   })
 
-  if (rollupAs) {
-    let namePart = name.slice(rollupAs.length)
+  if (zipupAs) {
+    let namePart = name.slice(zipupAs.length)
     let prop = !namePart ? 'url' : camelCase(namePart)
-    rollupAs = camelCase(rollupAs)
-    target = (target[rollupAs] || (target[rollupAs] = [{}]))
+    zipupAs = camelCase(zipupAs)
+    target = (target[zipupAs] || (target[zipupAs] = [{}]))
 
     let last = target[target.length - 1]
     last = (last[prop] ? (target.push({}) && target[target.length - 1]) : last)
@@ -252,14 +247,7 @@ function rollup (target, name, val) {
 
 function postProcess (pkgOpts) {
   return function (pkg) {
-    const keys = [
-      'ogp.ogImage',
-      'twitter.twitterImage',
-      'twitter.twitterPlayer',
-      'ogp.ogVideo'
-    ]
-
-    for (const key of keys) {
+    for (const key of sortedKeys) {
       let val = get(pkg, key)
       if (!val) continue
 
