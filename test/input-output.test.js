@@ -35,8 +35,8 @@ describe('input-output', function () {
     const url = `http://localhost:8080/${site}.source.html`
     const expected = JSON.parse(fs.readFileSync(`${__dirname}/${site}.expected.json`).toString())
 
-    it(`should resolve metadata for ${site}`, function () {
-      return expect(unfurl(url)).to.be.fulfilled.and.to.eventually.become(expected)
+    it(`should resolve metadata for ${site}`, async function () {
+      return expect(unfurl(url).catch(console.error)).to.be.fulfilled.and.to.eventually.become(expected)
     }).timeout(10000)
   }
 })
