@@ -2,6 +2,8 @@ const get = require('lodash.get')
 const set = require('lodash.set')
 const camelCase = require('lodash.camelcase')
 
+const iconv = require('iconv-lite')
+const contentType = require('content-type')
 const fetch = require('node-fetch')
 const htmlparser2 = require('htmlparser2')
 
@@ -9,9 +11,9 @@ const ogp = require('./lib/ogp')
 const twitter = require('./lib/twitter')
 const oembed = require('./lib/oembed')
 
-const debug = require('debug')('unfurl')
+const debug = require('debug')
 
-const shouldRollup = [
+const zippedKeys = [
   'og:image',
   'twitter:image',
   'twitter:player',
@@ -19,7 +21,16 @@ const shouldRollup = [
   'og:audio'
 ]
 
-async function unfurl (url, init = {}) {
+const sortedKeys = [
+  'ogp.ogImage',
+  'twitter.twitterImage',
+  'twitter.twitterPlayer',
+  'ogp.ogVideo'
+]
+
+function unfurl (url, init) {
+  init = init || {}
+
   const pkgOpts = {
     ogp: get(init, 'ogp', true),
     twitter: get(init, 'twitter', true),
@@ -33,177 +44,248 @@ async function unfurl (url, init = {}) {
     compress: get(init, 'compress', true)
   }
 
-  let metadata = await scrape(url, pkgOpts, fetchOpts)
-    .then(postProcess)
+  return fetchUrl(url, fetchOpts)
+    .then(handleStream(pkgOpts))
+    .then(postProcess(pkgOpts))
+}
 
-  if (pkgOpts.oembed && metadata.oembed) {
-    let oembedData = await fetch(metadata.oembed, fetchOpts)
-      .then(res => res.json())
+function fetchUrl (url, fetchOpts) {
+  const log = debug('unfurl:fetchUrl')
 
+  return fetch(url, fetchOpts).then(res => {
+    res.body.once('error', (err) => {
+      log('error', err.message)
 
-    const unwind = get(oembedData, 'body', oembedData)
+      process.nextTick(function () {
+        throw err
+      })
+    })
 
-    // Even if we don't find valid oembed data we'll return an obj rather than the url string
-    metadata.oembed = {}
+    const contentTypeHeader = res.headers.get('Content-Type')
+    const { type: mediaType, parameters: { charset } } = contentType.parse(contentTypeHeader)
+    log('contentType', mediaType)
+    log('charset', charset)
 
-    for (const [k, v] of Object.entries(unwind)) {
-      const camelKey = camelCase(k)
-      if (!oembed.includes(camelKey)) {
-        continue
-      }
+    if (mediaType !== 'text/html') {
+      throw new Error('content-type must be text/html')
+    }
 
+    // See https://github.com/jacktuck/unfurl/pull/31
+    const multibyteEncodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
-      metadata.oembed[camelKey] = v
+    if (multibyteEncodings.includes(charset)) {
+      log('converting multibyte encoding from', charset, 'to utf-8')
+
+      res.body = res.body
+        .pipe(iconv.decodeStream(charset))
+        .pipe(iconv.encodeStream('utf-8'))
+    }
+
+    return res
+  })
+}
+
+function onend (resolve, pkg) {
+  const log = debug('unfurl:onend')
+  return function () {
+    log('hit')
+    resolve(pkg)
+  }
+}
+
+function onreset (resolve, pkg) {
+  const log = debug('unfurl:onreset')
+
+  return function () {
+    log('hit')
+    resolve(pkg)
+  }
+}
+
+function onerror (reject) {
+  const log = debug('unfurl:onerror')
+
+  return function (err) {
+    log(err)
+    reject(err)
+  }
+}
+
+function onopentagname () {
+  const log = debug('unfurl:onopentagname')
+
+  return function (tag) {
+    log(tag)
+    this._tagname = tag
+  }
+}
+
+function ontext (pkg, pkgOpts) {
+  const log = debug('unfurl:ontext')
+
+  return function (text) {
+    log('tag', this._tagname)
+    log('text', text)
+
+    if (this._tagname === 'title' && pkgOpts.other) {
+      set(pkg, 'other.title', get(pkg, 'other.title', '') + text)
     }
   }
-
-  return metadata
 }
 
-async function scrape (url, pkgOpts, fetchOpts) {
-  let pkg = Object.create(null)
+function onopentag (pkg, pkgOpts) {
+  const log = debug('unfurl:onopentag')
 
-  return new Promise(async (resolve, reject) => {
-    let parserStream = new htmlparser2.WritableStream({
-      onopentag,
-      ontext,
-      onclosetag,
-      onerror,
-      onopentagname
-    }, {decodeEntities: true})
+  return function (name, attr) {
+    log('name', name)
+    log('attr', attr)
 
-    let res = await fetch(url, fetchOpts)
-      .then(res => res.body)
+    const prop = attr.property || attr.name || attr.rel
+    const val = attr.content || attr.value || attr.href
 
-    res.pipe(parserStream)
-  
-    function onopentagname (tag) {
-      debug('<' + tag + '>')
+    log('prop', prop)
+    log('val', val)
 
-      this._tagname = tag
+    if (!prop) return
+
+    if (pkgOpts.oembed && attr.type === 'application/json+oembed') {
+      pkg.oembed = attr.href
+      return
     }
 
-    function onerror (err) {
-      debug('error', err)
-      reject(err)
+    if (!val) return
+
+    let target
+
+    if (pkgOpts.ogp && ogp.includes(prop)) {
+      target = (pkg.ogp || (pkg.ogp = {}))
+    } else if (pkgOpts.twitter && twitter.includes(prop)) {
+      target = (pkg.twitter || (pkg.twitter = {}))
+    } else {
+      target = (pkg.other || (pkg.other = {}))
     }
 
-    function ontext (text) {
-      if (this._tagname === 'title' && pkgOpts.other) {
-        set(pkg, 'other.title', get(pkg, 'other.title', '') + text)
-      }
+    zipup(target, prop, val)
+  }
+}
+
+function onclosetag (res, reset) {
+  const log = debug('unfurl:onclosetag')
+
+  return function (tag) {
+    log(tag)
+
+    this._tagname = ''
+
+    if (tag === 'head') {
+      reset()
     }
+  }
+}
 
-    function onopentag (name, attr) {
-      let prop = attr.property || attr.name || attr.rel
-      let val = attr.content || attr.value || attr.href
+function reset (res, parser) {
+  const log = debug('unfurl:reset')
 
-      if (!prop) return
+  return function () {
+    log('hit')
 
-      debug(prop + '=' + val)
+    parser.end()
+    parser.reset() // Parse as little as possible.
 
-      if (pkgOpts.oembed && attr.type === 'application/json+oembed') {
-        pkg.oembed = attr.href
-        return
-      }
+    res.body.unpipe(parser)
+    res.body.resume()
 
-      if (!val) return
-
-      let target
-
-      if (pkgOpts.ogp && ogp.includes(prop)) {
-        target = (pkg.ogp || (pkg.ogp = {}))
-      } else if (pkgOpts.twitter && twitter.includes(prop)) {
-        target = (pkg.twitter || (pkg.twitter = {}))
-      } else {
-        target = (pkg.other || (pkg.other = {}))
-      }
-
-      rollup(target, prop, val)
+    if (typeof res.body.destroy === 'function') {
+      res.body.destroy()
     }
+  }
+}
 
-    function onclosetag (tag) {
-      debug('</' + tag + '>')
-
-      this._tagname = ''
-  
-      if (tag === 'head') {
-        res.unpipe(parserStream)
-        parserStream.destroy()
-        res.destroy()
-        parserStream._parser.reset() // Parse as little as possible.
-      }
-    }
-
-    res.on('response', function ({ headers }) {
-      let contentType = get(headers, 'content-type', '')
-
-      // Abort if content type is not text/html or varient
-      if (!contentType.includes('html')) {
-        res.unpipe(parserStream)
-        parserStream.destroy()
-        res.destroy()
-        parserStream._parser.reset() // Parse as little as possible.
-        set(pkg, 'other._type', contentType)
-      }
+function handleStream (pkgOpts) {
+  return res => new Promise((resolve, reject) => {
+    const pkg = {}
+    const parser = new htmlparser2.Parser({}, {
+      decodeEntities: true
     })
 
-    res.on('end', () => {
-      debug('parsed')
-      resolve(pkg)
-    })
+    const _reset = reset(res, parser)
 
-    res.on('error', (err) => {
-      debug('parse error', err.message)
-      reject(err)
-    })
+    parser._cbs = {
+      onopentag: onopentag(pkg, pkgOpts),
+      ontext: ontext(pkg, pkgOpts),
+      onclosetag: onclosetag(res, _reset),
+      onend: onend(resolve, pkg),
+      onreset: onreset(resolve, pkg),
+      onerror: onerror(reject),
+      onopentagname: onopentagname()
+    }
+
+    res.body.pipe(parser)
   })
 }
 
-function rollup (target, name, val) {
+function zipup (target, name, val) {
   if (!name || !val) return
 
-  let rollupAs = shouldRollup.find(function (k) {
-    return name.startsWith(k)
-  })
+  name = camelCase(name)
 
-  if (rollupAs) {
-    let namePart = name.slice(rollupAs.length)
-    let prop = !namePart ? 'url' : camelCase(namePart)
-    rollupAs = camelCase(rollupAs)
+  let zipupAs = zippedKeys
+    .map(camelCase)
+    .find(key => name.startsWith(key))
 
-    target = (target[rollupAs] || (target[rollupAs] = [{}]))
-
-    let last = target[target.length - 1]
-    last = (last[prop] ? (target.push({}) && target[target.length - 1]) : last)
-    last[prop] = val
-
+  // not a zipped key
+  if (!zipupAs) {
+    target[name] = val
     return
   }
 
-  let prop = camelCase(name)
-  target[prop] = val
-}
+  const namePart = camelCase(name.slice(zipupAs.length)) || 'url'
 
-function postProcess (obj) {
-
-  let keys = [
-    'ogp.ogImage',
-    'twitter.twitterImage',
-    'twitter.twitterPlayer',
-    'ogp.ogVideo'
-  ]
-
-  for (const key of keys) {
-    let val = get(obj, key)
-    if (!val) continue
-    
-    val = val.sort((a, b) => a.width - b.width) // asc sort
-
-    set(obj, key, val)
+  if (!target[zipupAs]) {
+    target[zipupAs] = [{}]
   }
 
-  return obj
+  let zipTarget = target[zipupAs]
+
+  let last = zipTarget[zipTarget.length - 1]
+
+  if (last[namePart]) {
+    zipTarget.push({})
+    last = zipTarget[zipTarget.length - 1]
+  }
+
+  last[namePart] = val
+}
+
+function postProcess (pkgOpts) {
+  return function (pkg) {
+    for (const key of sortedKeys) {
+      let val = get(pkg, key)
+      if (!val) continue
+
+      val = val.sort((a, b) => a.width - b.width) // asc sort
+
+      set(pkg, key, val)
+    }
+
+    if (pkgOpts.oembed && pkg.oembed) {
+      return fetch(pkg.oembed)
+        .then(res => res.json())
+        .then(oembedData => {
+          const unwind = get(oembedData, 'body', oembedData, {})
+
+          pkg.oembed = Object.entries(unwind)
+            .filter(([key]) => oembed.includes(key))
+            .reduce((obj, [key, value]) => Object.assign(obj, {
+              [camelCase(key)]: value
+            }), {})
+
+          return pkg
+        })
+    }
+
+    return pkg
+  }
 }
 
 module.exports = unfurl

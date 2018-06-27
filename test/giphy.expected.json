@@ -1,1 +1,81 @@
-{"other":{"title":"Brad Pitt Thank You GIF - Find & Share on GIPHY"}}
+{
+    "other": {
+        "title": "Brad Pitt Thank You GIF - Find & Share on GIPHY",
+        "canonical": "https://giphy.com/gifs/kiss-brad-pitt-thank-you-yoJC2El7xJkYCadlWE",
+        "googleSiteVerification": "8mfne8CLOmysP4fUdGDJioWLEGbHMJY4tBsxsQT2eSY",
+        "msvalidate01": "F8A7FDC3D369E857ACB67C4AB8EBD9A4",
+        "alexaVerifyId": "HMyPJIK-pLEheM5ACWFf6xvnA2U",
+        "fbAdmins": "548288355",
+        "pDomainVerify": "61a9a962d47f10756a14a44c1b44d7c8",
+        "viewport": "width=device-width, user-scalable=1, initial-scale=1.0",
+        "fbAppId": "406655189415060",
+        "twitterAccountId": "1020383864",
+        "twitterDomain": "giphy.com",
+        "rating": "general",
+        "imageRating": "pg",
+        "description": "Discover & share this Kiss GIF with everyone you know. GIPHY is how you search, share, discover, and create GIFs.",
+        "author": "GIPHY",
+        "keywords": "kiss, thank you, thanks, brad pitt, thank, merci, thanks for watching, thank you gif, honored, thank you for watching, GIF, Animated GIF",
+        "pinterest": "nohover",
+        "icon": "https://giphy.com/static/img/favicon.png",
+        "appleMobileWebAppTitle": "GIPHY",
+        "appleTouchIcon": "https://giphy.com/static/img/icons/apple-touch-icon-167px.png",
+        "appleTouchStartupImage": "https://giphy.com/static/img/icons/apple-touch-startup-image-640x920.png",
+        "stylesheet": "https://giphy.com/static/dist/css/base.css?675dc85"
+    },
+    "ogp": {
+        "ogSiteName": "GIPHY",
+        "ogUrl": "https://media.giphy.com/media/yoJC2El7xJkYCadlWE/giphy.gif",
+        "ogTitle": "Brad Pitt Thank You GIF - Find & Share on GIPHY",
+        "ogDescription": "Discover & share this Kiss GIF with everyone you know. GIPHY is how you search, share, discover, and create GIFs.",
+        "ogType": "video.other",
+        "ogImage": [
+            {
+                "url": "https://media.giphy.com/media/yoJC2El7xJkYCadlWE/giphy.gif",
+                "type": "image/gif",
+                "width": "459",
+                "height": "281"
+            }
+        ],
+        "ogVideo": [
+            {
+                "url": "https://media.giphy.com/media/yoJC2El7xJkYCadlWE/giphy.mp4",
+                "secureUrl": "https://media.giphy.com/media/yoJC2El7xJkYCadlWE/giphy.mp4",
+                "type": "video/mp4",
+                "width": "459",
+                "height": "281"
+            }
+        ]
+    },
+    "twitter": {
+        "twitterCard": "player",
+        "twitterTitle": "Brad Pitt Thank You GIF - Find & Share on GIPHY",
+        "twitterCreator": "@giphy",
+        "twitterSite": "@giphy",
+        "twitterDescription": "Discover & share this Kiss GIF with everyone you know. GIPHY is how you search, share, discover, and create GIFs.",
+        "twitterImage": [
+            {
+                "src": "https://media.giphy.com/media/yoJC2El7xJkYCadlWE/giphy-facebook_s.jpg",
+                "url": "https://media.giphy.com/media/yoJC2El7xJkYCadlWE/giphy-facebook_s.jpg"
+            }
+        ],
+        "twitterPlayer": [
+            {
+                "url": "https://giphy.com/embed/yoJC2El7xJkYCadlWE/twitter/iframe",
+                "width": "435",
+                "height": "266"
+            }
+        ]
+    },
+    "oembed": {
+        "width": 459,
+        "authorUrl": "https://giphy.com/",
+        "title": "Brad Pitt Thank You GIF - Find & Share on GIPHY",
+        "url": "https://media.giphy.com/media/yoJC2El7xJkYCadlWE/giphy.gif",
+        "type": "photo",
+        "providerName": "GIPHY",
+        "providerUrl": "https://giphy.com/",
+        "authorName": "GIPHY",
+        "height": 281
+    }
+}

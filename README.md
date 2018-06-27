@@ -7,6 +7,8 @@
 [![pledge](https://img.shields.io/badge/community-pledge-ff69b4.svg?style=flat-square)](https://github.com/jacktuck/unfurl/blob/master/code-of-conduct.md)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fjacktuck%2Funfurl?ref=badge_shield)
 
+A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protocol for Node.js (>=v7.0.0)
+
 ## So, like, what does _unfurl_ even mean?
 >Spread out from a rolled or folded state
 
@@ -32,7 +34,7 @@
 ---
 
 #### opts - `object` of:
-* `ogp` - get open graph metadata (`true | false`) (default: `true`)
+* `ogp` - get open graph protocol metadata (`true | false`) (default: `true`)
 * `twitter` - get twitter-card metadata (`true | false`)  (default: `true`)
 * `oembed` - get oembed metadata (`true | false`) (default: `true`)
 * `other` - get other metadata too (e.g. description and title) (`true | false`) (default: `true`)

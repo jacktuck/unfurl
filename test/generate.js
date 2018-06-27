@@ -1,43 +1,41 @@
+const http = require('http')
+const finalhandler = require('finalhandler')
+const serveStatic = require('serve-static')
+
 const fs = require('fs')
-const Inliner = require('inliner')
+const fetch = require('node-fetch')
 const unfurl = require('..')
 
-const links = [
-  ['bbc', 'http://www.bbc.co.uk/news/world-us-canada-42853225'],
-  ['youtube', 'https://www.youtube.com/watch?v=2Vv-BfVoq4g'],
-  ['soundcloud', 'https://soundcloud.com/smixx/smixx-developers-feat-steve'],
-  ['medium', 'https://medium.com/@rdsubhas/10-modern-software-engineering-mistakes-bc67fbef4fc8'],
-  ['twitter', 'https://twitter.com/ocdvids/status/856886314138042368'],
-  ['imgur', 'https://imgur.com/t/dogs/QqHYV'],
-  ['giphy', 'https://giphy.com/gifs/kiss-brad-pitt-thank-you-yoJC2El7xJkYCadlWE']
-]
+const links = require('./links')
 
-let serve = require('serve')
+const serve = serveStatic('./')
 
-server = serve(__dirname, {
-  port: 9000
+const server = http.createServer(function (req, res) {
+  const handler = finalhandler(req, res)
+  serve(req, res, handler)
 })
 
-// connect().use(serveStatic(__dirname)).listen(9000, function () {
-  for (const [name, link] of links) {
-    console.log('GENERATING', name, link)
+server.listen(1337, async function () {
+  try {
+    console.log('Listening on port 1337')
 
-    new Inliner(link, {
-      inlinemin: true
-    }, function (error, html) {
-      if (error) {
-        console.log({error, link})
-        process.exit()
-      }
+    for (const [name, link] of links) {
+      console.log('link', link)
+
+      const html = await fetch(link).then(res => res.text())
 
       fs.writeFileSync(`${name}.source.html`, html)
-      console.log('saving html')
-      unfurl(`http://localhost:9000/${name}.source.html`).then(result => {
-        console.log('saving json')
-        fs.writeFileSync(`${name}.expected.json`, JSON.stringify(result))
-      }).catch(err => {
-        console.log('THAT IS NOT GOOD', err)
-      })
-    })
+
+      console.log('writing json to', `${name}.expected.json`)
+      const json = await unfurl(`http://localhost:1337/${name}.source.html`)
+        .then(res => JSON.stringify(res, null, 4))
+
+      fs.writeFileSync(`${name}.expected.json`, json)
+    }
+
+    server.close()
+  } catch (err) {
+    console.log('ERR', err)
+    server.close()
   }
-// })
+})
