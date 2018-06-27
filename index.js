@@ -227,25 +227,34 @@ function handleStream (pkgOpts) {
 function zipup (target, name, val) {
   if (!name || !val) return
 
-  let zipupAs = zippedKeys.find(function (k) {
-    return name.startsWith(k)
-  })
+  let zipupAs = zippedKeys.find(key => name.startsWith(key))
 
-  if (zipupAs) {
-    let namePart = name.slice(zipupAs.length)
-    let prop = !namePart ? 'url' : camelCase(namePart)
-    zipupAs = camelCase(zipupAs)
-    target = (target[zipupAs] || (target[zipupAs] = [{}]))
-
-    let last = target[target.length - 1]
-    last = (last[prop] ? (target.push({}) && target[target.length - 1]) : last)
-    last[prop] = val
-
+  // not a zipped key
+  if (!zipupAs) {
+    const prop = camelCase(name)
+    target[prop] = val
     return
   }
 
-  const prop = camelCase(name)
-  target[prop] = val
+  let namePart = name.slice(zipupAs.length)
+  let prop = !namePart ? 'url' : camelCase(namePart)
+
+  zipupAs = camelCase(zipupAs)
+
+  if (!target[zipupAs]) {
+    target[zipupAs] = [{}]
+  }
+
+  let zipTarget = target[zipupAs]
+
+  let last = zipTarget[zipTarget.length - 1]
+
+  if (last[prop]) {
+    zipTarget.push({})
+    last = zipTarget[zipTarget.length - 1]
+  }
+
+  last[prop] = val
 }
 
 function postProcess (pkgOpts) {
