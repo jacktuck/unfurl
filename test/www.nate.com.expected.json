@@ -1,0 +1,21 @@
+{
+    "other": {
+        "msapplicationStarturl": "http://www.nate.com/",
+        "nateDescription": "네이트 이슈UP",
+        "nateSiteName": "네이트 홈",
+        "nateUrl": "http://www.nate.com/",
+        "title": "네이트",
+        "stylesheet": "/css/common.min.css?v=201806130635",
+        "shortcutIcon": "http://www.nate.com/favicon.ico"
+    },
+    "ogp": {
+        "ogTitle": "네이트",
+        "ogUrl": " http://www.nate.com/",
+        "ogImage": [
+            {
+                "url": "http://main.nateimg.co.kr/img/v6/OpenGraphTag_nate.png"
+            }
+        ],
+        "ogDescription": " 즐거움과 유익한 정보를 제공하는 포털서비스 네이트를 만나보세요"
+    }
+}

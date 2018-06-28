@@ -27,7 +27,6 @@
     "chai-as-promised": "^7.0.0",
     "coveralls": "^3.0.0",
     "delay": "^2.0.0",
-    "finalhandler": "^1.1.1",
     "inliner": "^1.13.1",
     "istanbul": "^1.1.0-alpha.1",
     "microtime": "^2.1.7",
@@ -36,8 +35,8 @@
     "nyc": "^11.0.1",
     "open-graph-scraper": "^3.0.0",
     "pify": "^2.3.0",
-    "serve": "^6.4.9",
-    "serve-static": "^1.13.2",
+    "qs": "^6.5.2",
+    "send": "^0.16.2",
     "standard": "^10.0.2"
   },
   "scripts": {

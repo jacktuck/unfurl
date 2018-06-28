@@ -62,9 +62,11 @@ function fetchUrl (url, fetchOpts) {
     })
 
     const contentTypeHeader = res.headers.get('Content-Type')
-    const { type: mediaType, parameters: { charset } } = contentType.parse(contentTypeHeader)
-    log('contentType', mediaType)
-    log('charset', charset)
+    let { type: mediaType, parameters: { charset } } = contentType.parse(contentTypeHeader)
+    charset = charset.toUpperCase()
+
+    console.log('contentType', mediaType)
+    console.log('charset', charset)
 
     if (mediaType !== 'text/html') {
       throw new Error('content-type must be text/html')
@@ -74,7 +76,7 @@ function fetchUrl (url, fetchOpts) {
     const multibyteEncodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
     if (multibyteEncodings.includes(charset)) {
-      log('converting multibyte encoding from', charset, 'to utf-8')
+      console.log('converting multibyte encoding from', charset, 'to utf-8')
 
       res.body = res.body
         .pipe(iconv.decodeStream(charset))

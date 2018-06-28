@@ -7,7 +7,7 @@ const fetch = require('node-fetch')
 const unfurl = require('..')
 
 const links = require('./links')
-
+const url = require('url')
 const serve = serveStatic('./')
 
 const server = http.createServer(function (req, res) {
@@ -19,8 +19,10 @@ server.listen(1337, async function () {
   try {
     console.log('Listening on port 1337')
 
-    for (const [name, link] of links) {
+    for (const link of links) {
+      const name = url.parse(link).host
       console.log('link', link)
+      console.log('name', name)
 
       const html = await fetch(link).then(res => res.text())
 
