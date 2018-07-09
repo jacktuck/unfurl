@@ -3,7 +3,7 @@ const set = require('lodash.set')
 const camelCase = require('lodash.camelcase')
 
 const iconv = require('iconv-lite')
-const contentType = require('content-type')
+const parseContentType = require('content-type').parse
 const fetch = require('node-fetch')
 const htmlparser2 = require('htmlparser2')
 
@@ -39,7 +39,7 @@ function unfurl (url, init) {
   }
 
   const fetchOpts = {
-    timeout: get(init, 'timeout', 2000),
+    timeout: get(init, 'timeout', 0), // OS limit applies
     follow: get(init, 'follow', 5),
     compress: get(init, 'compress', true)
   }
@@ -61,29 +61,43 @@ function fetchUrl (url, fetchOpts) {
       })
     })
 
-    const contentTypeHeader = res.headers.get('Content-Type')
-    let { type: mediaType, parameters: { charset } } = contentType.parse(contentTypeHeader)
-    charset = charset.toUpperCase()
+    const contentType = (({ type, parameters: { charset } }) => ({ type, charset }))(parseContentType(res.headers.get('Content-Type')))
+    const contentLength = res.headers.get('Content-Length')
 
-    console.log('contentType', mediaType)
-    console.log('charset', charset)
+    console.log('contentType', contentType)
+    console.log('contentLength', contentLength)
 
-    if (mediaType !== 'text/html') {
-      throw new Error('content-type must be text/html')
+    if (!contentType) {
+      const err = new Error('Bad content type: expected text/html, but could not parse the header')
+      err.code = 'ERR_BAD_CONTENT_TYPE'
+      throw err
     }
 
-    // See https://github.com/jacktuck/unfurl/pull/31
+    if (contentType.type !== 'text/html') {
+      const err = new Error(`Bad content type: expected text/html, but got ${contentType.type}`)
+      err.code = 'ERR_BAD_CONTENT_TYPE'
+      throw err
+    }
+
+    const pkg = {
+      other: { contentType, contentLength }
+    }
+
+    // if (contentLength && contentLength[0]) {
+    //   pkg.other.contentLength = contentLength[0]
+    // }
+
     const multibyteEncodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
-    if (multibyteEncodings.includes(charset)) {
-      console.log('converting multibyte encoding from', charset, 'to utf-8')
+    if (multibyteEncodings.includes(contentType.charset)) {
+      console.log('converting multibyte encoding from', contentType.charset, 'to utf-8')
 
       res.body = res.body
-        .pipe(iconv.decodeStream(charset))
+        .pipe(iconv.decodeStream(contentType.charset))
         .pipe(iconv.encodeStream('utf-8'))
     }
 
-    return res
+    return [pkg, res]
   })
 }
 
@@ -204,8 +218,7 @@ function reset (res, parser) {
 }
 
 function handleStream (pkgOpts) {
-  return res => new Promise((resolve, reject) => {
-    const pkg = {}
+  return ([pkg, res]) => new Promise((resolve, reject) => {
     const parser = new htmlparser2.Parser({}, {
       decodeEntities: true
     })
