@@ -1,5 +1,7 @@
 {
     "other": {
+        "contentType": "text/html",
+        "contentLength": "178885",
         "viewport": "width=device-width, initial-scale=1.0, maximum-scale=2.0",
         "icon": "/static/img/favicon.ico",
         "fbAdmins": "100002847892748",
@@ -13,6 +15,7 @@
         "applicationName": "聯合新聞網",
         "googleSiteVerification": "zxOxo5I1xPvrdU_l5_sX9kZ8v0SiUC18mtRszIAsHqk",
         "channelId": "2",
+        "cateId": "0",
         "keywords": "聯合新聞網",
         "imageSrc": "https://udn.com/static/img/UDN_BABY.png",
         "url": "https://udn.com/news/index",

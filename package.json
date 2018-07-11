@@ -20,13 +20,14 @@
     "lodash.camelcase": "^4.3.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2",
-    "node-fetch": "^2.1.2"
+    "node-fetch": "^1.7.3"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^7.0.0",
     "coveralls": "^3.0.0",
     "delay": "^2.0.0",
+    "finalhandler": "^1.1.1",
     "inliner": "^1.13.1",
     "istanbul": "^1.1.0-alpha.1",
     "microtime": "^2.1.7",
@@ -37,6 +38,7 @@
     "pify": "^2.3.0",
     "qs": "^6.5.2",
     "send": "^0.16.2",
+    "serve-static": "^1.13.2",
     "standard": "^10.0.2"
   },
   "scripts": {

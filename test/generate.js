@@ -19,7 +19,8 @@ server.listen(1337, async function () {
   try {
     console.log('Listening on port 1337')
 
-    for (const link of links) {
+    for (const [,link] of links) {
+      console.log(link)
       const name = url.parse(link).host
       console.log('link', link)
       console.log('name', name)

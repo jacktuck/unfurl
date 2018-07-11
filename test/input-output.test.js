@@ -33,7 +33,10 @@ describe('input-output', function () {
     const encoded = iconv.encode(iconv.decode(html, 'utf-8'), charset)
     console.log('encoded', encoded)
 
-    res.writeHead(200, {'Content-Type': `text/html; charset=${charset}`})
+    res.writeHead(200, {
+      'Content-Length': Buffer.byteLength(html),
+      'Content-Type': `text/html; charset=${charset}`
+    })
     res.write(encoded)
     res.end()
   })

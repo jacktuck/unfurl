@@ -1,13 +1,15 @@
 {
     "other": {
-        "stylesheet": "https://abs.twimg.com/a/1529975731/css/t1/twitter_more_2.bundle.css",
+        "contentType": "text/html",
+        "contentLength": "386392",
+        "stylesheet": "https://abs.twimg.com/a/1530789064/css/t1/twitter_more_2.bundle.css",
         "dnsPrefetch": "https://t.co",
         "preload": "https://abs.twimg.com/k/en-gb/5.pages_permalink.en-gb.d01701ba3cce1f0d3917.js",
         "title": "Satisfying Videos on Twitter: \"… \"",
         "robots": "NOODP",
         "msapplicationTileImage": "//abs.twimg.com/favicons/win8-tile-144.png",
         "msapplicationTileColor": "#00aced",
-        "maskIcon": "https://abs.twimg.com/a/1529975731/icons/favicon.svg",
+        "maskIcon": "https://abs.twimg.com/a/1530789064/icons/favicon.svg",
         "shortcutIcon": "//abs.twimg.com/favicons/favicon.ico",
         "appleTouchIcon": "https://abs.twimg.com/icons/apple-touch-icon-192x192.png",
         "manifest": "/manifest.json",

@@ -52,6 +52,7 @@ function unfurl (url, init) {
 function fetchUrl (url, fetchOpts) {
   const log = debug('unfurl:fetchUrl')
 
+  log('url', url)
   return fetch(url, fetchOpts).then(res => {
     res.body.once('error', (err) => {
       log('error', err.message)
@@ -61,39 +62,51 @@ function fetchUrl (url, fetchOpts) {
       })
     })
 
-    const contentType = (({ type, parameters: { charset } }) => ({ type, charset }))(parseContentType(res.headers.get('Content-Type')))
-    const contentLength = res.headers.get('Content-Length')
+    let { type: contentType, parameters: { charset } } = parseContentType(res.headers.get('Content-Type'))
 
-    console.log('contentType', contentType)
-    console.log('contentLength', contentLength)
+    if (charset) {
+      charset = charset.toUpperCase()
+    }
+
+    let contentLength = res.headers.get('Content-Length')
+    if (contentLength) {
+      contentLength = parseInt(contentLength)
+    }
+
+    log('charset', charset)
+    log('contentType', contentType)
+    log('contentLength', contentLength)
 
     if (!contentType) {
       const err = new Error('Bad content type: expected text/html, but could not parse the header')
       err.code = 'ERR_BAD_CONTENT_TYPE'
+      err.metadata = { contentType, contentLength }
+
       throw err
     }
 
-    if (contentType.type !== 'text/html') {
-      const err = new Error(`Bad content type: expected text/html, but got ${contentType.type}`)
+    if (contentType !== 'text/html') {
+      const err = new Error(`Bad content type: expected text/html, but got ${contentType}`)
       err.code = 'ERR_BAD_CONTENT_TYPE'
+      err.metadata = { contentType, contentLength }
+
       throw err
     }
 
     const pkg = {
-      other: { contentType, contentLength }
+      other: {
+        contentType,
+        contentLength
+      }
     }
-
-    // if (contentLength && contentLength[0]) {
-    //   pkg.other.contentLength = contentLength[0]
-    // }
 
     const multibyteEncodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
-    if (multibyteEncodings.includes(contentType.charset)) {
-      console.log('converting multibyte encoding from', contentType.charset, 'to utf-8')
+    if (multibyteEncodings.includes(charset)) {
+      log('converting multibyte encoding from', charset, 'to utf-8')
 
       res.body = res.body
-        .pipe(iconv.decodeStream(contentType.charset))
+        .pipe(iconv.decodeStream(charset))
         .pipe(iconv.encodeStream('utf-8'))
     }
 
@@ -104,7 +117,6 @@ function fetchUrl (url, fetchOpts) {
 function onend (resolve, pkg) {
   const log = debug('unfurl:onend')
   return function () {
-    log('hit')
     resolve(pkg)
   }
 }
@@ -113,7 +125,6 @@ function onreset (resolve, pkg) {
   const log = debug('unfurl:onreset')
 
   return function () {
-    log('hit')
     resolve(pkg)
   }
 }
@@ -203,8 +214,6 @@ function reset (res, parser) {
   const log = debug('unfurl:reset')
 
   return function () {
-    log('hit')
-
     parser.end()
     parser.reset() // Parse as little as possible.
 
