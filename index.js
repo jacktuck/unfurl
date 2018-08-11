@@ -57,6 +57,10 @@ function fetchUrl (url, fetchOpts) {
     res.body.once('error', (err) => {
       log('error', err.message)
 
+      if (err.code === 'Z_BUF_ERROR') {
+        return
+      }
+
       process.nextTick(function () {
         throw err
       })
