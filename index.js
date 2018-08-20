@@ -1,3 +1,6 @@
+const parseUrl = require('url').parse
+const resolveUrl = require('url').resolve
+
 const get = require('lodash.get')
 const set = require('lodash.set')
 const camelCase = require('lodash.camelcase')
@@ -28,7 +31,7 @@ const sortedKeys = [
   'ogp.ogVideo'
 ]
 
-function unfurl (url, init) {
+function unfurl (initialUrl, init) {
   init = init || {}
 
   const pkgOpts = {
@@ -44,16 +47,16 @@ function unfurl (url, init) {
     compress: get(init, 'compress', true)
   }
 
-  return fetchUrl(url, fetchOpts)
+  return fetchUrl(initialUrl, fetchOpts)
     .then(handleStream(pkgOpts))
-    .then(postProcess(pkgOpts))
+    .then(postProcess(initialUrl, pkgOpts))
 }
 
-function fetchUrl (url, fetchOpts) {
+function fetchUrl (initialUrl, fetchOpts) {
   const log = debug('unfurl:fetchUrl')
 
-  log('url', url)
-  return fetch(url, fetchOpts).then(res => {
+  log('initialUrl', initialUrl)
+  return fetch(initialUrl, fetchOpts).then(res => {
     res.body.once('error', (err) => {
       log('error', err.message)
 
@@ -179,6 +182,7 @@ function onopentag (pkg, pkgOpts) {
 
     if (!prop) return
 
+    // we only care about oembed json, if only xml is provided we won't look it up
     if (pkgOpts.oembed && attr.type === 'application/json+oembed') {
       pkg.oembed = attr.href
       return
@@ -285,7 +289,7 @@ function zipup (target, name, val) {
   last[namePart] = val
 }
 
-function postProcess (pkgOpts) {
+function postProcess (initialUrl, pkgOpts) {
   return function (pkg) {
     for (const key of sortedKeys) {
       let val = get(pkg, key)
@@ -297,7 +301,15 @@ function postProcess (pkgOpts) {
     }
 
     if (pkgOpts.oembed && pkg.oembed) {
-      return fetch(pkg.oembed)
+      let oembedUrl = pkg.oembed
+      console.log('oembedUrl 1', oembedUrl)
+      // detects relative urls
+      if (!parseUrl(pkg.oembed).host) {
+        oembedUrl = resolveUrl(initialUrl, pkg.oembed)
+      }
+      console.log('oembedUrl 2', oembedUrl)
+
+      return fetch(oembedUrl)
         .then(res => res.json())
         .then(oembedData => {
           const unwind = get(oembedData, 'body', oembedData, {})
@@ -308,6 +320,11 @@ function postProcess (pkgOpts) {
               [camelCase(key)]: value
             }), {})
 
+          return pkg
+        })
+        .catch(err => {
+          console.log('GOT AN ERROR', err)
+          pkg.oembed = null
           return pkg
         })
     }

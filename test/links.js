@@ -1,4 +1,8 @@
 module.exports = [
+  ['utf-8', 'https://www.gohighlevel.com/blog/2018/04/25/the-winner-take-all-world-of-dental-reviews']
+]
+
+module.bar = [
   ['utf-8', 'http://www.bbc.co.uk/news/world-us-canada-42853225'],
   ['utf-8', 'https://www.youtube.com/watch?v=2Vv-BfVoq4g'],
   ['utf-8', 'https://soundcloud.com/smixx/smixx-developers-feat-steve'],
