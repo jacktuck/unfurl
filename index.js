@@ -120,7 +120,7 @@ function processOembed (ctx, opts) {
 
     console.log('ctx.oembed 1', ctx.oembed)
 
-    if (!ctx.oembed) {
+    if (!opts.fetch_oembed || !ctx.oembed) {
       return metadata
     }
 
