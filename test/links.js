@@ -1,5 +1,5 @@
 module.exports = [
-  ['utf-8', 'https://www.gohighlevel.com/blog/2018/04/25/the-winner-take-all-world-of-dental-reviews']
+  ['gb2312', 'http://www.qq.com/']
 ]
 
 module.bar = [

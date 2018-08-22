@@ -10,53 +10,67 @@ const parseContentType = require('content-type').parse
 const fetch = require('node-fetch')
 const htmlparser2 = require('htmlparser2')
 
-const ogp = require('./lib/ogp')
-const twitter = require('./lib/twitter')
-const oembed = require('./lib/oembed')
+const standards = require('./standards')
 
 const debug = require('debug')
 
-const zippedKeys = [
-  'og:image',
-  'twitter:image',
-  'twitter:player',
-  'og:video',
-  'og:audio'
-]
+function unfurl (src, opts) {
+  let metadata = []
+  opts = opts || {}
 
-const sortedKeys = [
-  'ogp.ogImage',
-  'twitter.twitterImage',
-  'twitter.twitterPlayer',
-  'ogp.ogVideo'
-]
-
-function unfurl (initialUrl, init) {
-  init = init || {}
-
-  const pkgOpts = {
-    ogp: get(init, 'ogp', true),
-    twitter: get(init, 'twitter', true),
-    oembed: get(init, 'oembed', true),
-    other: get(init, 'other', true)
+  opts = {
+    fetch_oembed: get(opts, 'fetch_oembed', true), // support fetching oembed metadata https://oembed.com/#section2
+    timeout: get(opts, 'timeout', 0), // req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies)
+    timeout_oembed: get(opts, 'timeout_oembed', opts.timeout),
+    follow: get(opts, 'follow', 1), // maximum redirect count. 0 to not follow redirect
+    follow_oembed: get(opts, 'follow_oembed', opts.follow),
+    compress: get(opts, 'compress', true), // support gzip/deflate content encoding
+    compress_oembed: get(opts, 'compress_oembed', opts.compress),
+    size: get(opts, 'size', 0), // maximum response body size in bytes. 0 to disable
+    size_oembed: get(opts, 'size_oembed', opts.size),
+    agent: get(opts, 'agent', null), // http(s).Agent instance, allows custom proxy, certificate, lookup, family etc.
+    agent_oembed: get(opts, 'agent_oembed', opts.agent)
   }
 
-  const fetchOpts = {
-    timeout: get(init, 'timeout', 0), // OS limit applies
-    follow: get(init, 'follow', 5),
-    compress: get(init, 'compress', true)
-  }
+  const ctx = { src }
 
-  return fetchUrl(initialUrl, fetchOpts)
-    .then(handleStream(pkgOpts))
-    .then(postProcess(initialUrl, pkgOpts))
+  return fetchUrl(src, opts)
+    .then(res => new Promise((resolve, reject) => {
+      const parser = new htmlparser2.Parser({}, {
+        decodeEntities: true
+      })
+
+      const _reset = reset(res, parser)
+
+      parser._cbs = {
+        onopentag: onopentag(metadata, ctx, opts),
+        ontext: ontext(metadata, ctx, opts),
+        onclosetag: onclosetag(metadata, _reset),
+        onend: onend(resolve, metadata),
+        onreset: onreset(resolve, metadata),
+        onerror: onerror(reject),
+        onopentagname: onopentagname()
+      }
+
+      res.body.pipe(parser)
+    }))
+    .then(processOembed(ctx, opts))
 }
 
-function fetchUrl (initialUrl, fetchOpts) {
-  const log = debug('unfurl:fetchUrl')
+// const encodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
-  log('initialUrl', initialUrl)
-  return fetch(initialUrl, fetchOpts).then(res => {
+function fetchUrl (src, opts) {
+  const log = debug('unfurl:fetchUrl')
+  log('src', src)
+
+  return fetch(src, {
+    Accept: 'text/html',
+    timeout: opts.timeout,
+    follow: opts.follow,
+    compress: opts.compress,
+    size: opts.size,
+    agent: opts.agent
+  }).then(res => {
     res.body.once('error', (err) => {
       log('error', err.message)
 
@@ -80,10 +94,6 @@ function fetchUrl (initialUrl, fetchOpts) {
       contentLength = parseInt(contentLength)
     }
 
-    log('charset', charset)
-    log('contentType', contentType)
-    log('contentLength', contentLength)
-
     if (!contentType) {
       const err = new Error('Bad content type: expected text/html, but could not parse the header')
       err.code = 'ERR_BAD_CONTENT_TYPE'
@@ -100,39 +110,73 @@ function fetchUrl (initialUrl, fetchOpts) {
       throw err
     }
 
-    const pkg = {
-      other: {
-        contentType,
-        contentLength
-      }
-    }
-
-    const multibyteEncodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
-
-    if (multibyteEncodings.includes(charset)) {
-      log('converting multibyte encoding from', charset, 'to utf-8')
-
-      res.body = res.body
-        .pipe(iconv.decodeStream(charset))
-        .pipe(iconv.encodeStream('utf-8'))
-    }
-
-    return [pkg, res]
+    return res
   })
 }
 
-function onend (resolve, pkg) {
-  const log = debug('unfurl:onend')
-  return function () {
-    resolve(pkg)
+function processOembed (ctx, opts) {
+  return function (metadata) {
+    console.log('got here', {metadata, ctx})
+
+    console.log('ctx.oembed 1', ctx.oembed)
+
+    if (!ctx.oembed) {
+      return metadata
+    }
+
+    // convert relative url to an absolute one
+    if (/^[a-z][a-z0-9+.-]*:/.test(ctx.oembed) === false) {
+      ctx.oembed = resolveUrl(ctx.src, ctx.oembed)
+    }
+
+    console.log('ctx.oembed 2', ctx.oembed)
+
+    return fetch(ctx.oembed, {
+      Accept: 'application/json, text/javascript',
+      timeout: opts.oembed_timeout,
+      follow: opts.oembed_follow,
+      compress: opts.oembed_compress,
+      size: opts.oembed_size,
+      agent: opts.oembed_agent
+    }).then(res => {
+      let { type: contentType } = parseContentType(res.headers.get('Content-Type'))
+
+      if (contentType !== 'application/json' && contentType !== 'text/javascript') {
+        const err = new Error(`Bad content type: expected application/json or text/javascript, but got ${contentType}`)
+        err.code = 'ERR_BAD_CONTENT_TYPE'
+
+        throw err
+      }
+
+      // JSON text SHALL be encoded in UTF-8, UTF-16, or UTF-32 https://tools.ietf.org/html/rfc7159#section-8.1
+      return res.json()
+    }).then(data => {
+      const unwind = get(data, 'body', data, {})
+
+      metadata.push(
+        ...Object.entries(unwind).filter(([key]) => standards.includes(key)).map(arr => ['oembed', arr[0], arr[1]])
+      )
+
+      return metadata
+    }).catch(err => {
+      console.log('GOT AN ERROR', err)
+      return metadata
+    })
   }
 }
 
-function onreset (resolve, pkg) {
+function onend (resolve, metadata) {
+  const log = debug('unfurl:onend')
+  return function () {
+    resolve(metadata)
+  }
+}
+
+function onreset (resolve, metadata) {
   const log = debug('unfurl:onreset')
 
   return function () {
-    resolve(pkg)
+    resolve(metadata)
   }
 }
 
@@ -154,57 +198,52 @@ function onopentagname () {
   }
 }
 
-function ontext (pkg, pkgOpts) {
+function ontext (metadata, ctx, opts) {
   const log = debug('unfurl:ontext')
 
   return function (text) {
     log('tag', this._tagname)
     log('text', text)
 
-    if (this._tagname === 'title' && pkgOpts.other) {
-      set(pkg, 'other.title', get(pkg, 'other.title', '') + text)
+    if (this._tagname === 'title') {
+      if (ctx.title === undefined) {
+        ctx.title = ''
+      }
+
+      ctx.title += text
     }
   }
 }
 
-function onopentag (pkg, pkgOpts) {
+function onopentag (metadata, ctx, opts) {
   const log = debug('unfurl:onopentag')
 
   return function (name, attr) {
     log('name', name)
     log('attr', attr)
 
-    const prop = attr.property || attr.name || attr.rel
+    console.log('OPTS', opts)
+    if (opts.fetch_oembed && attr.type === 'application/json+oembed' && attr.href) {
+      console.log('saving oembed url')
+      ctx.oembed = attr.href
+      return
+    }
+
+    const prop = attr.name || attr.rel
     const val = attr.content || attr.value || attr.href
 
     log('prop', prop)
     log('val', val)
 
+    if (standards.includes(prop) === false) return
     if (!prop) return
-
-    // we only care about oembed json, if only xml is provided we won't look it up
-    if (pkgOpts.oembed && attr.type === 'application/json+oembed') {
-      pkg.oembed = attr.href
-      return
-    }
-
     if (!val) return
 
-    let target
-
-    if (pkgOpts.ogp && ogp.includes(prop)) {
-      target = (pkg.ogp || (pkg.ogp = {}))
-    } else if (pkgOpts.twitter && twitter.includes(prop)) {
-      target = (pkg.twitter || (pkg.twitter = {}))
-    } else {
-      target = (pkg.other || (pkg.other = {}))
-    }
-
-    zipup(target, prop, val)
+    metadata.push([prop, val])
   }
 }
 
-function onclosetag (res, reset) {
+function onclosetag (metadata, reset) {
   const log = debug('unfurl:onclosetag')
 
   return function (tag) {
@@ -215,6 +254,10 @@ function onclosetag (res, reset) {
     if (tag === 'head') {
       reset()
     }
+
+    if (tag === 'title') {
+      metadata.push(['title', this._title])
+    }
   }
 }
 
@@ -223,7 +266,7 @@ function reset (res, parser) {
 
   return function () {
     parser.end()
-    parser.reset() // Parse as little as possible.
+    parser.reset() // resetting the parser to save cpu cycles and preempt redundant processing
 
     res.body.unpipe(parser)
     res.body.resume()
@@ -231,105 +274,6 @@ function reset (res, parser) {
     if (typeof res.body.destroy === 'function') {
       res.body.destroy()
     }
-  }
-}
-
-function handleStream (pkgOpts) {
-  return ([pkg, res]) => new Promise((resolve, reject) => {
-    const parser = new htmlparser2.Parser({}, {
-      decodeEntities: true
-    })
-
-    const _reset = reset(res, parser)
-
-    parser._cbs = {
-      onopentag: onopentag(pkg, pkgOpts),
-      ontext: ontext(pkg, pkgOpts),
-      onclosetag: onclosetag(res, _reset),
-      onend: onend(resolve, pkg),
-      onreset: onreset(resolve, pkg),
-      onerror: onerror(reject),
-      onopentagname: onopentagname()
-    }
-
-    res.body.pipe(parser)
-  })
-}
-
-function zipup (target, name, val) {
-  if (!name || !val) return
-
-  name = camelCase(name)
-
-  let zipupAs = zippedKeys
-    .map(camelCase)
-    .find(key => name.startsWith(key))
-
-  // not a zipped key
-  if (!zipupAs) {
-    target[name] = val
-    return
-  }
-
-  const namePart = camelCase(name.slice(zipupAs.length)) || 'url'
-
-  if (!target[zipupAs]) {
-    target[zipupAs] = [{}]
-  }
-
-  let zipTarget = target[zipupAs]
-
-  let last = zipTarget[zipTarget.length - 1]
-
-  if (last[namePart]) {
-    zipTarget.push({})
-    last = zipTarget[zipTarget.length - 1]
-  }
-
-  last[namePart] = val
-}
-
-function postProcess (initialUrl, pkgOpts) {
-  return function (pkg) {
-    for (const key of sortedKeys) {
-      let val = get(pkg, key)
-      if (!val) continue
-
-      val = val.sort((a, b) => a.width - b.width) // asc sort
-
-      set(pkg, key, val)
-    }
-
-    if (pkgOpts.oembed && pkg.oembed) {
-      let oembedUrl = pkg.oembed
-      console.log('oembedUrl 1', oembedUrl)
-      // detects relative urls
-      if (!parseUrl(pkg.oembed).host) {
-        oembedUrl = resolveUrl(initialUrl, pkg.oembed)
-      }
-      console.log('oembedUrl 2', oembedUrl)
-
-      return fetch(oembedUrl)
-        .then(res => res.json())
-        .then(oembedData => {
-          const unwind = get(oembedData, 'body', oembedData, {})
-
-          pkg.oembed = Object.entries(unwind)
-            .filter(([key]) => oembed.includes(key))
-            .reduce((obj, [key, value]) => Object.assign(obj, {
-              [camelCase(key)]: value
-            }), {})
-
-          return pkg
-        })
-        .catch(err => {
-          console.log('GOT AN ERROR', err)
-          pkg.oembed = null
-          return pkg
-        })
-    }
-
-    return pkg
   }
 }
 
