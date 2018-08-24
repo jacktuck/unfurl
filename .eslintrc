@@ -1,3 +1,11 @@
 {
-  "extends": "standard"
+  "extends": "standard",
+  "parser": "typescript-eslint-parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "modules": true
+    }
+  },
+  "plugins": ["typescript"]
 }

@@ -1,7 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const foo = require("./fields");
-console.log(foo);
+import * as foo from './fields'
+
+console.log(foo)
 /*
 import {
   parse as parseUrl,
@@ -53,15 +52,15 @@ type Opts = {
 
 function unfurl (url: string, opts?: Opts) {
   opts = {
-    fetch_oembed: opts.fetch_oembed !== undefined ? opts.fetch_oembed : true,
-    timeout: opts.timeout !== undefined ? opts.timeout : 0,
-    timeout_oembed: opts.timeout_oembed !== undefined ? opts.timeout_oembed : 0,
-    compress: opts.compress !== undefined ? opts.compress : true,
-    compress_oembed: opts.compress_oembed !== undefined ? opts.compress_oembed : true,
-    size: opts.size !== undefined ? opts.size : 0,
-    size_oembed: opts.size_oembed !== undefined ? opts.size_oembed : 0,
-    agent: opts.agent !== undefined ? opts.agent : null,
-    agent_oembed: opts.agent_oembed !== undefined ? opts.agent_oembed : null,
+    fetch_oembed: opts.fetch_oembed !== undefined ? opts.fetch_oembed : true, 
+    timeout: opts.timeout !== undefined ? opts.timeout : 0, 
+    timeout_oembed: opts.timeout_oembed !== undefined ? opts.timeout_oembed : 0, 
+    compress: opts.compress !== undefined ? opts.compress : true, 
+    compress_oembed: opts.compress_oembed !== undefined ? opts.compress_oembed : true, 
+    size: opts.size !== undefined ? opts.size : 0, 
+    size_oembed: opts.size_oembed !== undefined ? opts.size_oembed : 0, 
+    agent: opts.agent !== undefined ? opts.agent : null, 
+    agent_oembed: opts.agent_oembed !== undefined ? opts.agent_oembed : null, 
   }
 
   const metadata: Array<string[]> = []
@@ -315,4 +314,4 @@ function reset (res, parser) {
 }
 
 module.exports = unfurl
-*/ 
+*/
