@@ -1,19 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const foo = require("./fields");
-console.log(foo);
+const fields_1 = require("./fields");
+console.log(111, fields_1.foo);
 /*
-import {
-  parse as parseUrl,
-  resolve as resolveUrl
-} from 'url'
 
-import { parse as parse_content_type } from 'content-type'
-import { Parser } from 'htmlparser2'
-
-// import iconv from 'iconv-lite'
-import fetch from 'node-fetch'
-import debug from 'debug'
 
 class UnexpectedError extends Error {
   static WRONG_CONTENT_TYPE = {

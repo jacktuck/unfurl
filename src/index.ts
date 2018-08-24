@@ -1,7 +1,3 @@
-import * as foo from './fields'
-
-console.log(foo)
-/*
 import {
   parse as parseUrl,
   resolve as resolveUrl
@@ -13,6 +9,12 @@ import { Parser } from 'htmlparser2'
 // import iconv from 'iconv-lite'
 import fetch from 'node-fetch'
 import debug from 'debug'
+import {foo} from './fields'
+
+console.log(111, foo)
+
+/*
+
 
 class UnexpectedError extends Error {
   static WRONG_CONTENT_TYPE = {
