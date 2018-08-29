@@ -9,12 +9,9 @@ import { Parser } from 'htmlparser2'
 // import iconv from 'iconv-lite'
 import fetch from 'node-fetch'
 import debug from 'debug'
-import {foo} from './fields'
+import fields from './fields'
 
-console.log(111, foo)
-
-/*
-
+console.log(333, fields)
 
 class UnexpectedError extends Error {
   static WRONG_CONTENT_TYPE = {
@@ -34,9 +31,7 @@ function isRelativeUrl (url: string) {
   return /^[a-z][a-z0-9+.-]*:/.test(url) === false
 }
 
-unfurl('', {
-  f
-})
+unfurl('http://fb.com', {})
 
 type Opts = {
   fetch_oembed?: boolean // support fetching remote oembed metadata
@@ -179,7 +174,7 @@ function getRemoteMetadata (metadata, ctx, opts: Opts) : () => Array<string[]> {
 
       if (contentType !== 'application/json' && contentType !== 'text/javascript') {
         const err = new Error(`Bad content type: expected application/json or text/javascript, but got ${contentType}`)
-        err.code = 'ERR_BAD_CONTENT_TYPE'
+        err.name = 'ERR_BAD_CONTENT_TYPE'
 
         throw err
       }
@@ -316,4 +311,3 @@ function reset (res, parser) {
 }
 
 module.exports = unfurl
-*/
