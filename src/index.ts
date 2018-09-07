@@ -9,29 +9,13 @@ import { Parser } from 'htmlparser2'
 // import iconv from 'iconv-lite'
 import fetch from 'node-fetch'
 import debug from 'debug'
-import fields from './fields'
 
-class UnexpectedError extends Error {
-  static EXPECTED_HTML = {
-    message: 'Wrong content type header when "text/html" or "application/xhtml+xml" was expected',
-    name: 'WRONG_CONTENT_TYPE'
-  }
+import UnexpectedError from './UnexpectedError'
+import schema from './schema'
+const keys = Array.from(schema.keys())
 
-  static EXPECTED_JSON = {
-    message: 'Wrong content type header when "application/json" was expected',
-    name: 'WRONG_CONTENT_TYPE'
-  }
-
-  constructor(errorType: { message: string, name: string }) {
-    super(errorType.message)
-
-    this.name = errorType.name
-    this.stack = new Error().stack
-  }
-}
-
-function isRelativeUrl (url: string) {
-  return /^[a-z][a-z0-9+.-]*:/.test(url) === false
+function isRelativeUrl (url: string): boolean {
+  return /^(http|\/\/)/.test(url) === false
 }
 
 type Opts = {
@@ -49,20 +33,22 @@ type Opts = {
   agent?: string | null
 }
 
-unfurl('https://twitter.com')
-
-function unfurl (url: string, opts?: Opts): Promise<string[][]> {
-  opts = opts || {}
-  
-  opts = {
-    fetch_oembed: opts.fetch_oembed !== undefined ? opts.fetch_oembed : true,
-    timeout: opts.timeout !== undefined ? opts.timeout : 0, 
-    compress: opts.compress !== undefined ? opts.compress : true, 
-    size: opts.size !== undefined ? opts.size : 0, 
-    agent: opts.agent !== undefined ? opts.agent : null, 
+unfurl('https://www.theguardian.com/business/2018/sep/07/ba-british-airways-chief-alex-cruz-compensate-customers-after-data-breach')
+unfurl('https://www.bbc.co.uk/news/entertainment-arts-45444998')
+function unfurl (url: string, opts?: Opts) {
+  if (opts === undefined || opts.constructor.name !== 'Object') {
+    opts = {}
   }
 
-  const metadata: Array<string[]> = []
+  // Setting defaults when not provided or not correct type
+  typeof opts.fetch_oembed === 'boolean' || (opts.fetch_oembed = true)
+  typeof opts.compress === 'boolean' || (opts.compress = true)
+  typeof opts.agent === 'string' || (opts.agent = null)
+
+  Number.isInteger(opts.timeout) || (opts.timeout = 0)
+  Number.isInteger(opts.size) || (opts.size = 0)
+
+  const metadata = new Map()
 
   const ctx: {
     url?: string,
@@ -72,8 +58,9 @@ function unfurl (url: string, opts?: Opts): Promise<string[][]> {
   }
 
   return getPage(url, opts)
-    .then(getLocalMetadata(metadata, ctx, opts))
-    .then(getRemoteMetadata(metadata, ctx, opts))
+    .then(getLocalMetadata(ctx, opts))
+    .then(getRemoteMetadata(ctx, opts))
+    .then(parse)
 }
 
 function getPage (url: string, opts: Opts) {
@@ -98,7 +85,7 @@ function getPage (url: string, opts: Opts) {
 
     let contentLength: number = parseInt(res.headers.get('Content-Length') || '0')
     
-    if (contentType !== 'text/html') {
+    if (contentType !== 'text/html' && contentType !== 'application/xhtml+xml') {
       throw new UnexpectedError(UnexpectedError.EXPECTED_HTML)
     }
 
@@ -117,8 +104,10 @@ function getPage (url: string, opts: Opts) {
   })
 }
 
-function getLocalMetadata (metadata, ctx, opts: Opts) {
+function getLocalMetadata (ctx, opts: Opts) {
   return function (text) {
+    const metadata = new Map()
+
     return new Promise((resolve, reject) => {
       const parser = new Parser({}, {
         decodeEntities: true
@@ -133,19 +122,14 @@ function getLocalMetadata (metadata, ctx, opts: Opts) {
       }
       
       function onerror (err) {
-        console.log(err)
         reject(err)
       }
       
       function onopentagname  (tag) {
-        console.log(tag)
         this._tagname = tag
       }
       
-      function ontext (text) {
-        console.log('tag', this._tagname)
-        console.log('text', text)
-    
+      function ontext (text) {   
         if (this._tagname === 'title') {
           if (ctx.title === undefined) {
             ctx.title = ''
@@ -157,7 +141,6 @@ function getLocalMetadata (metadata, ctx, opts: Opts) {
       
       function onopentag (name, attr) {  
         if (opts.fetch_oembed && attr.type === 'application/json+oembed' && attr.href) {
-          console.log('saving oembed url')
           ctx.oembed = attr.href
           return
         }
@@ -165,29 +148,26 @@ function getLocalMetadata (metadata, ctx, opts: Opts) {
         const prop = attr.name || attr.rel
         const val = attr.content || attr.value
     
-        console.log('prop', prop)
-        console.log('val', val)
+        if (
+          !prop ||
+          !val ||
+          keys.includes(prop) === false
+        ) {
+          return
+        }
     
-        if (fields.includes(prop) === false) return
-        if (!prop) return
-        if (!val) return
-    
-        metadata.push([prop, val])
+        metadata.set(prop, val)
       }
       
-      function onclosetag (tag) {
-        console.log(tag)
-    
+      function onclosetag (tag) {   
         this._tagname = ''
-        
-        console.log('THIS', this)
-    
+  
         if (tag === 'head') {
           parser.reset()
         }
     
         if (tag === 'title') {
-          metadata.push(['title', ctx.title])
+          metadata.set('title', ctx.title)
         }
       }
 
@@ -210,12 +190,8 @@ function getLocalMetadata (metadata, ctx, opts: Opts) {
 // const encodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
 
-function getRemoteMetadata (metadata, ctx, opts: Opts) : () => Array<string[]> {
-  return function () {
-    console.log('got here', {metadata, ctx})
-
-    console.log('ctx.oembed 1', ctx.oembed)
-
+function getRemoteMetadata (ctx, opts: Opts) {
+  return function (metadata) {
     if (!opts.fetch_oembed || !ctx.oembed) {
       return metadata
     }
@@ -224,8 +200,6 @@ function getRemoteMetadata (metadata, ctx, opts: Opts) : () => Array<string[]> {
     if (isRelativeUrl(ctx.oembed)) {
       ctx.oembed = resolveUrl(ctx.url, ctx.oembed)
     }
-
-    console.log('ctx.oembed 2', ctx.oembed)
 
     return fetch(ctx.oembed).then(res => {
       let { type: contentType } = parse_content_type(res.headers.get('Content-Type'))
@@ -239,19 +213,65 @@ function getRemoteMetadata (metadata, ctx, opts: Opts) : () => Array<string[]> {
     }).then(data => {
       const unwind = data.body || {} // get(data, 'body', data, {})
 
-      metadata.push(
+      metadata.set(
         ...Object.entries(unwind)
-          .filter(([key]) => fields.includes(key))
+          .filter(([key]) => keys.includes(key))
           .map(arr => ['oembed', arr[0], arr[1]])
       )
 
       return metadata
     }).catch(err => {
-      console.log('GOT AN ERROR', err)
       return metadata
     })
   }
 }
 
+function parse (metadata) {
+  const parsed = {
+    twitter_cards: []
+  }
+
+  for (const [metaKey, metaValue] of metadata) {
+    const item = schema.get(metaKey)
+
+    if (!item) {
+      parsed[metaKey] = metaValue
+      continue
+    }
+
+    let target = parsed[item.entry]
+    
+    if (Array.isArray(target)) {
+      if (!target[target.length - 1]) {
+        target.push({})
+      }
+
+      target = target[target.length - 1]
+    }
+
+    // Trap for deep properties like { twitter_cards: [{ images: { url: '' } }] }, where images is our target rather than the card's root.
+    if (item.parent) {
+      if (Array.isArray(target[item.parent]) === false) {
+        target[item.parent] = []
+      }
+
+      if (!target[item.parent][target[item.parent].length - 1]) {
+        target[item.parent].push({})
+      }
+
+      target = target[item.parent][target[item.parent].length - 1]
+    }
+
+    if (item.category) {
+      target['category'] = item.category
+    }
+    
+
+    // some fields map to the same name so once we have one stick with it
+    target[item.name] || (target[item.name] = metaValue)
+  }
+
+  console.log('PARSED', '\n', JSON.stringify(parsed, null, 2))
+}
 
 export default unfurl

@@ -12,5 +12,5 @@ declare type Opts = {
     /** http(s).Agent instance, allows custom proxy, certificate, lookup, family etc. */
     agent?: string | null;
 };
-declare function unfurl(url: string, opts?: Opts): Promise<string[][]>;
+declare function unfurl(url: string, opts?: Opts): Promise<void>;
 export default unfurl;
