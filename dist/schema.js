@@ -1,7 +1,7 @@
 "use strict";
 // twitter card markup https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup.html
 Object.defineProperty(exports, "__esModule", { value: true });
-const schema = new Map([
+exports.default = new Map([
     ['twitter:card', { entry: 'twitter_cards', name: 'card', type: 'string' }],
     ['twitter:url', { entry: 'twitter_cards', name: 'url', type: 'url' }],
     ['twitter:site', { entry: 'twitter_cards', name: 'site', type: 'string' }],
@@ -26,4 +26,3 @@ const schema = new Map([
     ['twitter:app:name:googleplay', { entry: 'twitter_cards', name: 'name', parent: 'apps', category: 'googleplay', type: 'string' }],
     ['twitter:app:url:googleplay', { entry: 'twitter_cards', name: 'url', parent: 'apps', category: 'googleplay', type: 'string' }]
 ]);
-exports.default = schema;

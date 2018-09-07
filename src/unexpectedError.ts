@@ -1,5 +1,4 @@
-
-class UnexpectedError extends Error {
+export default class UnexpectedError extends Error {
   static EXPECTED_HTML = {
     message: 'Wrong content type header - "text/html" or "application/xhtml+xml" was expected',
     name: 'WRONG_CONTENT_TYPE'
@@ -18,4 +17,3 @@ class UnexpectedError extends Error {
   }
 }
 
-export default UnexpectedError

@@ -1,4 +1,4 @@
-declare class UnexpectedError extends Error {
+export default class UnexpectedError extends Error {
     static EXPECTED_HTML: {
         message: string;
         name: string;
@@ -12,4 +12,3 @@ declare class UnexpectedError extends Error {
         name: string;
     });
 }
-export default UnexpectedError;
