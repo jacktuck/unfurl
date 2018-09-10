@@ -1,6 +1,6 @@
 declare type Opts = {
     /** support retreiving oembed metadata */
-    fetch_oembed?: boolean;
+    oembed?: boolean;
     /** req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) */
     timeout?: number;
     /** maximum redirect count. 0 to not follow redirect */

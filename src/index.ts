@@ -8,11 +8,8 @@ import { Parser } from 'htmlparser2'
 
 // import iconv from 'iconv-lite'
 import fetch from 'node-fetch'
-import debug from 'debug'
-
 import UnexpectedError from './UnexpectedError'
-import schema from './schema'
-const keys = Array.from(schema.keys())
+import { schema, keys } from './schema'
 
 function isRelativeUrl (url: string): boolean {
   return /^(http|\/\/)/.test(url) === false
@@ -20,7 +17,7 @@ function isRelativeUrl (url: string): boolean {
 
 type Opts = {
   /** support retreiving oembed metadata */
-  fetch_oembed?: boolean
+  oembed?: boolean
   /** req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) */
   timeout?: number
   /** maximum redirect count. 0 to not follow redirect */
@@ -33,26 +30,30 @@ type Opts = {
   agent?: string | null
 }
 
-unfurl('https://www.theguardian.com/business/2018/sep/07/ba-british-airways-chief-alex-cruz-compensate-customers-after-data-breach')
+// unfurl('https://www.theguardian.com/business/2018/sep/07/ba-british-airways-chief-alex-cruz-compensate-customers-after-data-breach')
 unfurl('https://www.bbc.co.uk/news/entertainment-arts-45444998')
+unfurl('https://www.gohighlevel.com/blog/2018/04/25/the-winner-take-all-world-of-dental-reviews/index.html')
+
 function unfurl (url: string, opts?: Opts) {
   if (opts === undefined || opts.constructor.name !== 'Object') {
     opts = {}
   }
 
   // Setting defaults when not provided or not correct type
-  typeof opts.fetch_oembed === 'boolean' || (opts.fetch_oembed = true)
+  typeof opts.oembed === 'boolean' || (opts.oembed = true)
   typeof opts.compress === 'boolean' || (opts.compress = true)
   typeof opts.agent === 'string' || (opts.agent = null)
 
+  Number.isInteger(opts.follow) || (opts.follow = 50)
   Number.isInteger(opts.timeout) || (opts.timeout = 0)
   Number.isInteger(opts.size) || (opts.size = 0)
 
   const metadata = new Map()
 
+  console.log('opts', opts)
   const ctx: {
     url?: string,
-    oembed?: string
+    oembedUrl?: string
   } = {
     url
   }
@@ -60,13 +61,10 @@ function unfurl (url: string, opts?: Opts) {
   return getPage(url, opts)
     .then(getLocalMetadata(ctx, opts))
     .then(getRemoteMetadata(ctx, opts))
-    .then(parse)
+    .then(parse(ctx))
 }
 
 function getPage (url: string, opts: Opts) {
-  const log = debug('unfurl:getPage')
-  console.log('url', url)
-
   return fetch(url, {
     headers: {
       Accept: 'text/html, application/xhtml+xml',
@@ -129,25 +127,45 @@ function getLocalMetadata (ctx, opts: Opts) {
         this._tagname = tag
       }
       
-      function ontext (text) {   
+      function ontext (text) {
         if (this._tagname === 'title') {
-          if (ctx.title === undefined) {
-            ctx.title = ''
+          // Makes sure we haven't already seen the title
+          if (this._title !== null) {
+            if (this._title === undefined) {
+              this._title = ''
+            }
+      
+            this._title += text
           }
-    
-          ctx.title += text
         }
       }
       
       function onopentag (name, attr) {  
-        if (opts.fetch_oembed && attr.type === 'application/json+oembed' && attr.href) {
-          ctx.oembed = attr.href
+        if (opts.oembed && attr.type === 'application/json+oembed' && attr.href) {
+          ctx.oembedUrl = attr.href
           return
         }
     
         const prop = attr.name || attr.rel
         const val = attr.content || attr.value
-    
+
+        if (this._favicon !== null) {
+          let favicon
+
+          if (attr.rel === 'shortcut icon') {
+            favicon = resolveUrl(ctx.url, attr.href)
+          } else if (attr.rel === 'icon') {
+            favicon = resolveUrl(ctx.url, attr.href)
+          } else {
+            favicon = resolveUrl(ctx.url, '/favicon.ico')
+          }
+
+          if (favicon) {
+            metadata.set('favicon', favicon)
+            this._favicon = null
+          }
+        }
+
         if (
           !prop ||
           !val ||
@@ -166,8 +184,9 @@ function getLocalMetadata (ctx, opts: Opts) {
           parser.reset()
         }
     
-        if (tag === 'title') {
-          metadata.set('title', ctx.title)
+        if (tag === 'title' && this._title !== null) {
+          metadata.set('title', this._title)
+          this._title = null
         }
       }
 
@@ -192,16 +211,16 @@ function getLocalMetadata (ctx, opts: Opts) {
 
 function getRemoteMetadata (ctx, opts: Opts) {
   return function (metadata) {
-    if (!opts.fetch_oembed || !ctx.oembed) {
+    if (!opts.oembed || !ctx.oembedUrl) {
       return metadata
     }
 
     // convert relative url to an absolute one
-    if (isRelativeUrl(ctx.oembed)) {
-      ctx.oembed = resolveUrl(ctx.url, ctx.oembed)
+    if (isRelativeUrl(ctx.oembedUrl)) {
+      ctx.oembedUrl = resolveUrl(ctx.url, ctx.oembedUrl)
     }
 
-    return fetch(ctx.oembed).then(res => {
+    return fetch(ctx.oembedUrl).then(res => {
       let { type: contentType } = parse_content_type(res.headers.get('Content-Type'))
 
       if (contentType !== 'application/json') {
@@ -226,52 +245,63 @@ function getRemoteMetadata (ctx, opts: Opts) {
   }
 }
 
-function parse (metadata) {
-  const parsed = {
-    twitter_cards: []
+function parse (ctx) {
+  return function (metadata) {
+    const parsed = {
+      twitter_cards: []
+    }
+  
+    for (let [metaKey, metaValue] of metadata) {
+      const item = schema.get(metaKey)
+  
+      if (!item) {
+        parsed[metaKey] = metaValue
+        continue
+      }
+  
+      // Format the value
+      if (item.type === 'string') {
+        metaValue = metaValue.toString()
+      } else if (item.type === 'number') {
+        metaValue = parseInt(metaValue)
+      } else if (item.type === 'url') {
+        metaValue = resolveUrl(ctx.url, metaValue)
+      }
+  
+      let target = parsed[item.entry]
+      
+      if (Array.isArray(target)) {
+        if (!target[target.length - 1]) {
+          target.push({})
+        }
+  
+        target = target[target.length - 1]
+      }
+  
+      // Trap for deep properties like { twitter_cards: [{ images: { url: '' } }] }, where images is our target rather than the card's root.
+      if (item.parent) {
+        if (Array.isArray(target[item.parent]) === false) {
+          target[item.parent] = []
+        }
+  
+        if (!target[item.parent][target[item.parent].length - 1]) {
+          target[item.parent].push({})
+        }
+  
+        target = target[item.parent][target[item.parent].length - 1]
+      }
+  
+      if (item.category) {
+        target['category'] = item.category
+      }
+      
+  
+      // some fields map to the same name so once we have one stick with it
+      target[item.name] || (target[item.name] = metaValue)
+    }
+  
+    console.log('PARSED', '\n', JSON.stringify(parsed, null, 2))
   }
-
-  for (const [metaKey, metaValue] of metadata) {
-    const item = schema.get(metaKey)
-
-    if (!item) {
-      parsed[metaKey] = metaValue
-      continue
-    }
-
-    let target = parsed[item.entry]
-    
-    if (Array.isArray(target)) {
-      if (!target[target.length - 1]) {
-        target.push({})
-      }
-
-      target = target[target.length - 1]
-    }
-
-    // Trap for deep properties like { twitter_cards: [{ images: { url: '' } }] }, where images is our target rather than the card's root.
-    if (item.parent) {
-      if (Array.isArray(target[item.parent]) === false) {
-        target[item.parent] = []
-      }
-
-      if (!target[item.parent][target[item.parent].length - 1]) {
-        target[item.parent].push({})
-      }
-
-      target = target[item.parent][target[item.parent].length - 1]
-    }
-
-    if (item.category) {
-      target['category'] = item.category
-    }
-    
-
-    // some fields map to the same name so once we have one stick with it
-    target[item.name] || (target[item.name] = metaValue)
-  }
-
-  console.log('PARSED', '\n', JSON.stringify(parsed, null, 2))
 }
 
 export default unfurl

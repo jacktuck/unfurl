@@ -1,4 +1,4 @@
-declare const _default: Map<string, {
+export declare const schema: Map<string, {
     entry: string;
     name: string;
     type: string;
@@ -17,4 +17,4 @@ declare const _default: Map<string, {
     category: string;
     type: string;
 }>;
-export default _default;
+export declare const keys: string[];
