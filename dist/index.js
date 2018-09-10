@@ -11,8 +11,9 @@ function isRelativeUrl(url) {
     return /^(http|\/\/)/.test(url) === false;
 }
 // unfurl('https://www.theguardian.com/business/2018/sep/07/ba-british-airways-chief-alex-cruz-compensate-customers-after-data-breach')
-unfurl('https://www.bbc.co.uk/news/entertainment-arts-45444998');
-unfurl('https://www.gohighlevel.com/blog/2018/04/25/the-winner-take-all-world-of-dental-reviews/index.html');
+// unfurl('https://www.bbc.co.uk/news/entertainment-arts-45444998')
+// unfurl('https://www.gohighlevel.com/blog/2018/04/25/the-winner-take-all-world-of-dental-reviews/index.html')
+unfurl('https://www.youtube.com/watch?v=cwQgjq0mCdE');
 function unfurl(url, opts) {
     if (opts === undefined || opts.constructor.name !== 'Object') {
         opts = {};
@@ -97,13 +98,15 @@ function getLocalMetadata(ctx, opts) {
             }
             function onopentag(name, attr) {
                 if (opts.oembed && attr.type === 'application/json+oembed' && attr.href) {
-                    ctx.oembedUrl = attr.href;
+                    // If url is relative we will make it absolute
+                    ctx.oembedUrl = url_1.resolve(ctx.url, attr.href);
                     return;
                 }
                 const prop = attr.name || attr.rel;
                 const val = attr.content || attr.value;
                 if (this._favicon !== null) {
                     let favicon;
+                    // If url is relative we will make it absolute
                     if (attr.rel === 'shortcut icon') {
                         favicon = url_1.resolve(ctx.url, attr.href);
                     }
@@ -155,10 +158,6 @@ function getRemoteMetadata(ctx, opts) {
         if (!opts.oembed || !ctx.oembedUrl) {
             return metadata;
         }
-        // convert relative url to an absolute one
-        if (isRelativeUrl(ctx.oembedUrl)) {
-            ctx.oembedUrl = url_1.resolve(ctx.url, ctx.oembedUrl);
-        }
         return node_fetch_1.default(ctx.oembedUrl).then(res => {
             let { type: contentType } = content_type_1.parse(res.headers.get('Content-Type'));
             if (contentType !== 'application/json') {
@@ -167,7 +166,7 @@ function getRemoteMetadata(ctx, opts) {
             // JSON text SHALL be encoded in UTF-8, UTF-16, or UTF-32 https://tools.ietf.org/html/rfc7159#section-8.1
             return res.json();
         }).then(data => {
-            const unwind = data.body || {}; // get(data, 'body', data, {})
+            const unwind = data.body || {};
             metadata.set(...Object.entries(unwind)
                 .filter(([key]) => schema_1.keys.includes(key))
                 .map(arr => ['oembed', arr[0], arr[1]]));
