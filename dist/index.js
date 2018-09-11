@@ -10,10 +10,6 @@ const schema_1 = require("./schema");
 function isRelativeUrl(url) {
     return /^(http|\/\/)/.test(url) === false;
 }
-// unfurl('https://www.theguardian.com/business/2018/sep/07/ba-british-airways-chief-alex-cruz-compensate-customers-after-data-breach')
-// unfurl('https://www.bbc.co.uk/news/entertainment-arts-45444998')
-// unfurl('https://github.com/trending') // multiple og:images
-unfurl('https://www.youtube.com/watch?v=cwQgjq0mCdE');
 function unfurl(url, opts) {
     if (opts === undefined || opts.constructor.name !== 'Object') {
         opts = {};
@@ -120,6 +116,13 @@ function getLocalMetadata(ctx, opts) {
                         this._favicon = null;
                     }
                 }
+                // console.log('prop', prop)
+                if (prop === 'description') {
+                    metadata.push(['description', val]);
+                }
+                if (prop === 'keywords') {
+                    metadata.push(['keywords', val]);
+                }
                 // console.log('PROP', prop)
                 // console.log('VAL', val)
                 // console.log('INCLUDES', keys.includes(prop))
@@ -195,7 +198,7 @@ function parse(ctx) {
             }
             // Special case for video tags which we want to map to each video object
             if (metaKey === 'og:video:tag') {
-                console.log('pushing tag', metaValue);
+                // console.log('pushing tag', metaValue)
                 tags.push(metaValue);
                 continue;
             }
@@ -218,29 +221,38 @@ function parse(ctx) {
             }
             // Trap for deep properties like { twitter_cards: [{ images: { url: '' } }] }, where images is our target rather than the card's root.
             if (item.parent) {
-                if (Array.isArray(target[item.parent]) === false) {
-                    target[item.parent] = [];
+                if (item.category) {
+                    if (!target[item.parent]) {
+                        target[item.parent] = {};
+                    }
+                    if (!target[item.parent][item.category]) {
+                        target[item.parent][item.category] = {};
+                    }
+                    target = target[item.parent][item.category];
                 }
-                if (!target[item.parent][target[item.parent].length - 1]) {
-                    target[item.parent].push({});
+                else {
+                    if (Array.isArray(target[item.parent]) === false) {
+                        target[item.parent] = [];
+                    }
+                    if (!target[item.parent][target[item.parent].length - 1]) {
+                        target[item.parent].push({});
+                    }
+                    else if ((!lastParent || item.parent === lastParent) && target[item.parent][target[item.parent].length - 1] && target[item.parent][target[item.parent].length - 1][item.name]) {
+                        target[item.parent].push({});
+                    }
+                    lastParent = item.parent;
+                    target = target[item.parent][target[item.parent].length - 1];
                 }
-                else if ((!lastParent || item.parent === lastParent) && target[item.parent][target[item.parent].length - 1] && target[item.parent][target[item.parent].length - 1][item.name]) {
-                    target[item.parent].push({});
-                }
-                lastParent = item.parent;
-                target = target[item.parent][target[item.parent].length - 1];
+                // some fields map to the same name so once we have one stick with it
+                target[item.name] || (target[item.name] = metaValue);
             }
-            if (item.category) {
-                target['category'] = item.category;
-            }
-            // some fields map to the same name so once we have one stick with it
-            target[item.name] || (target[item.name] = metaValue);
         }
-        if (tags.length && parsed.open_graph.videos) {
-            console.log('adding tag arr');
-            parsed.open_graph.videos = parsed.open_graph.videos.map(obj => (Object.assign({}, obj, { tags })));
+        if (tags.length && parsed.open_graph['videos']) {
+            // console.log('adding tag arr')
+            parsed.open_graph['videos'] = parsed.open_graph['videos'].map(obj => (Object.assign({}, obj, { tags })));
         }
-        console.log('PARSED', '\n', JSON.stringify(parsed, null, 2));
+        // console.log('PARSED', '\n', JSON.stringify(parsed, null, 2))
+        return parsed;
     };
 }
-exports.default = unfurl;
+module.exports = unfurl;
