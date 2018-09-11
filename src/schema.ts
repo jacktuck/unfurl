@@ -1,5 +1,6 @@
 // twitter card markup https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup.html
 
+
 export const schema = new Map([
   ['twitter:card', { entry: 'twitter_cards', name: 'card', type: 'string' }],
   ['twitter:url', { entry: 'twitter_cards', name: 'url', type: 'url' }],
@@ -23,7 +24,32 @@ export const schema = new Map([
   ['twitter:app:url:ipad', { entry: 'twitter_cards', name: 'url', parent: 'apps', category: 'ipad', type: 'string' }],
   ['twitter:app:id:googleplay', { entry: 'twitter_cards', name: 'id', parent: 'apps', category: 'googleplay', type: 'number' }],
   ['twitter:app:name:googleplay', { entry: 'twitter_cards', name: 'name', parent: 'apps', category: 'googleplay', type: 'string' }],
-  ['twitter:app:url:googleplay', { entry: 'twitter_cards', name: 'url', parent: 'apps', category: 'googleplay', type: 'string' }]
+  ['twitter:app:url:googleplay', { entry: 'twitter_cards', name: 'url', parent: 'apps', category: 'googleplay', type: 'string' }],
+  ['og:title', { entry: 'open_graph', name: 'title', type: 'string'}],
+  ['og:type', { entry: 'open_graph', name: 'type', type: 'string'}],
+  ['og:image', { entry: 'open_graph', name: 'url', parent: 'images', type: 'url'}],
+  ['og:image:url', { entry: 'open_graph', name: 'url', parent: 'images', type: 'url'}],
+  ['og:image:secure_url', { entry: 'open_graph', name: 'secure_url', parent: 'images', type: 'url'}],
+  ['og:image:width', { entry: 'open_graph', name: 'width', parent: 'images', type: 'number'}],
+  ['og:image:height', { entry: 'open_graph', name: 'height', parent: 'images', type: 'number'}],
+  ['og:image:type', { entry: 'open_graph', name: 'type', parent: 'images', type: 'string'}],
+  ['og:url', { entry: 'open_graph', name: 'url', type: 'url'}],
+  ['og:audio', { entry: 'open_graph', name: 'url', parent: 'audio', type: 'url'}],
+  ['og:audio:url', { entry: 'open_graph', name: 'url', parent: 'audio', type: 'url'}],
+  ['og:audio:secure_url', { entry: 'open_graph', name: 'secure_url', parent: 'audio', type: 'url'}],
+  ['og:audio:type', { entry: 'open_graph', name: 'type', parent: 'audio', type: 'string'}],
+  ['og:description', { entry: 'open_graph', name: 'description', type: 'string'}],
+  ['og:determiner', { entry: 'open_graph', name: 'determiner', type: 'string'}],
+  ['og:locale', { entry: 'open_graph', name: 'locale', type: 'string'}],
+  ['og:locale:alternate', { entry: 'open_graph', name: 'locale_alt', type: 'string'}],
+  ['og:site_name', { entry: 'open_graph', name: 'site_name', type: 'string'}],
+  ['og:video', { entry: 'open_graph', name: 'url', parent: 'videos', type: 'url'}],
+  ['og:video:url', { entry: 'open_graph', name: 'url', parent: 'videos', type: 'url'}],
+  ['og:video:secure_url', { entry: 'open_graph', name: 'secure_url', parent: 'videos', type: 'string'}],
+  ['og:video:width', { entry: 'open_graph', name: 'width', parent: 'videos', type: 'number'}],
+  ['og:video:height', { entry: 'open_graph', name: 'height', parent: 'videos', type: 'number'}],
+  ['og:video:type', { entry: 'open_graph', name: 'type', parent: 'videos', type: 'string'}],
+  ['og:video:tag', { entry: 'open_graph', name: 'tag', parent: 'videos', type: 'string'}]
 ])
 
 export const keys = Array.from(schema.keys())

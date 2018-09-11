@@ -32,7 +32,7 @@ type Opts = {
 
 // unfurl('https://www.theguardian.com/business/2018/sep/07/ba-british-airways-chief-alex-cruz-compensate-customers-after-data-breach')
 // unfurl('https://www.bbc.co.uk/news/entertainment-arts-45444998')
-// unfurl('https://www.gohighlevel.com/blog/2018/04/25/the-winner-take-all-world-of-dental-reviews/index.html')
+// unfurl('https://github.com/trending') // multiple og:images
 unfurl('https://www.youtube.com/watch?v=cwQgjq0mCdE')
 
 function unfurl (url: string, opts?: Opts) {
@@ -49,9 +49,7 @@ function unfurl (url: string, opts?: Opts) {
   Number.isInteger(opts.timeout) || (opts.timeout = 0)
   Number.isInteger(opts.size) || (opts.size = 0)
 
-  const metadata = new Map()
-
-  console.log('opts', opts)
+  // console.log('opts', opts)
   const ctx: {
     url?: string,
     oembedUrl?: string
@@ -90,7 +88,7 @@ function getPage (url: string, opts: Opts) {
 
     return res.text()
       .catch(err => {
-        console.log('error', err.message)
+        // console.log('error', err.message)
 
         if (err.code === 'Z_BUF_ERROR') {
           return
@@ -105,7 +103,7 @@ function getPage (url: string, opts: Opts) {
 
 function getLocalMetadata (ctx, opts: Opts) {
   return function (text) {
-    const metadata = new Map()
+    const metadata = []
 
     return new Promise((resolve, reject) => {
       const parser = new Parser({}, {
@@ -148,7 +146,7 @@ function getLocalMetadata (ctx, opts: Opts) {
           return
         }
     
-        const prop = attr.name || attr.rel
+        const prop = attr.name || attr.property || attr.rel
         const val = attr.content || attr.value
 
         if (this._favicon !== null) {
@@ -164,11 +162,14 @@ function getLocalMetadata (ctx, opts: Opts) {
           }
 
           if (favicon) {
-            metadata.set('favicon', favicon)
+            metadata.push(['favicon', favicon])
             this._favicon = null
           }
         }
 
+        // console.log('PROP', prop)
+        // console.log('VAL', val)
+        // console.log('INCLUDES', keys.includes(prop))
         if (
           !prop ||
           !val ||
@@ -177,18 +178,18 @@ function getLocalMetadata (ctx, opts: Opts) {
           return
         }
     
-        metadata.set(prop, val)
+        metadata.push([prop, val]) 
       }
       
       function onclosetag (tag) {   
         this._tagname = ''
   
-        if (tag === 'head') {
-          parser.reset()
-        }
+        // if (tag === 'head') {
+        //   parser.reset()
+        // }
     
         if (tag === 'title' && this._title !== null) {
-          metadata.set('title', this._title)
+          metadata.push(['title', this._title])
           this._title = null
         }
       }
@@ -230,7 +231,7 @@ function getRemoteMetadata (ctx, opts: Opts) {
     }).then(data => {
       const unwind = data.body || {}
 
-      metadata.set(
+      metadata.push(
         ...Object.entries(unwind)
           .filter(([key]) => keys.includes(key))
           .map(arr => ['oembed', arr[0], arr[1]])
@@ -245,15 +246,29 @@ function getRemoteMetadata (ctx, opts: Opts) {
 
 function parse (ctx) {
   return function (metadata) {
+    // console.log('RAW', metadata)
+
     const parsed = {
-      twitter_cards: []
+      twitter_cards: {},
+      open_graph: {}
     }
+
+    let tags = []
+    let lastParent
   
     for (let [metaKey, metaValue] of metadata) {
       const item = schema.get(metaKey)
   
       if (!item) {
         parsed[metaKey] = metaValue
+        continue
+      }
+      
+      // Special case for video tags which we want to map to each video object
+      if (metaKey === 'og:video:tag') {
+        console.log('pushing tag', metaValue)
+        tags.push(metaValue)
+
         continue
       }
   
@@ -272,7 +287,7 @@ function parse (ctx) {
         if (!target[target.length - 1]) {
           target.push({})
         }
-  
+
         target = target[target.length - 1]
       }
   
@@ -284,20 +299,27 @@ function parse (ctx) {
   
         if (!target[item.parent][target[item.parent].length - 1]) {
           target[item.parent].push({})
+        } else if ((!lastParent || item.parent === lastParent) && target[item.parent][target[item.parent].length - 1] && target[item.parent][target[item.parent].length - 1][item.name]) {
+          target[item.parent].push({})
         }
-  
+
+        lastParent = item.parent
         target = target[item.parent][target[item.parent].length - 1]
       }
   
       if (item.category) {
         target['category'] = item.category
       }
-      
-  
+
       // some fields map to the same name so once we have one stick with it
       target[item.name] || (target[item.name] = metaValue)
     }
-  
+
+    if (tags.length && parsed.open_graph.videos) {
+      console.log('adding tag arr')
+      parsed.open_graph.videos = parsed.open_graph.videos.map(obj => ({...obj, tags}))
+    }
+
     console.log('PARSED', '\n', JSON.stringify(parsed, null, 2))
   }
 }
