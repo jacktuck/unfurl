@@ -7,9 +7,6 @@ const htmlparser2_1 = require("htmlparser2");
 const node_fetch_1 = require("node-fetch");
 const UnexpectedError_1 = require("./UnexpectedError");
 const schema_1 = require("./schema");
-function isRelativeUrl(url) {
-    return /^(http|\/\/)/.test(url) === false;
-}
 function unfurl(url, opts) {
     if (opts === undefined || opts.constructor.name !== 'Object') {
         opts = {};
@@ -171,27 +168,31 @@ function getRemoteMetadata(ctx, opts) {
             // JSON text SHALL be encoded in UTF-8, UTF-16, or UTF-32 https://tools.ietf.org/html/rfc7159#section-8.1
             return res.json();
         }).then(data => {
-            const unwind = data.body || {};
-            metadata.push(...Object.entries(unwind)
-                .filter(([key]) => schema_1.keys.includes(key))
-                .map(arr => ['oembed', arr[0], arr[1]]));
+            const oEmbed = Object.entries(data)
+                .map(([k, v]) => ['oEmbed:' + k, v])
+                .filter(([k, v]) => schema_1.keys.includes(String(k))); // to-do: look into why TS complains if i don't String()
+            metadata.push(...oEmbed);
             return metadata;
         }).catch(err => {
+            console.log('ERROR', err);
             return metadata;
         });
     };
 }
 function parse(ctx) {
     return function (metadata) {
-        // console.log('RAW', metadata)
+        console.log('RAW', metadata);
         const parsed = {
             twitter_cards: {},
-            open_graph: {}
+            open_graph: {},
+            oEmbed: {}
         };
         let tags = [];
         let lastParent;
         for (let [metaKey, metaValue] of metadata) {
             const item = schema_1.schema.get(metaKey);
+            console.log('KEY', metaKey);
+            console.log('ITEM', item);
             if (!item) {
                 parsed[metaKey] = metaValue;
                 continue;
@@ -202,7 +203,6 @@ function parse(ctx) {
                 tags.push(metaValue);
                 continue;
             }
-            // Format the value
             if (item.type === 'string') {
                 metaValue = metaValue.toString();
             }
@@ -213,13 +213,13 @@ function parse(ctx) {
                 metaValue = url_1.resolve(ctx.url, metaValue);
             }
             let target = parsed[item.entry];
+            // console.log('TARGET', target)
             if (Array.isArray(target)) {
                 if (!target[target.length - 1]) {
                     target.push({});
                 }
                 target = target[target.length - 1];
             }
-            // Trap for deep properties like { twitter_cards: [{ images: { url: '' } }] }, where images is our target rather than the card's root.
             if (item.parent) {
                 if (item.category) {
                     if (!target[item.parent]) {
@@ -243,9 +243,9 @@ function parse(ctx) {
                     lastParent = item.parent;
                     target = target[item.parent][target[item.parent].length - 1];
                 }
-                // some fields map to the same name so once we have one stick with it
-                target[item.name] || (target[item.name] = metaValue);
             }
+            // some fields map to the same name so once we have one stick with it
+            target[item.name] || (target[item.name] = metaValue);
         }
         if (tags.length && parsed.open_graph['videos']) {
             // console.log('adding tag arr')

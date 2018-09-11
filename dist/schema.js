@@ -49,6 +49,21 @@ exports.schema = new Map([
     ['og:video:width', { entry: 'open_graph', name: 'width', parent: 'videos', type: 'number' }],
     ['og:video:height', { entry: 'open_graph', name: 'height', parent: 'videos', type: 'number' }],
     ['og:video:type', { entry: 'open_graph', name: 'type', parent: 'videos', type: 'string' }],
-    ['og:video:tag', { entry: 'open_graph', name: 'tag', parent: 'videos', type: 'string' }]
+    ['og:video:tag', { entry: 'open_graph', name: 'tag', parent: 'videos', type: 'string' }],
+    ['oEmbed:type', { entry: 'oEmbed', name: 'type', type: 'string' }],
+    ['oEmbed:version', { entry: 'oEmbed', name: 'version', type: 'string' }],
+    ['oEmbed:title', { entry: 'oEmbed', name: 'title', type: 'string' }],
+    ['oEmbed:author_name', { entry: 'oEmbed', name: 'author_name', type: 'string' }],
+    ['oEmbed:author_url', { entry: 'oEmbed', name: 'author_url', type: 'url' }],
+    ['oEmbed:provider_name', { entry: 'oEmbed', name: 'provider_name', type: 'string' }],
+    ['oEmbed:provider_url', { entry: 'oEmbed', name: 'provider_url', type: 'string' }],
+    ['oEmbed:cache_age', { entry: 'oEmbed', name: 'cache_age', type: 'string' }],
+    ['oEmbed:thumbnail_url', { entry: 'oEmbed', name: 'url', parent: 'thumbnail', type: 'url' }],
+    ['oEmbed:thumbnail_width', { entry: 'oEmbed', name: 'width', parent: 'thumbnail', type: 'string' }],
+    ['oEmbed:thumbnail_height', { entry: 'oEmbed', name: 'height', parent: 'thumbnail', type: 'string' }],
+    ['oEmbed:url', { entry: 'oEmbed', name: 'url', type: 'url' }],
+    ['oEmbed:html', { entry: 'oEmbed', name: 'html', type: 'string' }],
+    ['oEmbed:width', { entry: 'oEmbed', name: 'width', type: 'number' }],
+    ['oEmbed:height', { entry: 'oEmbed', name: 'height', type: 'number' }]
 ]);
 exports.keys = Array.from(exports.schema.keys());

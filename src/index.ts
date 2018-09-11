@@ -3,34 +3,37 @@ import {
   resolve as resolveUrl
 } from 'url'
 
-import { parse as parse_content_type } from 'content-type'
-import { Parser } from 'htmlparser2'
+import {
+  parse as parse_content_type
+} from 'content-type'
+import {
+  Parser
+} from 'htmlparser2'
 
 // import iconv from 'iconv-lite'
 import fetch from 'node-fetch'
 import UnexpectedError from './UnexpectedError'
-import { schema, keys } from './schema'
-
-function isRelativeUrl (url: string): boolean {
-  return /^(http|\/\/)/.test(url) === false
-}
+import {
+  schema,
+  keys
+} from './schema'
 
 type Opts = {
   /** support retreiving oembed metadata */
-  oembed?: boolean
+  oembed ? : boolean
   /** req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) */
-  timeout?: number
+  timeout ? : number
   /** maximum redirect count. 0 to not follow redirect */
-  follow?: number 
+  follow ? : number
   /** support gzip/deflate content encoding */
-  compress?: boolean
+  compress ? : boolean
   /** maximum response body size in bytes. 0 to disable */
-  size?: number
+  size ? : number
   /** http(s).Agent instance, allows custom proxy, certificate, lookup, family etc. */
-  agent?: string | null
+  agent ? : string | null
 }
 
-function unfurl (url: string, opts?: Opts) {
+function unfurl(url: string, opts ? : Opts) {
   if (opts === undefined || opts.constructor.name !== 'Object') {
     opts = {}
   }
@@ -46,8 +49,8 @@ function unfurl (url: string, opts?: Opts) {
 
   // console.log('opts', opts)
   const ctx: {
-    url?: string,
-    oembedUrl?: string
+    url ? : string,
+    oembedUrl ? : string
   } = {
     url
   }
@@ -58,7 +61,7 @@ function unfurl (url: string, opts?: Opts) {
     .then(parse(ctx))
 }
 
-function getPage (url: string, opts: Opts) {
+function getPage(url: string, opts: Opts) {
   return fetch(url, {
     headers: {
       Accept: 'text/html, application/xhtml+xml',
@@ -69,14 +72,19 @@ function getPage (url: string, opts: Opts) {
     compress: opts.compress,
     size: opts.size,
   }).then(res => {
-    let { type: contentType, parameters: { charset } } = parse_content_type(res.headers.get('Content-Type'))
+    let {
+      type: contentType,
+      parameters: {
+        charset
+      }
+    } = parse_content_type(res.headers.get('Content-Type'))
 
     if (charset) {
       charset = charset.toUpperCase()
     }
 
     let contentLength: number = parseInt(res.headers.get('Content-Length') || '0')
-    
+
     if (contentType !== 'text/html' && contentType !== 'application/xhtml+xml') {
       throw new UnexpectedError(UnexpectedError.EXPECTED_HTML)
     }
@@ -88,7 +96,7 @@ function getPage (url: string, opts: Opts) {
         if (err.code === 'Z_BUF_ERROR') {
           return
         }
-  
+
         process.nextTick(function () {
           throw err
         })
@@ -96,7 +104,7 @@ function getPage (url: string, opts: Opts) {
   })
 }
 
-function getLocalMetadata (ctx, opts: Opts) {
+function getLocalMetadata(ctx, opts: Opts) {
   return function (text) {
     const metadata = []
 
@@ -105,42 +113,42 @@ function getLocalMetadata (ctx, opts: Opts) {
         decodeEntities: true
       })
 
-      function onend () {
+      function onend() {
         resolve(metadata)
       }
-      
-      function onreset () {
+
+      function onreset() {
         resolve(metadata)
       }
-      
-      function onerror (err) {
+
+      function onerror(err) {
         reject(err)
       }
-      
-      function onopentagname  (tag) {
+
+      function onopentagname(tag) {
         this._tagname = tag
       }
-      
-      function ontext (text) {
+
+      function ontext(text) {
         if (this._tagname === 'title') {
           // Makes sure we haven't already seen the title
           if (this._title !== null) {
             if (this._title === undefined) {
               this._title = ''
             }
-      
+
             this._title += text
           }
         }
       }
-      
-      function onopentag (name, attr) {  
+
+      function onopentag(name, attr) {
         if (opts.oembed && attr.type === 'application/json+oembed' && attr.href) {
           // If url is relative we will make it absolute
           ctx.oembedUrl = resolveUrl(ctx.url, attr.href)
           return
         }
-    
+
         const prop = attr.name || attr.property || attr.rel
         const val = attr.content || attr.value
 
@@ -174,24 +182,23 @@ function getLocalMetadata (ctx, opts: Opts) {
         // console.log('PROP', prop)
         // console.log('VAL', val)
         // console.log('INCLUDES', keys.includes(prop))
-        if (
-          !prop ||
+        if (!prop ||
           !val ||
           keys.includes(prop) === false
         ) {
           return
         }
-    
-        metadata.push([prop, val]) 
+
+        metadata.push([prop, val])
       }
-      
-      function onclosetag (tag) {   
+
+      function onclosetag(tag) {
         this._tagname = ''
-  
+
         // if (tag === 'head') {
         //   parser.reset()
         // }
-    
+
         if (tag === 'title' && this._title !== null) {
           metadata.push(['title', this._title])
           this._title = null
@@ -217,14 +224,16 @@ function getLocalMetadata (ctx, opts: Opts) {
 // const encodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
 
-function getRemoteMetadata (ctx, opts: Opts) {
+function getRemoteMetadata(ctx, opts: Opts) {
   return function (metadata) {
     if (!opts.oembed || !ctx.oembedUrl) {
       return metadata
     }
 
     return fetch(ctx.oembedUrl).then(res => {
-      let { type: contentType } = parse_content_type(res.headers.get('Content-Type'))
+      let {
+        type: contentType
+      } = parse_content_type(res.headers.get('Content-Type'))
 
       if (contentType !== 'application/json') {
         throw new UnexpectedError(UnexpectedError.EXPECTED_JSON)
@@ -233,28 +242,28 @@ function getRemoteMetadata (ctx, opts: Opts) {
       // JSON text SHALL be encoded in UTF-8, UTF-16, or UTF-32 https://tools.ietf.org/html/rfc7159#section-8.1
       return res.json()
     }).then(data => {
-      const unwind = data.body || {}
+      const oEmbed = Object.entries(data)
+        .map(([k, v]) => ['oEmbed:' + k, v])
+        .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
 
-      metadata.push(
-        ...Object.entries(unwind)
-          .filter(([key]) => keys.includes(key))
-          .map(arr => ['oembed', arr[0], arr[1]])
-      )
+      metadata.push(...oEmbed)
 
       return metadata
     }).catch(err => {
+      console.log('ERROR', err)
       return metadata
     })
   }
 }
 
-function parse (ctx) {
+function parse(ctx) {
   return function (metadata) {
-    // console.log('RAW', metadata)
+    console.log('RAW', metadata)
 
     const parsed = {
       twitter_cards: {},
-      open_graph: {}
+      open_graph: {},
+      oEmbed: {}
     }
 
     let tags = []
@@ -262,12 +271,13 @@ function parse (ctx) {
 
     for (let [metaKey, metaValue] of metadata) {
       const item = schema.get(metaKey)
-  
+      console.log('KEY', metaKey)
+      console.log('ITEM', item)
       if (!item) {
         parsed[metaKey] = metaValue
         continue
       }
-      
+
       // Special case for video tags which we want to map to each video object
       if (metaKey === 'og:video:tag') {
         // console.log('pushing tag', metaValue)
@@ -275,8 +285,7 @@ function parse (ctx) {
 
         continue
       }
-  
-      // Format the value
+
       if (item.type === 'string') {
         metaValue = metaValue.toString()
       } else if (item.type === 'number') {
@@ -284,9 +293,9 @@ function parse (ctx) {
       } else if (item.type === 'url') {
         metaValue = resolveUrl(ctx.url, metaValue)
       }
-  
+
       let target = parsed[item.entry]
-      
+      // console.log('TARGET', target)
       if (Array.isArray(target)) {
         if (!target[target.length - 1]) {
           target.push({})
@@ -294,8 +303,7 @@ function parse (ctx) {
 
         target = target[target.length - 1]
       }
-  
-      // Trap for deep properties like { twitter_cards: [{ images: { url: '' } }] }, where images is our target rather than the card's root.
+
       if (item.parent) {
         if (item.category) {
           if (!target[item.parent]) {
@@ -311,26 +319,26 @@ function parse (ctx) {
           if (Array.isArray(target[item.parent]) === false) {
             target[item.parent] = []
           }
-    
+
           if (!target[item.parent][target[item.parent].length - 1]) {
             target[item.parent].push({})
           } else if ((!lastParent || item.parent === lastParent) && target[item.parent][target[item.parent].length - 1] && target[item.parent][target[item.parent].length - 1][item.name]) {
             target[item.parent].push({})
           }
-  
+
           lastParent = item.parent
           target = target[item.parent][target[item.parent].length - 1]
         }
-    
-  
-        // some fields map to the same name so once we have one stick with it
-        target[item.name] || (target[item.name] = metaValue)
-        }
+      }
+      // some fields map to the same name so once we have one stick with it
+      target[item.name] || (target[item.name] = metaValue)
     }
 
     if (tags.length && parsed.open_graph['videos']) {
       // console.log('adding tag arr')
-      parsed.open_graph['videos'] = parsed.open_graph['videos'].map(obj => ({...obj, tags}))
+      parsed.open_graph['videos'] = parsed.open_graph['videos'].map(obj => ({ ...obj,
+        tags
+      }))
     }
 
     // console.log('PARSED', '\n', JSON.stringify(parsed, null, 2))
