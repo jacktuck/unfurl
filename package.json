@@ -13,35 +13,20 @@
     ]
   },
   "dependencies": {
-    "@types/node-fetch": "^2.1.2",
-    "content-type": "^1.0.4",
     "debug": "^3.1.0",
     "htmlparser2": "^3.9.2",
-    "node-fetch": "^1.7.3"
+    "iconv-lite": "^0.4.24",
+    "node-fetch": "^2.2.0",
+    "source-map-support": "^0.5.9"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "chai-as-promised": "^7.0.0",
-    "coveralls": "^3.0.0",
-    "delay": "^2.0.0",
-    "finalhandler": "^1.1.1",
-    "inliner": "^1.13.1",
-    "istanbul": "^1.1.0-alpha.1",
-    "microtime": "^2.1.7",
-    "mocha": "^4.0.0",
-    "mocha-lcov-reporter": "^1.2.0",
-    "nyc": "^11.0.1",
-    "open-graph-scraper": "^3.0.0",
-    "send": "^0.16.2",
-    "serve-static": "^1.13.2",
-    "standard": "^10.0.2"
+    "@types/node-fetch": "^2.1.2",
+    "tape": "^4.9.1"
   },
   "scripts": {
     "start": "node dist/index.js",
     "watch": "tsc -w --outDir dist",
-    "build": "tsc --outDir dist",
-    "test": "mocha ./test/*.test.js",
-    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha ./test/*.test.js --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "build": "tsc --outDir dist"
   },
   "keywords": [
     "oembed",

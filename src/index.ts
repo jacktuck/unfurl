@@ -1,16 +1,13 @@
+import 'source-map-support/register'
+
 import {
   parse as parseUrl,
   resolve as resolveUrl
 } from 'url'
 
-import {
-  parse as parse_content_type
-} from 'content-type'
-import {
-  Parser
-} from 'htmlparser2'
+import { Parser } from 'htmlparser2'
 
-// import iconv from 'iconv-lite'
+import * as iconv from 'iconv-lite'
 import fetch from 'node-fetch'
 import UnexpectedError from './UnexpectedError'
 import {
@@ -61,8 +58,8 @@ function unfurl(url: string, opts ? : Opts) {
     .then(parse(ctx))
 }
 
-function getPage(url: string, opts: Opts) {
-  return fetch(url, {
+async function getPage(url: string, opts: Opts) {
+  const resp = await fetch(url, {
     headers: {
       Accept: 'text/html, application/xhtml+xml',
       agent: opts.agent
@@ -71,37 +68,44 @@ function getPage(url: string, opts: Opts) {
     follow: opts.follow,
     compress: opts.compress,
     size: opts.size,
-  }).then(res => {
-    let {
-      type: contentType,
-      parameters: {
-        charset
-      }
-    } = parse_content_type(res.headers.get('Content-Type'))
-
-    if (charset) {
-      charset = charset.toUpperCase()
-    }
-
-    let contentLength: number = parseInt(res.headers.get('Content-Length') || '0')
-
-    if (contentType !== 'text/html' && contentType !== 'application/xhtml+xml') {
-      throw new UnexpectedError(UnexpectedError.EXPECTED_HTML)
-    }
-
-    return res.text()
-      .catch(err => {
-        // console.log('error', err.message)
-
-        if (err.code === 'Z_BUF_ERROR') {
-          return
-        }
-
-        process.nextTick(function () {
-          throw err
-        })
-      })
   })
+  
+  const buf = await resp.buffer()
+  const ct = resp.headers.get('Content-Type')
+
+  if (/text\/html|application\/xhtml+xml/.test(ct) === false) {
+    throw new UnexpectedError(UnexpectedError.EXPECTED_HTML)
+  }
+
+	// no charset in content type, peek at response body for at most 1024 bytes
+	let str = buf.slice(0, 1024).toString()
+  let res
+
+  if (ct) {
+		res = /charset=([^;]*)/i.exec(ct);
+  }
+
+	// html5
+	if (!res && str) {
+		res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
+	}
+
+  // html4
+	if (!res && str) {
+		res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
+  }
+
+	// found charset
+	if (res) {
+    const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
+    const charset = res.pop().toUpperCase()
+
+    if (supported.includes(charset)) {
+      return iconv.decode(buf, charset).toString()
+    }
+  }
+
+  return buf.toString()
 }
 
 function getLocalMetadata(ctx, opts: Opts) {
@@ -114,6 +118,13 @@ function getLocalMetadata(ctx, opts: Opts) {
       })
 
       function onend() {
+        console.log('hit end')
+
+        if (this._favicon !== null) {
+          const favicon = resolveUrl(ctx.url, '/favicon.ico')
+          metadata.push(['favicon', favicon])
+        }
+
         resolve(metadata)
       }
 
@@ -160,8 +171,6 @@ function getLocalMetadata(ctx, opts: Opts) {
             favicon = resolveUrl(ctx.url, attr.href)
           } else if (attr.rel === 'icon') {
             favicon = resolveUrl(ctx.url, attr.href)
-          } else {
-            favicon = resolveUrl(ctx.url, '/favicon.ico')
           }
 
           if (favicon) {
@@ -179,9 +188,6 @@ function getLocalMetadata(ctx, opts: Opts) {
           metadata.push(['keywords', val])
         }
 
-        // console.log('PROP', prop)
-        // console.log('VAL', val)
-        // console.log('INCLUDES', keys.includes(prop))
         if (!prop ||
           !val ||
           keys.includes(prop) === false
@@ -195,9 +201,9 @@ function getLocalMetadata(ctx, opts: Opts) {
       function onclosetag(tag) {
         this._tagname = ''
 
-        // if (tag === 'head') {
-        //   parser.reset()
-        // }
+        if (tag === 'head') {
+          parser.reset()
+        }
 
         if (tag === 'title' && this._title !== null) {
           metadata.push(['title', this._title])
@@ -225,43 +231,38 @@ function getLocalMetadata(ctx, opts: Opts) {
 
 
 function getRemoteMetadata(ctx, opts: Opts) {
-  return function (metadata) {
+  return async function (metadata) {
     if (!opts.oembed || !ctx.oembedUrl) {
       return metadata
     }
 
-    return fetch(ctx.oembedUrl).then(res => {
-      let {
-        type: contentType
-      } = parse_content_type(res.headers.get('Content-Type'))
+    const res = await fetch(ctx.oembedUrl)
 
-      if (contentType !== 'application/json') {
-        throw new UnexpectedError(UnexpectedError.EXPECTED_JSON)
-      }
+    let ct = res.headers.get('Content-Type')
 
-      // JSON text SHALL be encoded in UTF-8, UTF-16, or UTF-32 https://tools.ietf.org/html/rfc7159#section-8.1
-      return res.json()
-    }).then(data => {
-      const oEmbed = Object.entries(data)
-        .map(([k, v]) => ['oEmbed:' + k, v])
-        .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
-
-      metadata.push(...oEmbed)
-
+    // If we're not getting JSON back then return early
+    if (/application\/json/.test(ct) === false) {
       return metadata
-    }).catch(err => {
-      console.log('ERROR', err)
-      return metadata
-    })
+    }
+
+    const data = await res.json()
+   
+    const oEmbed = Object.entries(data)
+      .map(([k, v]) => ['oEmbed:' + k, v])
+      .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
+
+    metadata.push(...oEmbed)
+
+    return metadata
   }
 }
 
 function parse(ctx) {
   return function (metadata) {
-    console.log('RAW', metadata)
+    console.log('CTZZZ', ctx)
 
     const parsed = {
-      twitter_cards: {},
+      twitter_card: {},
       open_graph: {},
       oEmbed: {}
     }
@@ -273,6 +274,7 @@ function parse(ctx) {
       const item = schema.get(metaKey)
       console.log('KEY', metaKey)
       console.log('ITEM', item)
+
       if (!item) {
         parsed[metaKey] = metaValue
         continue
@@ -293,6 +295,8 @@ function parse(ctx) {
       } else if (item.type === 'url') {
         metaValue = resolveUrl(ctx.url, metaValue)
       }
+
+      // convert value if we need to
 
       let target = parsed[item.entry]
       // console.log('TARGET', target)

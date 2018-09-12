@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+require("source-map-support/register");
 const url_1 = require("url");
-const content_type_1 = require("content-type");
 const htmlparser2_1 = require("htmlparser2");
-// import iconv from 'iconv-lite'
+const iconv = require("iconv-lite");
 const node_fetch_1 = require("node-fetch");
 const UnexpectedError_1 = require("./UnexpectedError");
 const schema_1 = require("./schema");
@@ -27,8 +27,8 @@ function unfurl(url, opts) {
         .then(getRemoteMetadata(ctx, opts))
         .then(parse(ctx));
 }
-function getPage(url, opts) {
-    return node_fetch_1.default(url, {
+async function getPage(url, opts) {
+    const resp = await node_fetch_1.default(url, {
         headers: {
             Accept: 'text/html, application/xhtml+xml',
             agent: opts.agent
@@ -37,26 +37,35 @@ function getPage(url, opts) {
         follow: opts.follow,
         compress: opts.compress,
         size: opts.size,
-    }).then(res => {
-        let { type: contentType, parameters: { charset } } = content_type_1.parse(res.headers.get('Content-Type'));
-        if (charset) {
-            charset = charset.toUpperCase();
-        }
-        let contentLength = parseInt(res.headers.get('Content-Length') || '0');
-        if (contentType !== 'text/html' && contentType !== 'application/xhtml+xml') {
-            throw new UnexpectedError_1.default(UnexpectedError_1.default.EXPECTED_HTML);
-        }
-        return res.text()
-            .catch(err => {
-            // console.log('error', err.message)
-            if (err.code === 'Z_BUF_ERROR') {
-                return;
-            }
-            process.nextTick(function () {
-                throw err;
-            });
-        });
     });
+    const buf = await resp.buffer();
+    const ct = resp.headers.get('Content-Type');
+    if (/text\/html|application\/xhtml+xml/.test(ct) === false) {
+        throw new UnexpectedError_1.default(UnexpectedError_1.default.EXPECTED_HTML);
+    }
+    // no charset in content type, peek at response body for at most 1024 bytes
+    let str = buf.slice(0, 1024).toString();
+    let res;
+    if (ct) {
+        res = /charset=([^;]*)/i.exec(ct);
+    }
+    // html5
+    if (!res && str) {
+        res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
+    }
+    // html4
+    if (!res && str) {
+        res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
+    }
+    // found charset
+    if (res) {
+        const supported = ['CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP'];
+        const charset = res.pop().toUpperCase();
+        if (supported.includes(charset)) {
+            return iconv.decode(buf, charset).toString();
+        }
+    }
+    return buf.toString();
 }
 function getLocalMetadata(ctx, opts) {
     return function (text) {
@@ -66,6 +75,11 @@ function getLocalMetadata(ctx, opts) {
                 decodeEntities: true
             });
             function onend() {
+                console.log('hit end');
+                if (this._favicon !== null) {
+                    const favicon = url_1.resolve(ctx.url, '/favicon.ico');
+                    metadata.push(['favicon', favicon]);
+                }
                 resolve(metadata);
             }
             function onreset() {
@@ -105,9 +119,6 @@ function getLocalMetadata(ctx, opts) {
                     else if (attr.rel === 'icon') {
                         favicon = url_1.resolve(ctx.url, attr.href);
                     }
-                    else {
-                        favicon = url_1.resolve(ctx.url, '/favicon.ico');
-                    }
                     if (favicon) {
                         metadata.push(['favicon', favicon]);
                         this._favicon = null;
@@ -120,9 +131,6 @@ function getLocalMetadata(ctx, opts) {
                 if (prop === 'keywords') {
                     metadata.push(['keywords', val]);
                 }
-                // console.log('PROP', prop)
-                // console.log('VAL', val)
-                // console.log('INCLUDES', keys.includes(prop))
                 if (!prop ||
                     !val ||
                     schema_1.keys.includes(prop) === false) {
@@ -132,9 +140,9 @@ function getLocalMetadata(ctx, opts) {
             }
             function onclosetag(tag) {
                 this._tagname = '';
-                // if (tag === 'head') {
-                //   parser.reset()
-                // }
+                if (tag === 'head') {
+                    parser.reset();
+                }
                 if (tag === 'title' && this._title !== null) {
                     metadata.push(['title', this._title]);
                     this._title = null;
@@ -156,34 +164,29 @@ function getLocalMetadata(ctx, opts) {
 }
 // const encodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 function getRemoteMetadata(ctx, opts) {
-    return function (metadata) {
+    return async function (metadata) {
         if (!opts.oembed || !ctx.oembedUrl) {
             return metadata;
         }
-        return node_fetch_1.default(ctx.oembedUrl).then(res => {
-            let { type: contentType } = content_type_1.parse(res.headers.get('Content-Type'));
-            if (contentType !== 'application/json') {
-                throw new UnexpectedError_1.default(UnexpectedError_1.default.EXPECTED_JSON);
-            }
-            // JSON text SHALL be encoded in UTF-8, UTF-16, or UTF-32 https://tools.ietf.org/html/rfc7159#section-8.1
-            return res.json();
-        }).then(data => {
-            const oEmbed = Object.entries(data)
-                .map(([k, v]) => ['oEmbed:' + k, v])
-                .filter(([k, v]) => schema_1.keys.includes(String(k))); // to-do: look into why TS complains if i don't String()
-            metadata.push(...oEmbed);
+        const res = await node_fetch_1.default(ctx.oembedUrl);
+        let ct = res.headers.get('Content-Type');
+        // If we're not getting JSON back then return early
+        if (/application\/json/.test(ct) === false) {
             return metadata;
-        }).catch(err => {
-            console.log('ERROR', err);
-            return metadata;
-        });
+        }
+        const data = await res.json();
+        const oEmbed = Object.entries(data)
+            .map(([k, v]) => ['oEmbed:' + k, v])
+            .filter(([k, v]) => schema_1.keys.includes(String(k))); // to-do: look into why TS complains if i don't String()
+        metadata.push(...oEmbed);
+        return metadata;
     };
 }
 function parse(ctx) {
     return function (metadata) {
-        console.log('RAW', metadata);
+        console.log('CTZZZ', ctx);
         const parsed = {
-            twitter_cards: {},
+            twitter_card: {},
             open_graph: {},
             oEmbed: {}
         };
@@ -212,6 +215,7 @@ function parse(ctx) {
             else if (item.type === 'url') {
                 metaValue = url_1.resolve(ctx.url, metaValue);
             }
+            // convert value if we need to
             let target = parsed[item.entry];
             // console.log('TARGET', target)
             if (Array.isArray(target)) {
@@ -256,3 +260,4 @@ function parse(ctx) {
     };
 }
 module.exports = unfurl;
+//# sourceMappingURL=index.js.map
