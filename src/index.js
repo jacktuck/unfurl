@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("source-map-support/register");
 const url_1 = require("url");
 const htmlparser2_1 = require("htmlparser2");
-const iconv_lite_1 = require("iconv-lite");
+const iconv = require("iconv-lite");
 const node_fetch_1 = require("node-fetch");
 const UnexpectedError_1 = require("./UnexpectedError");
 const schema_1 = require("./schema");
-const jschardet_1 = require("jschardet");
+const jschardet = require("jschardet");
 function unfurl(url, opts) {
     if (opts === undefined || opts.constructor.name !== 'Object') {
         opts = {};
@@ -67,13 +67,13 @@ async function getPage(url, opts) {
     }
     // found charset
     if (res) {
-        console.log('BUFFER WAS DETECTED AS', jschardet_1.default.detect(buf));
+        console.log('BUFFER WAS DETECTED AS', jschardet.detect(buf));
         const supported = ['CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP'];
         const charset = res.pop().toUpperCase();
         console.log('charset', charset);
         if (supported.includes(charset)) {
             console.log('converting charset...');
-            return iconv_lite_1.default.decode(buf, charset).toString();
+            return iconv.decode(buf, charset).toString();
         }
     }
     return buf.toString();
@@ -277,5 +277,5 @@ function parse(ctx) {
         return parsed;
     };
 }
-exports.default = unfurl;
+module.exports = unfurl;
 //# sourceMappingURL=index.js.map

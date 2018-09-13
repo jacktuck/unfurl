@@ -7,7 +7,7 @@ import {
 
 import { Parser } from 'htmlparser2'
 
-import * as iconv from 'iconv-lite'
+import iconv from 'iconv-lite'
 import fetch from 'node-fetch'
 import UnexpectedError from './UnexpectedError'
 import {
@@ -15,8 +15,8 @@ import {
   keys
 } from './schema'
 
+import jschardet from 'jschardet'
 
-import * as jschardet from 'jschardet'
 type Opts = {
   /** support retreiving oembed metadata */
   oembed?: boolean
@@ -108,7 +108,7 @@ async function getPage (url: string, opts: Opts) {
 	// found charset
   if (res) {
     console.log('BUFFER WAS DETECTED AS', jschardet.detect(buf))
-  
+
     const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
     const charset = res.pop().toUpperCase()
 
@@ -371,4 +371,4 @@ function parse (ctx) {
   }
 }
 
-module.exports = unfurl
+export default unfurl
