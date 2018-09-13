@@ -5,16 +5,22 @@ import iconv from 'iconv-lite'
 import jschardet from 'jschardet'
 import TestServer from './server'
 
+console.log('testServer', TestServer)
+
 const port = 9000
-const baseUrl = `http://localhost:${port}/`
+const baseUrl = `http://localhost:${port}`
 
-beforeAll(next => TestServer.listen(port, next))
-afterAll(next => TestServer.close(next))
+beforeAll(then => TestServer.listen(port, then))
+afterAll(then => TestServer.close(then))
 
-test('should detect html5 content type', () => {
-  expect('foo').toBe('foo')
+test('should detect html 5 content type', async () => {
+  const data = await unfurl(baseUrl + '/encoding/html/5')
+  console.log('data', data)
+
+
 })
 
-test('should detect html4 content type', () => {
-  expect('foo').toBe('foo')
+test('should detect html 4 content type', async () => {
+  const data = await unfurl(baseUrl + '/encoding/html/4')
+  console.log('data', data)
 })

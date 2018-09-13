@@ -107,7 +107,7 @@ async function getPage (url: string, opts: Opts) {
 
 	// found charset
   if (res) {
-    console.log('BUFFER WAS DETECTED AS', jschardet.detect(buf))
+    // console.log('BUFFER WAS DETECTED AS', jschardet.detect(buf))
 
     const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
     const charset = res.pop().toUpperCase()
