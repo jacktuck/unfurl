@@ -7,6 +7,7 @@ const iconv = require("iconv-lite");
 const node_fetch_1 = require("node-fetch");
 const UnexpectedError_1 = require("./UnexpectedError");
 const schema_1 = require("./schema");
+const jschardet = require("jschardet");
 function unfurl(url, opts) {
     if (opts === undefined || opts.constructor.name !== 'Object') {
         opts = {};
@@ -66,6 +67,7 @@ async function getPage(url, opts) {
     }
     // found charset
     if (res) {
+        console.log('BUFFER WAS DETECTED AS', jschardet.detect(buf));
         const supported = ['CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP'];
         const charset = res.pop().toUpperCase();
         console.log('charset', charset);

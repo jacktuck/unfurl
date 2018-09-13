@@ -27,22 +27,21 @@ const svr = http.createServer(function (req, res) {
     const path = base + file
 
     const original = fs.readFileSync(path)
-    // utf -> gb2312
-    const converted = iconv.decode(original.toString(), encoding)
+    // const converted = iconv.encode(iconv.decode(original, 'utf-8'), encoding)
 
-    console.log('original', original.slice(0, 1024).toString())
-    console.log('converted', converted.slice(0, 1024).toString())
+    // console.log('original', original.slice(0, 1024).toString())
+    // console.log('converted', converted.slice(0, 1024).toString())
     console.log('jschardet -> original', jschardet.detect(original))
-    console.log('jschardet -> converted', jschardet.detect(converted))
+    // console.log('jschardet -> converted', jschardet.detect(converted))
 
     // console.log('original', original)
     // console.log('converted', converted)
 
     res.writeHead(200, {
-      'Content-Length': Buffer.byteLength(converted.toString()),
+      'Content-Length': Buffer.byteLength(original),
       'Content-Type': `text/html; charset=${encoding}`
     })
-    res.write(converted.toString())
+    res.write(original)
     res.end()
   } catch (err) {
     res.writeHead(500, err.message)
