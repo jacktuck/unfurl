@@ -86,23 +86,23 @@ async function getPage (url: string, opts: Opts) {
   let res
 
   if (ct) {
-    console.log('detecting charset from content-type header')
+    // console.log('detecting charset from content-type header')
     res = /charset=([^;]*)/i.exec(ct)
-    console.log('detected', res)
+    // console.log('detected', res)
   }
 
 	// html5
   if (!res && str) {
-    console.log('detecting charset from <meta> in html5')
+    // console.log('detecting charset from <meta> in html5')
     res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
-    console.log('detected', res)
+    // console.log('detected', res)
   }
 
   // html4
   if (!res && str) {
-    console.log('detecting charset from <meta> in html4')
+    // console.log('detecting charset from <meta> in html4')
     res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
-    console.log('detected', res)
+    // console.log('detected', res)
   }
 
 	// found charset
@@ -112,9 +112,9 @@ async function getPage (url: string, opts: Opts) {
     const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
     const charset = res.pop().toUpperCase()
 
-    console.log('charset', charset)
+    // console.log('charset', charset)
     if (supported.includes(charset)) {
-      console.log('converting charset...')
+      // console.log('converting charset...')
       return iconv.decode(buf, charset).toString()
     }
   }
