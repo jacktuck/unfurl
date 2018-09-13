@@ -1,11 +1,9 @@
 const unfurl = require('..')
 const fs = require('fs')
 const http = require('http')
-const finalhandler = require('finalhandler')
-const serveStatic = require('serve-static')
 const test = require('tape')
 const iconv = require('iconv-lite')
-
+const jschardet = require('jschardet')
 const port = 9000
 const baseUrl = `http://localhost:${port}/`
 
@@ -20,20 +18,31 @@ const svr = http.createServer(function (req, res) {
       res.end()
     }
 
-    const encoding = 'utf-8'//match[1]
+    const encoding = match[1]
     const file = match[2]
 
+    console.log('encoding', encoding)
+    console.log('file', file)
     const base = './test/html/'
     const path = base + file
 
-    const original = fs.readFileSync(path).toString()
-    // const converted = iconv.encode(original, encoding)
+    const original = fs.readFileSync(path)
+    // utf -> gb2312
+    const converted = iconv.decode(original.toString(), encoding)
+
+    console.log('original', original.slice(0, 1024).toString())
+    console.log('converted', converted.slice(0, 1024).toString())
+    console.log('jschardet -> original', jschardet.detect(original))
+    console.log('jschardet -> converted', jschardet.detect(converted))
+
+    // console.log('original', original)
+    // console.log('converted', converted)
 
     res.writeHead(200, {
-      'Content-Length': Buffer.byteLength(original),
-      'Content-Type': `text/html; charset=utf-8`
+      'Content-Length': Buffer.byteLength(converted.toString()),
+      'Content-Type': `text/html; charset=${encoding}`
     })
-    res.write(original)
+    res.write(converted.toString())
     res.end()
   } catch (err) {
     res.writeHead(500, err.message)
@@ -43,8 +52,18 @@ const svr = http.createServer(function (req, res) {
 
 test('setup', t => svr.listen(port, t.end))
 
-test('qq.com', t => {
-  const data = unfurl(`${baseUrl}/gb2312/qq.com.html`).then(console.log, console.log)
+test('qq.com', async t => {
+  t.plan(1)
+
+  const actual = await unfurl(`${baseUrl}/gb2312/qq.com/source.html`)
+  console.log('actual', actual)
+
+  const expected = JSON.parse(
+    fs.readFileSync(`${__dirname}/html/qq.com/expected.json`).toString()
+  )
+
+  t.deepEquals(actual, expected)
+  t.end()
 })
 
 test('teardown', t => svr.close(t.end))

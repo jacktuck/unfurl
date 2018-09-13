@@ -17,20 +17,20 @@ import {
 
 type Opts = {
   /** support retreiving oembed metadata */
-  oembed ? : boolean
+  oembed?: boolean
   /** req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) */
-  timeout ? : number
+  timeout?: number
   /** maximum redirect count. 0 to not follow redirect */
-  follow ? : number
+  follow?: number
   /** support gzip/deflate content encoding */
-  compress ? : boolean
+  compress?: boolean
   /** maximum response body size in bytes. 0 to disable */
-  size ? : number
+  size?: number
   /** http(s).Agent instance, allows custom proxy, certificate, lookup, family etc. */
-  agent ? : string | null
+  agent?: string | null
 }
 
-function unfurl(url: string, opts ? : Opts) {
+function unfurl (url: string, opts?: Opts) {
   if (opts === undefined || opts.constructor.name !== 'Object') {
     opts = {}
   }
@@ -44,12 +44,12 @@ function unfurl(url: string, opts ? : Opts) {
   Number.isInteger(opts.timeout) || (opts.timeout = 0)
   Number.isInteger(opts.size) || (opts.size = 0)
 
-  console.log('OPTS', opts)
+  // console.log('OPTS', opts)
 
   // console.log('opts', opts)
   const ctx: {
-    url ? : string,
-    oembedUrl ? : string
+    url?: string,
+    oembedUrl?: string
   } = {
     url
   }
@@ -60,7 +60,7 @@ function unfurl(url: string, opts ? : Opts) {
     .then(parse(ctx))
 }
 
-async function getPage(url: string, opts: Opts) {
+async function getPage (url: string, opts: Opts) {
   const resp = await fetch(url, {
     headers: {
       Accept: 'text/html, application/xhtml+xml',
@@ -69,9 +69,9 @@ async function getPage(url: string, opts: Opts) {
     timeout: opts.timeout,
     follow: opts.follow,
     compress: opts.compress,
-    size: opts.size,
+    size: opts.size
   })
-  
+
   const buf = await resp.buffer()
   const ct = resp.headers.get('Content-Type')
 
@@ -80,29 +80,37 @@ async function getPage(url: string, opts: Opts) {
   }
 
 	// no charset in content type, peek at response body for at most 1024 bytes
-	let str = buf.slice(0, 1024).toString()
+  let str = buf.slice(0, 1024).toString()
   let res
 
   if (ct) {
-		res = /charset=([^;]*)/i.exec(ct);
+    console.log('detecting charset from content-type header')
+    res = /charset=([^;]*)/i.exec(ct)
+    console.log('detected', res)
   }
 
 	// html5
-	if (!res && str) {
-		res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
-	}
+  if (!res && str) {
+    console.log('detecting charset from <meta> in html5')
+    res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
+    console.log('detected', res)
+  }
 
   // html4
-	if (!res && str) {
-		res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
+  if (!res && str) {
+    console.log('detecting charset from <meta> in html4')
+    res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
+    console.log('detected', res)
   }
 
 	// found charset
-	if (res) {
+  if (res) {
     const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
     const charset = res.pop().toUpperCase()
 
+    console.log('charset', charset)
     if (supported.includes(charset)) {
+      console.log('converting charset...')
       return iconv.decode(buf, charset).toString()
     }
   }
@@ -110,9 +118,9 @@ async function getPage(url: string, opts: Opts) {
   return buf.toString()
 }
 
-function getLocalMetadata(ctx, opts: Opts) {
+function getLocalMetadata (ctx, opts: Opts) {
   return function (text) {
-    console.log('TEXT!', text)
+    // console.log('TEXT!', text)
     const metadata = []
 
     return new Promise((resolve, reject) => {
@@ -120,8 +128,8 @@ function getLocalMetadata(ctx, opts: Opts) {
         decodeEntities: true
       })
 
-      function onend() {
-        console.log('END!!!')
+      function onend () {
+        // console.log('END!!!')
 
         if (this._favicon !== null) {
           const favicon = resolveUrl(ctx.url, '/favicon.ico')
@@ -131,21 +139,21 @@ function getLocalMetadata(ctx, opts: Opts) {
         resolve(metadata)
       }
 
-      function onreset() {
-        console.log('RESET!!!')
+      function onreset () {
+        // console.log('RESET!!!')
         resolve(metadata)
       }
 
-      function onerror(err) {
-        console.log('ERR!!!', err)
+      function onerror (err) {
+        // console.log('ERR!!!', err)
         reject(err)
       }
 
-      function onopentagname(tag) {
+      function onopentagname (tag) {
         this._tagname = tag
       }
 
-      function ontext(text) {
+      function ontext (text) {
         if (this._tagname === 'title') {
           // Makes sure we haven't already seen the title
           if (this._title !== null) {
@@ -158,7 +166,7 @@ function getLocalMetadata(ctx, opts: Opts) {
         }
       }
 
-      function onopentag(name, attr) {
+      function onopentag (name, attr) {
         if (opts.oembed && attr.type === 'application/json+oembed' && attr.href) {
           // If url is relative we will make it absolute
           ctx.oembedUrl = resolveUrl(ctx.url, attr.href)
@@ -168,10 +176,10 @@ function getLocalMetadata(ctx, opts: Opts) {
         const prop = attr.name || attr.property || attr.rel
         const val = attr.content || attr.value
 
-        console.log('NAME', name)
-        console.log('ATTR', attr)
-        console.log('PROP', prop)
-        console.log('VAL', val)
+        // console.log('NAME', name)
+        // console.log('ATTR', attr)
+        // console.log('PROP', prop)
+        // console.log('VAL', val)
 
         if (this._favicon !== null) {
           let favicon
@@ -202,14 +210,14 @@ function getLocalMetadata(ctx, opts: Opts) {
           !val ||
           keys.includes(prop) === false
         ) {
-          console.log('IGNORED')
+          // console.log('IGNORED')
           return
         }
 
         metadata.push([prop, val])
       }
 
-      function onclosetag(tag) {
+      function onclosetag (tag) {
         this._tagname = ''
 
         // if (tag === 'head') {
@@ -240,8 +248,7 @@ function getLocalMetadata(ctx, opts: Opts) {
 
 // const encodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
 
-
-function getRemoteMetadata(ctx, opts: Opts) {
+function getRemoteMetadata (ctx, opts: Opts) {
   return async function (metadata) {
     if (!opts.oembed || !ctx.oembedUrl) {
       return metadata
@@ -257,7 +264,7 @@ function getRemoteMetadata(ctx, opts: Opts) {
     }
 
     const data = await res.json()
-   
+
     const oEmbed = Object.entries(data)
       .map(([k, v]) => ['oEmbed:' + k, v])
       .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
@@ -268,9 +275,9 @@ function getRemoteMetadata(ctx, opts: Opts) {
   }
 }
 
-function parse(ctx) {
+function parse (ctx) {
   return function (metadata) {
-    console.log('CTZZZ', ctx)
+    // console.log('CTZZZ', ctx)
 
     const parsed = {
       twitter_card: {},
@@ -283,8 +290,8 @@ function parse(ctx) {
 
     for (let [metaKey, metaValue] of metadata) {
       const item = schema.get(metaKey)
-      console.log('KEY', metaKey)
-      console.log('ITEM', item)
+      // console.log('KEY', metaKey)
+      // console.log('ITEM', item)
 
       if (!item) {
         parsed[metaKey] = metaValue
@@ -302,12 +309,10 @@ function parse(ctx) {
       if (item.type === 'string') {
         metaValue = metaValue.toString()
       } else if (item.type === 'number') {
-        metaValue = parseInt(metaValue)
+        metaValue = parseInt(metaValue, 10)
       } else if (item.type === 'url') {
         metaValue = resolveUrl(ctx.url, metaValue)
       }
-
-      // convert value if we need to
 
       let target = parsed[item.entry]
       // console.log('TARGET', target)
@@ -345,7 +350,8 @@ function parse(ctx) {
           target = target[item.parent][target[item.parent].length - 1]
         }
       }
-      // some fields map to the same name so once we have one stick with it
+
+      // some fields map to the same name so once nicwe have one stick with it
       target[item.name] || (target[item.name] = metaValue)
     }
 

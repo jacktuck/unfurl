@@ -18,7 +18,7 @@ function unfurl(url, opts) {
     Number.isInteger(opts.follow) || (opts.follow = 50);
     Number.isInteger(opts.timeout) || (opts.timeout = 0);
     Number.isInteger(opts.size) || (opts.size = 0);
-    console.log('OPTS', opts);
+    // console.log('OPTS', opts)
     // console.log('opts', opts)
     const ctx = {
         url
@@ -37,7 +37,7 @@ async function getPage(url, opts) {
         timeout: opts.timeout,
         follow: opts.follow,
         compress: opts.compress,
-        size: opts.size,
+        size: opts.size
     });
     const buf = await resp.buffer();
     const ct = resp.headers.get('Content-Type');
@@ -48,21 +48,29 @@ async function getPage(url, opts) {
     let str = buf.slice(0, 1024).toString();
     let res;
     if (ct) {
+        console.log('detecting charset from content-type header');
         res = /charset=([^;]*)/i.exec(ct);
+        console.log('detected', res);
     }
     // html5
     if (!res && str) {
+        console.log('detecting charset from <meta> in html5');
         res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
+        console.log('detected', res);
     }
     // html4
     if (!res && str) {
+        console.log('detecting charset from <meta> in html4');
         res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
+        console.log('detected', res);
     }
     // found charset
     if (res) {
         const supported = ['CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP'];
         const charset = res.pop().toUpperCase();
+        console.log('charset', charset);
         if (supported.includes(charset)) {
+            console.log('converting charset...');
             return iconv.decode(buf, charset).toString();
         }
     }
@@ -70,14 +78,14 @@ async function getPage(url, opts) {
 }
 function getLocalMetadata(ctx, opts) {
     return function (text) {
-        console.log('TEXT!', text);
+        // console.log('TEXT!', text)
         const metadata = [];
         return new Promise((resolve, reject) => {
             const parser = new htmlparser2_1.Parser({}, {
                 decodeEntities: true
             });
             function onend() {
-                console.log('END!!!');
+                // console.log('END!!!')
                 if (this._favicon !== null) {
                     const favicon = url_1.resolve(ctx.url, '/favicon.ico');
                     metadata.push(['favicon', favicon]);
@@ -85,11 +93,11 @@ function getLocalMetadata(ctx, opts) {
                 resolve(metadata);
             }
             function onreset() {
-                console.log('RESET!!!');
+                // console.log('RESET!!!')
                 resolve(metadata);
             }
             function onerror(err) {
-                console.log('ERR!!!', err);
+                // console.log('ERR!!!', err)
                 reject(err);
             }
             function onopentagname(tag) {
@@ -114,10 +122,10 @@ function getLocalMetadata(ctx, opts) {
                 }
                 const prop = attr.name || attr.property || attr.rel;
                 const val = attr.content || attr.value;
-                console.log('NAME', name);
-                console.log('ATTR', attr);
-                console.log('PROP', prop);
-                console.log('VAL', val);
+                // console.log('NAME', name)
+                // console.log('ATTR', attr)
+                // console.log('PROP', prop)
+                // console.log('VAL', val)
                 if (this._favicon !== null) {
                     let favicon;
                     // If url is relative we will make it absolute
@@ -142,7 +150,7 @@ function getLocalMetadata(ctx, opts) {
                 if (!prop ||
                     !val ||
                     schema_1.keys.includes(prop) === false) {
-                    console.log('IGNORED');
+                    // console.log('IGNORED')
                     return;
                 }
                 metadata.push([prop, val]);
@@ -193,7 +201,7 @@ function getRemoteMetadata(ctx, opts) {
 }
 function parse(ctx) {
     return function (metadata) {
-        console.log('CTZZZ', ctx);
+        // console.log('CTZZZ', ctx)
         const parsed = {
             twitter_card: {},
             open_graph: {},
@@ -203,8 +211,8 @@ function parse(ctx) {
         let lastParent;
         for (let [metaKey, metaValue] of metadata) {
             const item = schema_1.schema.get(metaKey);
-            console.log('KEY', metaKey);
-            console.log('ITEM', item);
+            // console.log('KEY', metaKey)
+            // console.log('ITEM', item)
             if (!item) {
                 parsed[metaKey] = metaValue;
                 continue;
@@ -219,12 +227,11 @@ function parse(ctx) {
                 metaValue = metaValue.toString();
             }
             else if (item.type === 'number') {
-                metaValue = parseInt(metaValue);
+                metaValue = parseInt(metaValue, 10);
             }
             else if (item.type === 'url') {
                 metaValue = url_1.resolve(ctx.url, metaValue);
             }
-            // convert value if we need to
             let target = parsed[item.entry];
             // console.log('TARGET', target)
             if (Array.isArray(target)) {
@@ -257,7 +264,7 @@ function parse(ctx) {
                     target = target[item.parent][target[item.parent].length - 1];
                 }
             }
-            // some fields map to the same name so once we have one stick with it
+            // some fields map to the same name so once nicwe have one stick with it
             target[item.name] || (target[item.name] = metaValue);
         }
         if (tags.length && parsed.open_graph['videos']) {
