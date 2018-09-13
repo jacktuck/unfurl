@@ -223,10 +223,6 @@ function reset (res, parser) {
 
     res.body.unpipe(parser)
     res.body.resume()
-
-    if (typeof res.body.destroy === 'function') {
-      res.body.destroy()
-    }
   }
 }
 
