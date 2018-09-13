@@ -14,10 +14,11 @@ function unfurl(url, opts) {
     // Setting defaults when not provided or not correct type
     typeof opts.oembed === 'boolean' || (opts.oembed = true);
     typeof opts.compress === 'boolean' || (opts.compress = true);
-    typeof opts.agent === 'string' || (opts.agent = null);
+    typeof opts.agent === 'string' || (opts.agent = 'facebookexternalhit');
     Number.isInteger(opts.follow) || (opts.follow = 50);
     Number.isInteger(opts.timeout) || (opts.timeout = 0);
     Number.isInteger(opts.size) || (opts.size = 0);
+    console.log('OPTS', opts);
     // console.log('opts', opts)
     const ctx = {
         url
@@ -69,13 +70,14 @@ async function getPage(url, opts) {
 }
 function getLocalMetadata(ctx, opts) {
     return function (text) {
+        console.log('TEXT!', text);
         const metadata = [];
         return new Promise((resolve, reject) => {
             const parser = new htmlparser2_1.Parser({}, {
                 decodeEntities: true
             });
             function onend() {
-                console.log('hit end');
+                console.log('END!!!');
                 if (this._favicon !== null) {
                     const favicon = url_1.resolve(ctx.url, '/favicon.ico');
                     metadata.push(['favicon', favicon]);
@@ -83,9 +85,11 @@ function getLocalMetadata(ctx, opts) {
                 resolve(metadata);
             }
             function onreset() {
+                console.log('RESET!!!');
                 resolve(metadata);
             }
             function onerror(err) {
+                console.log('ERR!!!', err);
                 reject(err);
             }
             function onopentagname(tag) {
@@ -110,6 +114,10 @@ function getLocalMetadata(ctx, opts) {
                 }
                 const prop = attr.name || attr.property || attr.rel;
                 const val = attr.content || attr.value;
+                console.log('NAME', name);
+                console.log('ATTR', attr);
+                console.log('PROP', prop);
+                console.log('VAL', val);
                 if (this._favicon !== null) {
                     let favicon;
                     // If url is relative we will make it absolute
@@ -134,15 +142,16 @@ function getLocalMetadata(ctx, opts) {
                 if (!prop ||
                     !val ||
                     schema_1.keys.includes(prop) === false) {
+                    console.log('IGNORED');
                     return;
                 }
                 metadata.push([prop, val]);
             }
             function onclosetag(tag) {
                 this._tagname = '';
-                if (tag === 'head') {
-                    parser.reset();
-                }
+                // if (tag === 'head') {
+                //   parser.reset()
+                // }
                 if (tag === 'title' && this._title !== null) {
                     metadata.push(['title', this._title]);
                     this._title = null;
