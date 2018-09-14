@@ -39,7 +39,7 @@
     "typescript-eslint-parser": "^18.0.0"
   },
   "scripts": {
-    "test": "jest --verbose",
+    "test": "jest --verbose --runInBand",
     "start": "node dist/index.js",
     "watch": "tsc -w --outDir dist",
     "build": "tsc --outDir dist"
