@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("source-map-support/register");
 const url_1 = require("url");
 const htmlparser2_1 = require("htmlparser2");
-const iconv_lite_1 = require("iconv-lite");
+const iconv = require("iconv-lite");
 const node_fetch_1 = require("node-fetch");
 const UnexpectedError_1 = require("./UnexpectedError");
 const schema_1 = require("./schema");
@@ -41,6 +41,7 @@ async function getPage(url, opts) {
     });
     const buf = await resp.buffer();
     const ct = resp.headers.get('Content-Type');
+    // console.log('ct', ct)
     if (/text\/html|application\/xhtml+xml/.test(ct) === false) {
         throw new UnexpectedError_1.default(UnexpectedError_1.default.EXPECTED_HTML);
     }
@@ -52,13 +53,13 @@ async function getPage(url, opts) {
         res = /charset=([^;]*)/i.exec(ct);
         // console.log('detected', res)
     }
-    // html5
+    // html 5
     if (!res && str) {
         // console.log('detecting charset from <meta> in html5')
         res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
         // console.log('detected', res)
     }
-    // html4
+    // html 4
     if (!res && str) {
         // console.log('detecting charset from <meta> in html4')
         res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
@@ -71,8 +72,8 @@ async function getPage(url, opts) {
         const charset = res.pop().toUpperCase();
         // console.log('charset', charset)
         if (supported.includes(charset)) {
-            // console.log('converting charset...')
-            return iconv_lite_1.default.decode(buf, charset).toString();
+            // console.log('converting charset...', charset)
+            return iconv.decode(buf, charset).toString();
         }
     }
     return buf.toString();

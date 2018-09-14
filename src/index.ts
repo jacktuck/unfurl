@@ -7,7 +7,7 @@ import {
 
 import { Parser } from 'htmlparser2'
 
-import iconv from 'iconv-lite'
+import * as iconv from 'iconv-lite'
 import fetch from 'node-fetch'
 import UnexpectedError from './UnexpectedError'
 import {
@@ -77,6 +77,8 @@ async function getPage (url: string, opts: Opts) {
   const buf = await resp.buffer()
   const ct = resp.headers.get('Content-Type')
 
+  // console.log('ct', ct)
+
   if (/text\/html|application\/xhtml+xml/.test(ct) === false) {
     throw new UnexpectedError(UnexpectedError.EXPECTED_HTML)
   }
@@ -91,14 +93,14 @@ async function getPage (url: string, opts: Opts) {
     // console.log('detected', res)
   }
 
-	// html5
+	// html 5
   if (!res && str) {
     // console.log('detecting charset from <meta> in html5')
     res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
     // console.log('detected', res)
   }
 
-  // html4
+  // html 4
   if (!res && str) {
     // console.log('detecting charset from <meta> in html4')
     res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
@@ -114,7 +116,7 @@ async function getPage (url: string, opts: Opts) {
 
     // console.log('charset', charset)
     if (supported.includes(charset)) {
-      // console.log('converting charset...')
+      // console.log('converting charset...', charset)
       return iconv.decode(buf, charset).toString()
     }
   }
