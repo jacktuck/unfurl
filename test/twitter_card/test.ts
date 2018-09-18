@@ -11,8 +11,8 @@ const baseUrl = `http://localhost:${port}`
 beforeAll(then => TestServer.listen(port, then))
 afterAll(then => TestServer.close(then))
 
-test('should extract twitter:player:*', async () => {
-  const result = await unfurl(baseUrl + '/players')
+test('should build players[]', async () => {
+  const result = await unfurl(baseUrl + '/twitter_card/players')
   const expected = {
     players: [
       {
@@ -31,17 +31,17 @@ test('should extract twitter:player:*', async () => {
   expect(result.twitter_card).toEqual(expected)
 })
 
-test('should extract twitter:image:*', async () => {
-  const result = await unfurl(baseUrl + '/images')
+test('should built images[]', async () => {
+  const result = await unfurl(baseUrl + '/twitter_card/images')
   const expected = {
     images: [
       {
-        url: 'https://media.giphy.com/media/3o7TKGXCZFWDe3lIbu/giphy-facebook_s.jpg',
-        alt: 'first'
+        url: 'https://example.com/a.png',
+        alt: 'a'
       },
       {
-        url: 'https://media.giphy.com/media/3o7TKGXCZFWDe3lIbu/giphy-facebook_s.jpg',
-        alt: 'second'
+        url: 'https://example.com/b.png',
+        alt: 'b'
       }
     ]
   }
@@ -49,8 +49,8 @@ test('should extract twitter:image:*', async () => {
   expect(result.twitter_card).toEqual(expected)
 })
 
-test('should extract twitter:app:*', async () => {
-  const result = await unfurl(baseUrl + '/apps')
+test('should build apps[]', async () => {
+  const result = await unfurl(baseUrl + '/twitter_card/apps')
   const expected = {
     apps: {
       googleplay: {
@@ -70,8 +70,34 @@ test('should extract twitter:app:*', async () => {
   expect(result.twitter_card).toEqual(expected)
 })
 
-test('should extract twitter multiple', async () => {
-  const result = await unfurl(baseUrl + '/multi')
+test('should quality relative urls', async () => {
+  const result = await unfurl(baseUrl + '/twitter_card/relative_url')
+  const expected = {
+    images: [
+      {
+        url: 'http://localhost:9000/a.png',
+        alt: 'a'
+      },
+      {
+        url: 'http://localhost:9000/twitter_card/b.png',
+        alt: 'b'
+      },
+      {
+        url: 'http://localhost:9000/c.png',
+        alt: 'c'
+      },
+      {
+        url: 'http://localhost:9000/twitter_card/d.png',
+        alt: 'd'
+      }
+    ]
+  }
+
+  expect(result.twitter_card).toEqual(expected)
+})
+
+test('should build card', async () => {
+  const result = await unfurl(baseUrl + '/twitter_card/multi')
 
   const expected = {
     apps: {

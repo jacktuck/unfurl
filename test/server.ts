@@ -8,7 +8,6 @@ export default http.createServer(function (req, res) {
     // console.log('GOT ROUTE', route)
 
     if (route === '/json/oembed.json') {
-      // console.log('INSIDE ROUTE /json/oembed')
       const json = fs.readFileSync(__dirname + '/oembed/oembed.json')
 
       // console.log('FOOO!')
@@ -35,7 +34,98 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
-    if (route === '/multi') {
+    if (route === '/open_graph/relative_url') {
+      const html = fs.readFileSync(__dirname + '/open_graph/relative_url.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
+    if (route === '/open_graph/multi') {
+      const html = fs.readFileSync(__dirname + '/open_graph/multi.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
+    if (route === '/open_graph/apps') {
+      const html = fs.readFileSync(__dirname + '/open_graph/apps.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
+    if (route === '/open_graph/images') {
+      const html = fs.readFileSync(__dirname + '/open_graph/images.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
+    if (route === '/open_graph/players') {
+      const html = fs.readFileSync(__dirname + '/open_graph/players.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    if (route === '/twitter_card/relative_url') {
+      const html = fs.readFileSync(__dirname + '/twitter_card/relative_url.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
+    if (route === '/twitter_card/multi') {
       const html = fs.readFileSync(__dirname + '/twitter_card/multi.html')
 
       res.writeHead(200, {
@@ -46,7 +136,7 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
-    if (route === '/apps') {
+    if (route === '/twitter_card/apps') {
       const html = fs.readFileSync(__dirname + '/twitter_card/apps.html')
 
       res.writeHead(200, {
@@ -57,7 +147,7 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
-    if (route === '/images') {
+    if (route === '/twitter_card/images') {
       const html = fs.readFileSync(__dirname + '/twitter_card/images.html')
 
       res.writeHead(200, {
@@ -68,7 +158,7 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
-    if (route === '/players') {
+    if (route === '/twitter_card/players') {
       const html = fs.readFileSync(__dirname + '/twitter_card/players.html')
 
       res.writeHead(200, {
@@ -106,3 +196,5 @@ export default http.createServer(function (req, res) {
     res.end()
   }
 })
+
+module.exports.default

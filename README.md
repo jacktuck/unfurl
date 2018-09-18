@@ -9,11 +9,11 @@
 
 A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protocol for Node.js (>=v7.0.0)
 
-## So, like, what does _unfurl_ even mean?
->Spread out from a rolled or folded state
+## What does Unfurl mean?
+**Verb**: _unroll, unfold, or spread out or be unrolled, unfolded, or spread out from a furled state_
 
-## Anatomy of an unfurl
->Unfurled previews in Slack are handy because they give everyone a glimpse of what someone linked to, letting you know if it’s helpful or not as you go about your day processing dozens of channels and reading hundreds of short messages. A preview saves lots of time throughout your day, letting you decide whether or not something is worth reading about, or better skipped over. They also help with search and your own recollection of what you’ve seen in Slack.
+## What does Unfurl do?
+So you know when you link to something on Slack, or Facebook, or Twitter - they typically show a preview of the link. To do so they have crawled the linked website for metadata and enriched the link by providing more context about it. Which usually entails grabbing its title, description and image/player embed.
 
 <img width="400" src="https://cdn-images-1.medium.com/max/1600/1*QOMaDLcO8rExD0ctBV3BWg.png">
 

@@ -11,7 +11,7 @@ const baseUrl = `http://localhost:${port}`
 beforeAll(then => TestServer.listen(port, then))
 afterAll(then => TestServer.close(then))
 
-test('should get oembed data', async () => {
+test('should build full oEmbed', async () => {
   // console.log('starting test')
   const result = await unfurl(baseUrl + '/html/oembed')
 

@@ -1,3 +1,10 @@
+// to-do: rather than remembering once we have a title. We should wipe
+// the title state when we see title tag opened, so we only keep latest title.
+// e.g.:
+// <title>foo</title>
+// <title>bar</title>
+// we should take title as 'bar' not 'foo'
+
 import 'source-map-support/register'
 
 import {
