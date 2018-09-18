@@ -33,7 +33,7 @@ test('f', () => {})
 //   expect(result.twitter_card).toEqual(expected)
 // })
 
-// test('should built images[]', async () => {
+// test('should build images[]', async () => {
 //   const result = await unfurl(baseUrl + '/twitter_card/images')
 //   const expected = {
 //     images: [
