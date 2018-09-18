@@ -16,7 +16,7 @@ import { Parser } from 'htmlparser2'
 
 import * as iconv from 'iconv-lite'
 import fetch from 'node-fetch'
-import UnexpectedError from './UnexpectedError'
+import UnexpectedError from './unexpectedError'
 import {
   schema,
   keys
