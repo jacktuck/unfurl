@@ -5,7 +5,9 @@
 // <title>bar</title>
 // we should take title as 'bar' not 'foo'
 
-import 'source-map-support/register'
+if (!process.env.disable_source_map) {
+  require('source-map-support').install()
+}
 
 import {
   parse as parseUrl,
@@ -40,9 +42,18 @@ type Opts = {
 }
 
 function unfurl (url: string, opts?: Opts) {
-  if (opts === undefined || opts.constructor.name !== 'Object') {
+  // console.log('unfurl -> url', url)
+  // console.log('unfurl -> opts', opts)
+  if (opts === undefined) {
     opts = {}
   }
+
+  if (opts.constructor.name !== 'Object') {
+  //  console.log('ABOUT TO THROW')
+    throw new UnexpectedError(UnexpectedError.BAD_OPTIONS)
+  }
+
+  // console.log('STILL GOIN')
 
   // Setting defaults when not provided or not correct type
   typeof opts.oembed === 'boolean' || (opts.oembed = true)
@@ -233,9 +244,10 @@ function getLocalMetadata (ctx, opts: Opts) {
       function onclosetag (tag) {
         this._tagname = ''
 
-        // if (tag === 'head') {
-        //   parser.reset()
-        // }
+        // We want to parse as little as possible so finish once we see </head>
+        if (tag === 'head') {
+          parser.reset()
+        }
 
         if (tag === 'title' && this._title !== null) {
           metadata.push(['title', this._title])

@@ -6,6 +6,17 @@ export default http.createServer(function (req, res) {
     const route = req.url
 
     // console.log('GOT ROUTE', route)
+    if (route === '/xml') {
+      // console.log('HIT XML ROUTE')
+      const buffer = new Buffer('')
+
+      res.writeHead(200, {
+        'Content-Length': buffer.byteLength,
+        'Content-Type': `text/xml`
+      })
+      res.write(buffer)
+      res.end()
+    }
 
     if (route === '/json/oembed.json') {
       const json = fs.readFileSync(__dirname + '/oembed/oembed.json')
@@ -88,31 +99,6 @@ export default http.createServer(function (req, res) {
       res.write(html)
       res.end()
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     if (route === '/twitter_card/relative_url') {
       const html = fs.readFileSync(__dirname + '/twitter_card/relative_url.html')

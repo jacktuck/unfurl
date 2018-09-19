@@ -1,3 +1,4 @@
+import 'source-map-support/register';
 declare type Opts = {
     /** support retreiving oembed metadata */
     oembed?: boolean;

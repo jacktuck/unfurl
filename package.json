@@ -34,14 +34,15 @@
     "jschardet": "^1.6.0",
     "tape": "^4.9.1",
     "ts-jest": "^23.1.4",
+    "tsc": "^1.20150623.0",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.0.3",
     "typescript-eslint-parser": "^18.0.0"
   },
   "scripts": {
-    "test": "jest --verbose --runInBand --coverage --coveragePathIgnorePatterns '/test/'",
-    "travis": "jest --verbose --runInBand --coverage --coverageReporters=text-lcov --coveragePathIgnorePatterns '/test/' | coveralls",
+    "test": "disable_source_map=true jest --verbose --runInBand --coverage --coveragePathIgnorePatterns '/test/'",
+    "travis": "disable_source_map=true jest --verbose --runInBand --coverage --coverageReporters=text-lcov --coveragePathIgnorePatterns '/test/' | coveralls",
     "start": "node dist/index.js",
     "watch": "tsc -w --outDir dist",
     "build": "tsc --outDir dist"

@@ -4,16 +4,15 @@ export default class UnexpectedError extends Error {
     name: 'WRONG_CONTENT_TYPE'
   }
 
-  // static EXPECTED_JSON = {
-  //   message: 'Wrong content type header - "application/json" was expected',
-  //   name: 'WRONG_CONTENT_TYPE'
-  // }
+  static BAD_OPTIONS = {
+    message: 'Bad options (see Opts), options must be an Object',
+    name: 'BAD_OPTIONS'
+  }
 
-  constructor(errorType: { message: string, name: string }) {
+  constructor (errorType: { message: string, name: string }) {
     super(errorType.message)
 
     this.name = errorType.name
     this.stack = new Error().stack
   }
 }
-

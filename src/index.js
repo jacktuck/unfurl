@@ -6,9 +6,7 @@
 // <title>bar</title>
 // we should take title as 'bar' not 'foo'
 Object.defineProperty(exports, "__esModule", { value: true });
-if (!process.env.disable_source_map) {
-    require('source-map-support').install();
-}
+require("source-map-support/register");
 const url_1 = require("url");
 const htmlparser2_1 = require("htmlparser2");
 const iconv = require("iconv-lite");
@@ -16,16 +14,16 @@ const node_fetch_1 = require("node-fetch");
 const unexpectedError_1 = require("./unexpectedError");
 const schema_1 = require("./schema");
 function unfurl(url, opts) {
-    // console.log('unfurl -> url', url)
-    // console.log('unfurl -> opts', opts)
+    console.log('unfurl -> url', url);
+    console.log('unfurl -> opts', opts);
     if (opts === undefined) {
         opts = {};
     }
     if (opts.constructor.name !== 'Object') {
-        //  console.log('ABOUT TO THROW')
+        console.log('ABOUT TO THROW');
         throw new unexpectedError_1.default(unexpectedError_1.default.BAD_OPTIONS);
     }
-    // console.log('STILL GOIN')
+    console.log('STILL GOIN');
     // Setting defaults when not provided or not correct type
     typeof opts.oembed === 'boolean' || (opts.oembed = true);
     typeof opts.compress === 'boolean' || (opts.compress = true);
