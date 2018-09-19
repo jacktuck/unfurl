@@ -344,9 +344,6 @@ function parse(ctx) {
             }
             var target = parsed[item.entry];
             if (item.parent) {
-                if (parsed[metaKey] === undefined) {
-                    parsed[metaKey] = {};
-                }
                 if (item.category) {
                     if (!target[item.parent]) {
                         target[item.parent] = {};
@@ -373,8 +370,8 @@ function parse(ctx) {
             // some fields map to the same name so once nicwe have one stick with it
             target[item.name] || (target[item.name] = metaValue);
         }
-        if (tags.length && parsed.open_graph['videos']) {
-            parsed.open_graph['videos'] = parsed.open_graph['videos'].map(function (obj) { return (__assign({}, obj, { tags: tags })); });
+        if (tags.length && parsed.open_graph.videos) {
+            parsed.open_graph.videos = parsed.open_graph.videos.map(function (obj) { return (__assign({}, obj, { tags: tags })); });
         }
         return parsed;
     };

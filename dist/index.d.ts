@@ -22,11 +22,11 @@ declare type Metadata = {
         provider_name?: string;
         provider_url?: string;
         cache_age?: number;
-        thumbnail?: {
+        thumbnails?: [{
             url?: string;
             width?: number;
             height?: number;
-        };
+        }];
     };
     twitter_card: {
         card: string;

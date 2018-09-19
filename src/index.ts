@@ -50,11 +50,11 @@ type Metadata = {
     provider_name?: string
     provider_url?: string
     cache_age?: number
-    thumbnail?: {
+    thumbnails?: [{
       url?: string
       width?: number
       height?: number
-    }
+    }]
   }
   twitter_card: {
     card: string
@@ -420,17 +420,13 @@ function parse (ctx) {
         metaValue = resolveUrl(ctx.url, metaValue)
       }
 
-      if ( parsed[item.entry] === undefined) {
+      if (parsed[item.entry] === undefined) {
         parsed[item.entry] = {}
       }
 
       let target = parsed[item.entry]
   
       if (item.parent) {
-        if (parsed[metaKey] === undefined) {
-          parsed[metaKey] = {}
-        }
-
         if (item.category) {
           if (!target[item.parent]) {
             target[item.parent] = {}
@@ -459,14 +455,14 @@ function parse (ctx) {
 
       // some fields map to the same name so once nicwe have one stick with it
       target[item.name] || (target[item.name] = metaValue)
+
     }
 
-    if (tags.length && parsed.open_graph['videos']) {
-      parsed.open_graph['videos'] = parsed.open_graph['videos'].map(obj => ({ ...obj,
+    if (tags.length && parsed.open_graph.videos) {
+      parsed.open_graph.videos = parsed.open_graph.videos.map(obj => ({ ...obj,
         tags
       }))
     }
-
 
     return parsed
   }
