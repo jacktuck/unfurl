@@ -1,2 +1,3 @@
 test/* linguist-vendored
-bench/html/* linguist-vendored
+dist/* linguist-vendored
+jest.config.js linguist-vendored
