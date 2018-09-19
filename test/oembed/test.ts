@@ -13,7 +13,7 @@ test('should no-op and not throw for wrong content type', async () => {
 
 
 
-  expect(result.oEmbed).toEqual({})
+  expect(result.oEmbed).toEqual(undefined)
 })
 
 test('width/height should be numbers', async () => {

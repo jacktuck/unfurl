@@ -25,5 +25,5 @@ test('should throw bad options error', async () => {
 test('should respect oembed', async () => {
   const result = await unfurl(baseUrl + '/html/oembed', { oembed: false })
 
-  expect(result.oEmbed).toEqual({})
+  expect(result.oEmbed).toEqual(undefined)
 })

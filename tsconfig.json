@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
+    "lib": ["es2017"],
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "target": "es2017",
+    "target": "es5",
     "module": "commonjs",
     "declaration": true
   },

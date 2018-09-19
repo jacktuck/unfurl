@@ -394,9 +394,9 @@ function getMetadata (ctx, opts: Opts) {
 function parse (ctx) {
   return function (metadata) {
     const parsed = {
-      twitter_card: {},
-      open_graph: {},
-      oEmbed: {}
+      // twitter_card: {},
+      // open_graph: {},
+      // oEmbed: {}
     }
 
     let tags = []
@@ -404,8 +404,6 @@ function parse (ctx) {
 
     for (let [metaKey, metaValue] of metadata) {
       const item = schema.get(metaKey)
-
-
 
       if (!item) {
         parsed[metaKey] = metaValue
@@ -426,9 +424,17 @@ function parse (ctx) {
         metaValue = resolveUrl(ctx.url, metaValue)
       }
 
-      let target = parsed[item.entry]
+      if ( parsed[item.entry] === undefined) {
+        parsed[item.entry] = {}
+      }
 
+      let target = parsed[item.entry]
+  
       if (item.parent) {
+        if (parsed[metaKey] === undefined) {
+          parsed[metaKey] = {}
+        }
+
         if (item.category) {
           if (!target[item.parent]) {
             target[item.parent] = {}
