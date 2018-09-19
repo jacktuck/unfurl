@@ -8,13 +8,13 @@ export default http.createServer(function (req, res) {
     // console.log('GOT ROUTE', route)
     if (route === '/image') {
       // console.log('HIT XML ROUTE')
-      const blob = new Blob()
+      const buffer = new Buffer()
 
       res.writeHead(200, {
-        'Content-Length': blob.size,
+        'Content-Length': buffer.byteLength,
         'Content-Type': `image/png`
       })
-      res.write(blob)
+      res.write(buffer)
       res.end()
     }
 

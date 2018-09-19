@@ -70,7 +70,7 @@ test('should build images[]', async () => {
     ]
   }
 
-  // console.log(JSON.stringify(result, null, 2))
+  // (JSON.stringify(result, null, 2))
 
   expect(result.open_graph).toEqual(expected)
 })
@@ -92,7 +92,7 @@ test('should build audio[]', async () => {
     ]
   }
 
-  // console.log(JSON.stringify(result,null,2))
+  // (JSON.stringify(result,null,2))
 
   expect(result.open_graph).toEqual(expected)
 })
@@ -113,7 +113,7 @@ test('should quality relative urls', async () => {
     ]
   }
 
-  // console.log(JSON.stringify(result, null, 2))
+  // (JSON.stringify(result, null, 2))
   expect(result.open_graph).toEqual(expected)
 })
 

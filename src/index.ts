@@ -25,8 +25,6 @@ import {
   keys
 } from './schema'
 
-import jschardet from 'jschardet'
-
 type Opts = {
   /** support retreiving oembed metadata */
   oembed?: boolean
@@ -40,6 +38,87 @@ type Opts = {
   size?: number
   /** http(s).Agent instance, allows custom proxy, certificate, lookup, family etc. */
   agent?: string | null
+}
+
+type Metadata = {
+  oEmbed?: {
+    type: 'photo' | 'video' | 'link' | 'rich'
+    version?: string
+    title?: string
+    author_name?: string
+    author_url?: string
+    provider_name?: string
+    provider_url?: string
+    cache_age?: number
+    thumbnail?: {
+      url?: string
+      width?: number
+      height?: number
+    }
+  }
+  twitter_card: {
+    card: string
+    site?: string
+    creator?: string
+    creator_id?: string
+    title?: string
+    description?: string
+    players?: {
+      url: string
+      stream?: string
+      height?: number
+      width?: number
+    }[]
+    apps: {
+      iphone: {
+        id: string
+        name: string
+        url: string
+      }
+      ipad: {
+        id: string
+        name: string
+        url: string
+      }
+      googleplay: {
+        id: string
+        name: string
+        url: string
+      }
+    },
+    images: {
+      url: string
+      alt: string
+    }[]
+  }
+  open_graph: {
+    title: string
+    type: string
+    images?: {
+      url: string
+      secure_url?: string
+      type: string
+      width: number
+      height: number
+    }[]
+    url?: string
+    audio?: {
+      url: string
+      secure_url?: string
+      type: string 
+    }[]
+    description?: string
+    determiner?: string
+    locale: string
+    locale_alt: string
+    videos: {
+      url: string
+      stream?: string
+      height?: number
+      width?: number
+      tags?: string[]
+    }[]
+  }
 }
 
 function unfurl (url: string, opts?: Opts) {
@@ -75,7 +154,7 @@ function unfurl (url: string, opts?: Opts) {
     url
   }
 
-  return getPage(url, opts)
+  return <Promise<Metadata>>getPage(url, opts)
     .then(getMetadata(ctx, opts))
     .then(getRemoteMetadata(ctx, opts))
     .then(parse(ctx))
@@ -145,7 +224,7 @@ async function getPage (url: string, opts: Opts) {
 
 function getRemoteMetadata (ctx, opts) {
   return async function (metadata) {
-    console.log('getRemoteMetadata', ctx._oembed)
+    // console.log('getRemoteMetadata', ctx._oembed)
     if (!ctx._oembed) {
       return metadata
     }
@@ -153,39 +232,69 @@ function getRemoteMetadata (ctx, opts) {
     const target = resolveUrl(ctx.url, ctx._oembed.href)
 
     const res = await fetch(target)
-    const ct = res.headers.get('Content-Type')
+    const ct = res.headers.get('content-type')
+
+    console.log('headers', {...res.headers})
+    console.log('CT', ct)
 
     let ret
-    if (ctx._oembed.type === 'application/json+oembed') {
+    if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(ct)) {
       ret = await res.json()
-    } else if (ctx._oembed.type === 'text/xml+oembed') {
+    } else if (ctx._oembed.type === 'text/xml+oembed' && /text\/xml/.test(ct)) {
       let data = await res.text()
-
-      let rez = {}
-      let _tagname = ''
-      let _text = ''
+      console.log('XML DATA', data)
+      let rez: any = {}
 
       ret = await new Promise((resolve, reject) => {
         const parser = new Parser({
           onopentag: function (name, attribs) {
-            console.log('TAG', { name,attribs })
-            _tagname = name
+            console.log('TAGOPEN!', { name,attribs })
+
+            console.log('HTML SO FAR X1', rez.html)
+
+            if (this._is_html) {
+              if (!rez.html) rez.html = ''
+              rez.html += `<${name} ${Object.entries(attribs).reduce((a, [k, v]) => !v ? a + k : a + k + '="' + v + '" ', '').trim()}>`
+            }
+
+            if (name === 'html') {
+              this._is_html = true
+            }
+
+            console.log('HTML SO FAR FFF', rez.html)
+
+
+            this._tagname = name
           },
           ontext: function (text) {
-            console.log('TEXT', { text })
-            if (!_text) _text = ''
-            _text += text
+            console.log('TEXT!', { text })
+            if (!this._text) this._text = ''
+            this._text += text
           },
           onclosetag: function (tagname) {
-            console.log('CLOSE TAG', { tagname })
+            console.log('TAG_CLOSED', { tagname, h: this._is_html })
+
             if (tagname === 'oembed') {
               return
             }
 
-            rez[_tagname] = _text.trim()
+            if (tagname === 'html') {
+              this._is_html = false
+              return
+            }
 
-            _tagname = ''
-            _text = ''
+            console.log('HTML SO FAR XXL', rez.html)
+            if (this._is_html) {
+              rez.html += this._text.trim()
+              rez.html += `</${tagname}>`
+            }
+
+            rez[tagname] = this._text.trim()
+
+            console.log('HTML SO FAR X4', rez.html)
+
+            this._tagname = ''
+            this._text = ''
           },
           onend: function () {
             console.log('END!')
@@ -200,6 +309,10 @@ function getRemoteMetadata (ctx, opts) {
         parser.write(data)
         parser.end()
       })
+    }
+
+    if (!ret) {
+      return metadata
     }
 
     console.log('RET', ret)
@@ -221,12 +334,12 @@ function getMetadata (ctx, opts: Opts) {
 
 
     return new Promise((resolve, reject) => {
-      const parser = new Parser({}, {
+      const parser: any = new Parser({}, {
         decodeEntities: true
       })
 
       function onend () {
-        console.log('END!!!')
+        // console.log('END!!!')
 
         if (this._favicon !== null) {
           const favicon = resolveUrl(ctx.url, '/favicon.ico')
@@ -237,7 +350,7 @@ function getMetadata (ctx, opts: Opts) {
       }
 
       function onreset () {
-        console.log('RESET!!!')
+        // console.log('RESET!!!')
         // resolve(metadata)
       }
 
@@ -352,7 +465,7 @@ function parse (ctx) {
   return function (metadata) {
     // console.log('CTZZZ', ctx)
 
-    console.log('PARSING!', metadata)
+    // console.log('PARSING!', metadata)
     const parsed = {
       twitter_card: {},
       open_graph: {},

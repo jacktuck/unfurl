@@ -59,24 +59,26 @@ test('should build oEmbed from XML', async () => {
 
   // console.log('RESULT!!!', JSON.stringify(result, null, 2))
   const expected = {
-    version: '1.0',
-    provider_url: 'https://gfycat.com',
-    provider_name: 'Gfycat',
-    type: 'video',
-    title: 'The creation of a marble sculpture',
-    html: `<div style='position:relative;padding-bottom:100.0%'><iframe src='https://gfycat.com/ifr/ImpressionableWaterloggedAbalone' frameborder='0' scrolling='no' width='100%' height='100%' style='position:absolute;top:0;left:0;' allowfullscreen></iframe></div>`,
-    height: 640,
-    width: 640,
+    html: '<iframe width="480" height="270" src="https://www.youtube.com/embed/mvSItvjFE1c?feature=oembed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>',
+    author_name: 'EminemVEVO',
+    author_url: 'https://www.youtube.com/user/EminemVEVO',
+    height: 270,
+    provider_name: 'YouTube',
+    provider_url: 'https://www.youtube.com/',
     thumbnails: [
       {
-        url: 'https://gfycat.com/uk/gifs/detail/impressionablewaterloggedabalone',
-        width: 200,
-        height: 200
+        height: 360,
+        url: 'https://i.ytimg.com/vi/mvSItvjFE1c/hqdefault.jpg',
+        width: 480
       }
-    ]
+    ],
+    title: 'Eminem - Lucky You ft. Joyner Lucas',
+    type: 'video',
+    version: '1.0',
+    width: 480
   }
 
-  console.log(JSON.stringify({expected, resukt: result.oEmbed}, null, 2))
+  // console.log(JSON.stringify({expected, resukt: result.oEmbed}, null, 2))
 
   expect(result.oEmbed).toEqual(expected)
 })
