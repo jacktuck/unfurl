@@ -393,11 +393,7 @@ function getMetadata (ctx, opts: Opts) {
 
 function parse (ctx) {
   return function (metadata) {
-    const parsed = {
-      // twitter_card: {},
-      // open_graph: {},
-      // oEmbed: {}
-    }
+    const parsed: any = {}
 
     let tags = []
     let lastParent
@@ -466,7 +462,6 @@ function parse (ctx) {
     }
 
     if (tags.length && parsed.open_graph['videos']) {
-
       parsed.open_graph['videos'] = parsed.open_graph['videos'].map(obj => ({ ...obj,
         tags
       }))

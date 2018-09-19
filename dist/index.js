@@ -315,11 +315,7 @@ function getMetadata(ctx, opts) {
 }
 function parse(ctx) {
     return function (metadata) {
-        var parsed = {
-        // twitter_card: {},
-        // open_graph: {},
-        // oEmbed: {}
-        };
+        var parsed = {};
         var tags = [];
         var lastParent;
         for (var _i = 0, metadata_1 = metadata; _i < metadata_1.length; _i++) {
