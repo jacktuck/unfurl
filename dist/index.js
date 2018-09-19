@@ -376,5 +376,5 @@ function parse(ctx) {
         return parsed;
     };
 }
-exports.default = unfurl;
+module.exports = unfurl;
 //# sourceMappingURL=index.js.map

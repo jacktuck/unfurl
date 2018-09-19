@@ -6,12 +6,6 @@
   "version": "2.0.0-0",
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "dist/index.js",
-  "standard": {
-    "ignore": [
-      "/test/*.js",
-      "/bench/*.js"
-    ]
-  },
   "dependencies": {
     "debug": "^3.1.0",
     "htmlparser2": "^3.9.2",

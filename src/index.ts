@@ -468,4 +468,4 @@ function parse (ctx) {
   }
 }
 
-export default unfurl
+module.exports = unfurl
