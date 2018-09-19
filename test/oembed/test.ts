@@ -8,10 +8,10 @@ beforeAll(then => TestServer.listen(port, then))
 afterAll(then => TestServer.close(then))
 
 test('should no-op and not throw for wrong content type', async () => {
-  // console.log('starting test')
+
   const result = await unfurl(baseUrl + '/html/oembed-broken')
 
-  // console.log('result', result)
+
 
   expect(result.oEmbed).toEqual({})
 })
@@ -28,10 +28,8 @@ test('width/height should be numbers', async () => {
 
 
 test('should build oEmbed from JSON', async () => {
-  // console.log('starting test')
   const result: any = await unfurl(baseUrl + '/html/oembed')
 
-  // console.log('RESULT!!!', JSON.stringify(result, null, 2))
   const expected = {
     version: '1.0',
     provider_url: 'https://gfycat.com',
@@ -54,10 +52,8 @@ test('should build oEmbed from JSON', async () => {
 })
 
 test('should build oEmbed from XML', async () => {
-  // console.log('starting test')
   const result: any = await unfurl(baseUrl + '/html/oembed-xml')
 
-  // console.log('RESULT!!!', JSON.stringify(result, null, 2))
   const expected = {
     html: '<iframe width="480" height="270" src="https://www.youtube.com/embed/mvSItvjFE1c?feature=oembed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>',
     author_name: 'EminemVEVO',
@@ -78,7 +74,7 @@ test('should build oEmbed from XML', async () => {
     width: 480
   }
 
-  // console.log(JSON.stringify({expected, resukt: result.oEmbed}, null, 2))
+
 
   expect(result.oEmbed).toEqual(expected)
 })

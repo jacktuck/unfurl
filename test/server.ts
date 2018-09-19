@@ -1,13 +1,11 @@
 import * as fs from 'fs'
 import * as http from 'http'
 
-export default http.createServer(function (req, res) {
+export default http.createServer(function(req, res) {
   try {
     const route = req.url
 
-    // console.log('GOT ROUTE', route)
     if (route === '/image') {
-      // console.log('HIT XML ROUTE')
       const buffer = new Buffer()
 
       res.writeHead(200, {
@@ -21,9 +19,6 @@ export default http.createServer(function (req, res) {
     if (route === '/json/oembed.json') {
       const json = fs.readFileSync(__dirname + '/oembed/oembed.json')
 
-      // console.log('FOOO!')
-      // console.log('json', json.toString())
-
       res.writeHead(200, {
         'Content-Length': Buffer.byteLength(json),
         'Content-Type': `application/json`
@@ -33,9 +28,7 @@ export default http.createServer(function (req, res) {
     }
 
     if (route === '/html/oembed-xml') {
-      console.log('INSIDE ROUTE /html/oembed-xml')
       const html = fs.readFileSync(__dirname + '/oembed/oembed-xml.html')
-      console.log('html', html.toString())
 
       res.writeHead(200, {
         'Content-Length': Buffer.byteLength(html),
@@ -48,9 +41,6 @@ export default http.createServer(function (req, res) {
     if (route === '/xml/oembed.xml') {
       const xml = fs.readFileSync(__dirname + '/oembed/oembed.xml')
 
-      console.log('FOOO!')
-      // console.log('xml', xml.toString())
-
       res.writeHead(200, {
         'Content-Length': Buffer.byteLength(xml),
         'Content-Type': `text/xml`
@@ -59,10 +49,8 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
-     if (route === '/html/oembed-broken') {
-      // console.log('INSIDE ROUTE /html/oembed')
+    if (route === '/html/oembed-broken') {
       const html = fs.readFileSync(__dirname + '/oembed/oembed-broken.html')
-      // console.log('html', html.toString())
 
       res.writeHead(200, {
         'Content-Length': Buffer.byteLength(html),
@@ -73,9 +61,7 @@ export default http.createServer(function (req, res) {
     }
 
     if (route === '/html/oembed') {
-      // console.log('INSIDE ROUTE /html/oembed')
       const html = fs.readFileSync(__dirname + '/oembed/oembed.html')
-      // console.log('html', html.toString())
 
       res.writeHead(200, {
         'Content-Length': Buffer.byteLength(html),
@@ -141,7 +127,9 @@ export default http.createServer(function (req, res) {
     }
 
     if (route === '/twitter_card/relative_url') {
-      const html = fs.readFileSync(__dirname + '/twitter_card/relative_url.html')
+      const html = fs.readFileSync(
+        __dirname + '/twitter_card/relative_url.html'
+      )
 
       res.writeHead(200, {
         'Content-Length': Buffer.byteLength(html),
@@ -217,7 +205,6 @@ export default http.createServer(function (req, res) {
       res.end()
     }
   } catch (err) {
-    // console.log('ERR', err)
     res.writeHead(500, err.message)
     res.end()
   }

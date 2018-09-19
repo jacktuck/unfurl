@@ -57,7 +57,7 @@ var unfurl = require('unfurl.js')
 
 ;(async function () {
   let result = await unfurl('https://github.com/zeit/micro')
-  console.log('result', result)
+
 })().catch(console.error)
 ```
 

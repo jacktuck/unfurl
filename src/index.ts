@@ -122,18 +122,18 @@ type Metadata = {
 }
 
 function unfurl (url: string, opts?: Opts) {
-  // console.log('unfurl -> url', url)
-  // console.log('unfurl -> opts', opts)
+
+
   if (opts === undefined) {
     opts = {}
   }
 
   if (opts.constructor.name !== 'Object') {
-  //  console.log('ABOUT TO THROW')
+
     throw new UnexpectedError(UnexpectedError.BAD_OPTIONS)
   }
 
-  // console.log('STILL GOIN')
+
 
   // Setting defaults when not provided or not correct type
   typeof opts.oembed === 'boolean' || (opts.oembed = true)
@@ -144,9 +144,9 @@ function unfurl (url: string, opts?: Opts) {
   Number.isInteger(opts.timeout) || (opts.timeout = 0)
   Number.isInteger(opts.size) || (opts.size = 0)
 
-  // console.log('OPTS', opts)
 
-  // console.log('opts', opts)
+
+
   const ctx: {
     url?: string,
     oembedUrl?: string
@@ -175,7 +175,7 @@ async function getPage (url: string, opts: Opts) {
   const buf = await resp.buffer()
   const ct = resp.headers.get('Content-Type')
 
-  // console.log('ct', ct)
+
 
   if (/text\/html|application\/xhtml+xml/.test(ct) === false) {
     throw new UnexpectedError(UnexpectedError.EXPECTED_HTML)
@@ -186,35 +186,35 @@ async function getPage (url: string, opts: Opts) {
   let res
 
   if (ct) {
-    // console.log('detecting charset from content-type header')
+
     res = /charset=([^;]*)/i.exec(ct)
-    // console.log('detected', res)
+
   }
 
 	// html 5
   if (!res && str) {
-    // console.log('detecting charset from <meta> in html5')
+
     res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
-    // console.log('detected', res)
+
   }
 
   // html 4
   if (!res && str) {
-    // console.log('detecting charset from <meta> in html4')
+
     res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
-    // console.log('detected', res)
+
   }
 
 	// found charset
   if (res) {
-    // console.log('BUFFER WAS DETECTED AS', jschardet.detect(buf))
+
 
     const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
     const charset = res.pop().toUpperCase()
 
-    // console.log('charset', charset)
+
     if (supported.includes(charset)) {
-      // console.log('converting charset...', charset)
+
       return iconv.decode(buf, charset).toString()
     }
   }
@@ -224,7 +224,7 @@ async function getPage (url: string, opts: Opts) {
 
 function getRemoteMetadata (ctx, opts) {
   return async function (metadata) {
-    // console.log('getRemoteMetadata', ctx._oembed)
+
     if (!ctx._oembed) {
       return metadata
     }
@@ -234,23 +234,23 @@ function getRemoteMetadata (ctx, opts) {
     const res = await fetch(target)
     const ct = res.headers.get('content-type')
 
-    console.log('headers', {...res.headers})
-    console.log('CT', ct)
+
+
 
     let ret
     if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(ct)) {
       ret = await res.json()
     } else if (ctx._oembed.type === 'text/xml+oembed' && /text\/xml/.test(ct)) {
       let data = await res.text()
-      console.log('XML DATA', data)
+
       let rez: any = {}
 
       ret = await new Promise((resolve, reject) => {
         const parser = new Parser({
           onopentag: function (name, attribs) {
-            console.log('TAGOPEN!', { name,attribs })
 
-            console.log('HTML SO FAR X1', rez.html)
+
+
 
             if (this._is_html) {
               if (!rez.html) rez.html = ''
@@ -261,18 +261,18 @@ function getRemoteMetadata (ctx, opts) {
               this._is_html = true
             }
 
-            console.log('HTML SO FAR FFF', rez.html)
+
 
 
             this._tagname = name
           },
           ontext: function (text) {
-            console.log('TEXT!', { text })
+
             if (!this._text) this._text = ''
             this._text += text
           },
           onclosetag: function (tagname) {
-            console.log('TAG_CLOSED', { tagname, h: this._is_html })
+
 
             if (tagname === 'oembed') {
               return
@@ -283,7 +283,7 @@ function getRemoteMetadata (ctx, opts) {
               return
             }
 
-            console.log('HTML SO FAR XXL', rez.html)
+
             if (this._is_html) {
               rez.html += this._text.trim()
               rez.html += `</${tagname}>`
@@ -291,17 +291,17 @@ function getRemoteMetadata (ctx, opts) {
 
             rez[tagname] = this._text.trim()
 
-            console.log('HTML SO FAR X4', rez.html)
+
 
             this._tagname = ''
             this._text = ''
           },
           onend: function () {
-            console.log('END!')
+
             resolve(rez)
           },
           onerror: function (err) {
-            console.log('ERR!')
+
             reject(err)
           }
         })
@@ -315,12 +315,12 @@ function getRemoteMetadata (ctx, opts) {
       return metadata
     }
 
-    console.log('RET', ret)
+
     const oEmbedMetadata = Object.entries(ret)
       .map(([k, v]) => ['oEmbed:' + k, v])
       .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
 
-    console.log('oEmbedMetadata', oEmbedMetadata)
+
 
     metadata.push(...oEmbedMetadata)
     return metadata
@@ -329,9 +329,7 @@ function getRemoteMetadata (ctx, opts) {
 
 function getMetadata (ctx, opts: Opts) {
   return function (text) {
-    // console.log('TEXT!', text)
     const metadata = []
-
 
     return new Promise((resolve, reject) => {
       const parser: any = new Parser({}, {
@@ -339,8 +337,6 @@ function getMetadata (ctx, opts: Opts) {
       })
 
       function onend () {
-        // console.log('END!!!')
-
         if (this._favicon !== null) {
           const favicon = resolveUrl(ctx.url, '/favicon.ico')
           metadata.push(['favicon', favicon])
@@ -349,13 +345,7 @@ function getMetadata (ctx, opts: Opts) {
         resolve(metadata)
       }
 
-      function onreset () {
-        // console.log('RESET!!!')
-        // resolve(metadata)
-      }
-
       function onerror (err) {
-        // console.log('ERR!!!', err)
         reject(err)
       }
 
@@ -377,7 +367,7 @@ function getMetadata (ctx, opts: Opts) {
       }
 
       function onopentag (name, attr) {
-        // console.log('onopentag!!!!!!', name, attr)
+
         if (opts.oembed && attr.href) {
           // We will handle XML and JSON with a preference towards JSON since its more efficient for us
           if (attr.type === 'text/xml+oembed' || attr.type === 'application/json+oembed') {
@@ -389,11 +379,6 @@ function getMetadata (ctx, opts: Opts) {
 
         const prop = attr.name || attr.property || attr.rel
         const val = attr.content || attr.value
-
-        // console.log('NAME', name)
-        // console.log('ATTR', attr)
-        // console.log('PROP', prop)
-        // console.log('VAL', val)
 
         if (this._favicon !== null) {
           let favicon
@@ -411,7 +396,6 @@ function getMetadata (ctx, opts: Opts) {
           }
         }
 
-        // console.log('prop', prop)
         if (prop === 'description') {
           metadata.push(['description', val])
         }
@@ -424,7 +408,7 @@ function getMetadata (ctx, opts: Opts) {
           !val ||
           keys.includes(prop) === false
         ) {
-          // console.log('IGNORED')
+
           return
         }
 
@@ -463,9 +447,6 @@ function getMetadata (ctx, opts: Opts) {
 
 function parse (ctx) {
   return function (metadata) {
-    // console.log('CTZZZ', ctx)
-
-    // console.log('PARSING!', metadata)
     const parsed = {
       twitter_card: {},
       open_graph: {},
@@ -477,8 +458,8 @@ function parse (ctx) {
 
     for (let [metaKey, metaValue] of metadata) {
       const item = schema.get(metaKey)
-      // console.log('KEY', metaKey)
-      // console.log('ITEM', item)
+
+
 
       if (!item) {
         parsed[metaKey] = metaValue
@@ -487,9 +468,7 @@ function parse (ctx) {
 
       // Special case for video tags which we want to map to each video object
       if (metaKey === 'og:video:tag') {
-        // console.log('pushing tag', metaValue)
         tags.push(metaValue)
-
         continue
       }
 
@@ -502,7 +481,7 @@ function parse (ctx) {
       }
 
       let target = parsed[item.entry]
-      // console.log('TARGET', target)
+
       if (Array.isArray(target)) {
         if (!target[target.length - 1]) {
           target.push({})
@@ -543,13 +522,13 @@ function parse (ctx) {
     }
 
     if (tags.length && parsed.open_graph['videos']) {
-      // console.log('adding tag arr')
+
       parsed.open_graph['videos'] = parsed.open_graph['videos'].map(obj => ({ ...obj,
         tags
       }))
     }
 
-    // console.log('PARSED', '\n', JSON.stringify(parsed, null, 2))
+
     return parsed
   }
 }
