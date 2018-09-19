@@ -6,15 +6,15 @@ export default http.createServer(function (req, res) {
     const route = req.url
 
     // console.log('GOT ROUTE', route)
-    if (route === '/xml') {
+    if (route === '/image') {
       // console.log('HIT XML ROUTE')
-      const buffer = new Buffer('')
+      const blob = new Blob()
 
       res.writeHead(200, {
-        'Content-Length': buffer.byteLength,
-        'Content-Type': `text/xml`
+        'Content-Length': blob.size,
+        'Content-Type': `image/png`
       })
-      res.write(buffer)
+      res.write(blob)
       res.end()
     }
 
@@ -29,6 +29,46 @@ export default http.createServer(function (req, res) {
         'Content-Type': `application/json`
       })
       res.write(json)
+      res.end()
+    }
+
+    if (route === '/html/oembed-xml') {
+      console.log('INSIDE ROUTE /html/oembed-xml')
+      const html = fs.readFileSync(__dirname + '/oembed/oembed-xml.html')
+      console.log('html', html.toString())
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
+    if (route === '/xml/oembed.xml') {
+      const xml = fs.readFileSync(__dirname + '/oembed/oembed.xml')
+
+      console.log('FOOO!')
+      // console.log('xml', xml.toString())
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(xml),
+        'Content-Type': `text/xml`
+      })
+      res.write(xml)
+      res.end()
+    }
+
+     if (route === '/html/oembed-broken') {
+      // console.log('INSIDE ROUTE /html/oembed')
+      const html = fs.readFileSync(__dirname + '/oembed/oembed-broken.html')
+      // console.log('html', html.toString())
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
       res.end()
     }
 
@@ -67,8 +107,8 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
-    if (route === '/open_graph/apps') {
-      const html = fs.readFileSync(__dirname + '/open_graph/apps.html')
+    if (route === '/open_graph/audio') {
+      const html = fs.readFileSync(__dirname + '/open_graph/audio.html')
 
       res.writeHead(200, {
         'Content-Length': Buffer.byteLength(html),
@@ -89,8 +129,8 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
-    if (route === '/open_graph/players') {
-      const html = fs.readFileSync(__dirname + '/open_graph/players.html')
+    if (route === '/open_graph/videos') {
+      const html = fs.readFileSync(__dirname + '/open_graph/videos.html')
 
       res.writeHead(200, {
         'Content-Length': Buffer.byteLength(html),
@@ -182,5 +222,3 @@ export default http.createServer(function (req, res) {
     res.end()
   }
 })
-
-module.exports.default

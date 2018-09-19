@@ -5,7 +5,7 @@ import iconv from 'iconv-lite'
 import jschardet from 'jschardet'
 import TestServer from '../server'
 
-const port = 9000
+const port = process.env.port
 const baseUrl = `http://localhost:${port}`
 
 beforeAll(then => TestServer.listen(port, then))

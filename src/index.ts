@@ -5,6 +5,7 @@
 // <title>bar</title>
 // we should take title as 'bar' not 'foo'
 
+// ts-jest already adds source-maps so we don't want to add them again during tests
 if (!process.env.disable_source_map) {
   require('source-map-support').install()
 }
@@ -75,7 +76,7 @@ function unfurl (url: string, opts?: Opts) {
   }
 
   return getPage(url, opts)
-    .then(getLocalMetadata(ctx, opts))
+    .then(getMetadata(ctx, opts))
     .then(getRemoteMetadata(ctx, opts))
     .then(parse(ctx))
 }
@@ -142,10 +143,82 @@ async function getPage (url: string, opts: Opts) {
   return buf.toString()
 }
 
-function getLocalMetadata (ctx, opts: Opts) {
+function getRemoteMetadata (ctx, opts) {
+  return async function (metadata) {
+    console.log('getRemoteMetadata', ctx._oembed)
+    if (!ctx._oembed) {
+      return metadata
+    }
+
+    const target = resolveUrl(ctx.url, ctx._oembed.href)
+
+    const res = await fetch(target)
+    const ct = res.headers.get('Content-Type')
+
+    let ret
+    if (ctx._oembed.type === 'application/json+oembed') {
+      ret = await res.json()
+    } else if (ctx._oembed.type === 'text/xml+oembed') {
+      let data = await res.text()
+
+      let rez = {}
+      let _tagname = ''
+      let _text = ''
+
+      ret = await new Promise((resolve, reject) => {
+        const parser = new Parser({
+          onopentag: function (name, attribs) {
+            console.log('TAG', { name,attribs })
+            _tagname = name
+          },
+          ontext: function (text) {
+            console.log('TEXT', { text })
+            if (!_text) _text = ''
+            _text += text
+          },
+          onclosetag: function (tagname) {
+            console.log('CLOSE TAG', { tagname })
+            if (tagname === 'oembed') {
+              return
+            }
+
+            rez[_tagname] = _text.trim()
+
+            _tagname = ''
+            _text = ''
+          },
+          onend: function () {
+            console.log('END!')
+            resolve(rez)
+          },
+          onerror: function (err) {
+            console.log('ERR!')
+            reject(err)
+          }
+        })
+
+        parser.write(data)
+        parser.end()
+      })
+    }
+
+    console.log('RET', ret)
+    const oEmbedMetadata = Object.entries(ret)
+      .map(([k, v]) => ['oEmbed:' + k, v])
+      .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
+
+    console.log('oEmbedMetadata', oEmbedMetadata)
+
+    metadata.push(...oEmbedMetadata)
+    return metadata
+  }
+}
+
+function getMetadata (ctx, opts: Opts) {
   return function (text) {
     // console.log('TEXT!', text)
     const metadata = []
+
 
     return new Promise((resolve, reject) => {
       const parser = new Parser({}, {
@@ -153,7 +226,7 @@ function getLocalMetadata (ctx, opts: Opts) {
       })
 
       function onend () {
-        // console.log('END!!!')
+        console.log('END!!!')
 
         if (this._favicon !== null) {
           const favicon = resolveUrl(ctx.url, '/favicon.ico')
@@ -164,8 +237,8 @@ function getLocalMetadata (ctx, opts: Opts) {
       }
 
       function onreset () {
-        // console.log('RESET!!!')
-        resolve(metadata)
+        console.log('RESET!!!')
+        // resolve(metadata)
       }
 
       function onerror (err) {
@@ -191,10 +264,14 @@ function getLocalMetadata (ctx, opts: Opts) {
       }
 
       function onopentag (name, attr) {
-        if (opts.oembed && attr.type === 'application/json+oembed' && attr.href) {
-          // If url is relative we will make it absolute
-          ctx.oembedUrl = resolveUrl(ctx.url, attr.href)
-          return
+        // console.log('onopentag!!!!!!', name, attr)
+        if (opts.oembed && attr.href) {
+          // We will handle XML and JSON with a preference towards JSON since its more efficient for us
+          if (attr.type === 'text/xml+oembed' || attr.type === 'application/json+oembed') {
+            if (!ctx._oembed || ctx._oembed === 'application/json+oembed') {
+              ctx._oembed = attr
+            }
+          }
         }
 
         const prop = attr.name || attr.property || attr.rel
@@ -271,39 +348,11 @@ function getLocalMetadata (ctx, opts: Opts) {
   }
 }
 
-// const encodings = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'Big5', 'Shift_JIS', 'EUC-JP' ]
-
-function getRemoteMetadata (ctx, opts: Opts) {
-  return async function (metadata) {
-    if (!opts.oembed || !ctx.oembedUrl) {
-      return metadata
-    }
-
-    const res = await fetch(ctx.oembedUrl)
-
-    let ct = res.headers.get('Content-Type')
-
-    // If we're not getting JSON back then return early
-    if (/application\/json/.test(ct) === false) {
-      return metadata
-    }
-
-    const data = await res.json()
-
-    const oEmbed = Object.entries(data)
-      .map(([k, v]) => ['oEmbed:' + k, v])
-      .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
-
-    metadata.push(...oEmbed)
-
-    return metadata
-  }
-}
-
 function parse (ctx) {
   return function (metadata) {
     // console.log('CTZZZ', ctx)
 
+    console.log('PARSING!', metadata)
     const parsed = {
       twitter_card: {},
       open_graph: {},
