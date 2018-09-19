@@ -116,7 +116,7 @@ type Metadata = {
 ```
 
 ## The who 💖
-_(If you use unfurl.js too feel free to add your project here too)_
+_(If you use unfurl.js too feel free to [add your project](https://github.com/jacktuck/unfurl/edit/master/README.md))_
 
 - [beeman/micro-unfurl](https://github.com/beeman/micro-unfurl) - small microservice that unfurls a URL and returns the OpenGraph meta data.
 - [probot/unfurl](https://github.com/probot/unfurl) a GitHub App built with probot that unfurls links on Issues and Pull Request discussions
