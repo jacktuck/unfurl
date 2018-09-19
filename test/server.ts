@@ -6,7 +6,7 @@ export default http.createServer(function(req, res) {
     const route = req.url
 
     if (route === '/image') {
-      const buffer = new Buffer()
+      const buffer = Buffer.alloc(0)
 
       res.writeHead(200, {
         'Content-Length': buffer.byteLength,
@@ -46,6 +46,17 @@ export default http.createServer(function(req, res) {
         'Content-Type': `text/xml`
       })
       res.write(xml)
+      res.end()
+    }
+
+    if (route === '/html/oembed-multi') {
+      const html = fs.readFileSync(__dirname + '/oembed/oembed-multi.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
       res.end()
     }
 

@@ -130,9 +130,6 @@ function getRemoteMetadata(ctx, opts) {
                     onend: function () {
                         resolve(rez);
                     },
-                    onerror: function (err) {
-                        reject(err);
-                    }
                 });
                 parser.write(data);
                 parser.end();
@@ -151,92 +148,81 @@ function getRemoteMetadata(ctx, opts) {
 function getMetadata(ctx, opts) {
     return function (text) {
         const metadata = [];
-        return new Promise((resolve, reject) => {
-            const parser = new htmlparser2_1.Parser({}, {
+        return new Promise((resolve) => {
+            const parser = new htmlparser2_1.Parser({
+                onend: function () {
+                    if (this._favicon !== null) {
+                        const favicon = url_1.resolve(ctx.url, '/favicon.ico');
+                        metadata.push(['favicon', favicon]);
+                    }
+                    resolve(metadata);
+                },
+                onopentagname: function (tag) {
+                    this._tagname = tag;
+                },
+                ontext: function (text) {
+                    if (this._tagname === 'title') {
+                        // Makes sure we haven't already seen the title
+                        if (this._title !== null) {
+                            if (this._title === undefined) {
+                                this._title = '';
+                            }
+                            this._title += text;
+                        }
+                    }
+                },
+                onopentag: function (name, attr) {
+                    if (opts.oembed && attr.href) {
+                        // We will handle XML and JSON with a preference towards JSON since its more efficient for us
+                        if (attr.type === 'text/xml+oembed' || attr.type === 'application/json+oembed') {
+                            if (!ctx._oembed || ctx._oembed.type === 'text/xml+oembed') { // prefer json
+                                ctx._oembed = attr;
+                            }
+                        }
+                    }
+                    const prop = attr.name || attr.property || attr.rel;
+                    const val = attr.content || attr.value;
+                    if (this._favicon !== null) {
+                        let favicon;
+                        // If url is relative we will make it absolute
+                        if (attr.rel === 'shortcut icon') {
+                            favicon = url_1.resolve(ctx.url, attr.href);
+                        }
+                        else if (attr.rel === 'icon') {
+                            favicon = url_1.resolve(ctx.url, attr.href);
+                        }
+                        if (favicon) {
+                            metadata.push(['favicon', favicon]);
+                            this._favicon = null;
+                        }
+                    }
+                    if (prop === 'description') {
+                        metadata.push(['description', val]);
+                    }
+                    if (prop === 'keywords') {
+                        metadata.push(['keywords', val]);
+                    }
+                    if (!prop ||
+                        !val ||
+                        schema_1.keys.includes(prop) === false) {
+                        return;
+                    }
+                    metadata.push([prop, val]);
+                },
+                onclosetag: function (tag) {
+                    this._tagname = '';
+                    // We want to parse as little as possible so finish once we see </head>
+                    if (tag === 'head') {
+                        parser.reset();
+                    }
+                    if (tag === 'title' && this._title !== null) {
+                        metadata.push(['title', this._title]);
+                        this._title = null;
+                    }
+                }
+            }, {
                 decodeEntities: true
             });
-            function onend() {
-                if (this._favicon !== null) {
-                    const favicon = url_1.resolve(ctx.url, '/favicon.ico');
-                    metadata.push(['favicon', favicon]);
-                }
-                resolve(metadata);
-            }
-            function onerror(err) {
-                reject(err);
-            }
-            function onopentagname(tag) {
-                this._tagname = tag;
-            }
-            function ontext(text) {
-                if (this._tagname === 'title') {
-                    // Makes sure we haven't already seen the title
-                    if (this._title !== null) {
-                        if (this._title === undefined) {
-                            this._title = '';
-                        }
-                        this._title += text;
-                    }
-                }
-            }
-            function onopentag(name, attr) {
-                if (opts.oembed && attr.href) {
-                    // We will handle XML and JSON with a preference towards JSON since its more efficient for us
-                    if (attr.type === 'text/xml+oembed' || attr.type === 'application/json+oembed') {
-                        if (!ctx._oembed || ctx._oembed === 'application/json+oembed') {
-                            ctx._oembed = attr;
-                        }
-                    }
-                }
-                const prop = attr.name || attr.property || attr.rel;
-                const val = attr.content || attr.value;
-                if (this._favicon !== null) {
-                    let favicon;
-                    // If url is relative we will make it absolute
-                    if (attr.rel === 'shortcut icon') {
-                        favicon = url_1.resolve(ctx.url, attr.href);
-                    }
-                    else if (attr.rel === 'icon') {
-                        favicon = url_1.resolve(ctx.url, attr.href);
-                    }
-                    if (favicon) {
-                        metadata.push(['favicon', favicon]);
-                        this._favicon = null;
-                    }
-                }
-                if (prop === 'description') {
-                    metadata.push(['description', val]);
-                }
-                if (prop === 'keywords') {
-                    metadata.push(['keywords', val]);
-                }
-                if (!prop ||
-                    !val ||
-                    schema_1.keys.includes(prop) === false) {
-                    return;
-                }
-                metadata.push([prop, val]);
-            }
-            function onclosetag(tag) {
-                this._tagname = '';
-                // We want to parse as little as possible so finish once we see </head>
-                if (tag === 'head') {
-                    parser.reset();
-                }
-                if (tag === 'title' && this._title !== null) {
-                    metadata.push(['title', this._title]);
-                    this._title = null;
-                }
-            }
-            parser._cbs = {
-                onopentag,
-                ontext,
-                onclosetag,
-                onend,
-                onreset,
-                onerror,
-                onopentagname
-            };
             parser.write(text);
             parser.end();
         });
@@ -272,12 +258,6 @@ function parse(ctx) {
                 metaValue = url_1.resolve(ctx.url, metaValue);
             }
             let target = parsed[item.entry];
-            if (Array.isArray(target)) {
-                if (!target[target.length - 1]) {
-                    target.push({});
-                }
-                target = target[target.length - 1];
-            }
             if (item.parent) {
                 if (item.category) {
                     if (!target[item.parent]) {
