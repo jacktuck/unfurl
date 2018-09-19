@@ -1,5 +1,4 @@
-# Unfurl
-_(unroll, unfold, or spread out or be unrolled, unfolded, or spread out from a furled state)_
+# Unfurl 
 
 A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protocol for Node.js (>=v6.0.0)
 
@@ -8,15 +7,16 @@ A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protoco
 [![Known Vulnerabilities](https://snyk.io/test/github/jacktuck/unfurl/badge.svg?style=flat-square)](https://snyk.io/test/github/jacktuck/unfurl)
 ![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
 
-## What does it do do?
-Unfurl will take a `url` and some `options`, fetch the `url`, extract the metadata we care about and format the result in a saine way. It supports all major metadata providers and expanding it to work for any others should be trivial.
+## The what
+Unfurl _(spread out from a furled state)_ will take a `url` and some `options`, fetch the `url`, extract the metadata we care about and format the result in a saine way. It supports all major metadata providers and expanding it to work for any others should be trivial.
 
-## Why would I need it?
+## The why
 So you know when you link to something on Slack, or Facebook, or Twitter - they typically show a preview of the link. To do so they have crawled the linked website for metadata and enriched the link by providing more context about it. Which usually entails grabbing its title, description and image/player embed.
 
-## Usage
-### unfurl(url [, opts])
+## The how
+### `unfurl(url [, opts])`
 #### url - `string`
+---
 #### opts - `object` of:
 -  `oembed?: boolean` - support retreiving oembed metadata
 -  `timeout?  number` - req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) 
@@ -31,7 +31,7 @@ const unfurl = require('./unfurl.js')
 const result = unfurl('https://github.com/trending')
 ```
 ---
-#### result `<Promise<Metadata>>`
+#### result is `<Promise<Metadata>>`
 ```typescript
 type Metadata = {
   oEmbed?: {
@@ -114,3 +114,11 @@ type Metadata = {
   }
 }
 ```
+
+## The who 💖
+_(If you use unfurl.js too feel free to add your project here too)_
+
+- [beeman/micro-unfurl](https://github.com/beeman/micro-unfurl) - small microservice that unfurls a URL and returns the OpenGraph meta data.
+- [probot/unfurl](https://github.com/probot/unfurl) a GitHub App built with probot that unfurls links on Issues and Pull Request discussions
+
+
