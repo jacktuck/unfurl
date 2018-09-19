@@ -1,0 +1,17 @@
+<oembed>
+  <height>270</height>
+  <provider_name>YouTube</provider_name>
+  <title>Eminem - Lucky You ft. Joyner Lucas</title>
+  <author_name>EminemVEVO</author_name>
+  <author_url>https://www.youtube.com/user/EminemVEVO</author_url>
+  <width>480</width>
+  <thumbnail_height>360</thumbnail_height>
+  <provider_url>https://www.youtube.com/</provider_url>
+  <thumbnail_width>480</thumbnail_width>
+  <html>
+    <iframe width="480" height="270" src="https://www.youtube.com/embed/mvSItvjFE1c?feature=oembed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </html>
+  <thumbnail_url>https://i.ytimg.com/vi/mvSItvjFE1c/hqdefault.jpg</thumbnail_url>
+  <version>1.0</version>
+  <type>video</type>
+</oembed>
