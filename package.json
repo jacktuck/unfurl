@@ -3,7 +3,7 @@
   "engines": {
     "node": ">=6.0.0"
   },
-  "version": "1.1.8-beta.4",
+  "version": "2.0.0-0",
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "dist/index.js",
   "standard": {
