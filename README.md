@@ -17,7 +17,6 @@ So you know when you link to something on Slack, or Facebook, or Twitter - they 
 ## Usage
 ### unfurl(url [, opts])
 #### url - `string`
----
 #### opts - `object` of:
 -  `oembed?: boolean` - support retreiving oembed metadata
 -  `timeout?  number` - req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) 
@@ -27,7 +26,7 @@ So you know when you link to something on Slack, or Facebook, or Twitter - they 
 -  `agent?: string | null` - http(s).Agent instance, allows custom proxy, certificate, lookup, family etc.
 ---
 #
-```
+```typescript
 const unfurl = require('./unfurl.js')
 const result = unfurl('https://github.com/trending')
 ```
