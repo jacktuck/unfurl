@@ -227,8 +227,13 @@ function getRemoteMetadata (ctx, opts) {
         const parser = new Parser({
           onopentag: function (name, attribs) {
             if (this._is_html) {
-              if (!rez.html) rez.html = ''
-              rez.html += `<${name} ${Object.entries(attribs).reduce((a, [k, v]) => !v ? a + k : a + k + '="' + v + '" ', '').trim()}>`
+              if (!rez.html) {
+                rez.html = ''
+              }
+
+              rez.html += `<${name} `
+              rez.html += Object.keys(attribs).reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + ' ', '').trim()
+              rez.html += '>'
             }
 
             if (name === 'html') {
@@ -276,8 +281,8 @@ function getRemoteMetadata (ctx, opts) {
     }
 
 
-    const oEmbedMetadata = Object.entries(ret)
-      .map(([k, v]) => ['oEmbed:' + k, v])
+    const oEmbedMetadata = Object.keys(ret)
+      .map(k => ['oEmbed:' + k, ret[k]])
       .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
 
 

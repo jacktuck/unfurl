@@ -1,4 +1,4 @@
-import unfurl from '../../src/'
+const unfurl = require('../../src/')
 import fs from 'fs'
 import http from 'http'
 import iconv from 'iconv-lite'

@@ -1,4 +1,4 @@
-import unfurl from '../../src/'
+const unfurl = require('../../src/')
 import TestServer from '../server'
 
 const port = process.env.port

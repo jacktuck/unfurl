@@ -3,7 +3,7 @@ import http from 'http'
 import iconv from 'iconv-lite'
 import TestServer from '../server'
 
-import unfurl from '../../src/'
+const unfurl = require('../../src/')
 import UnexpectedError from '../../src/unexpectedError'
 
 const port = process.env.port
