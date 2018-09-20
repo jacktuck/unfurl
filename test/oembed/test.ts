@@ -8,10 +8,7 @@ beforeAll(then => TestServer.listen(port, then))
 afterAll(then => TestServer.close(then))
 
 test('should no-op and not throw for wrong content type', async () => {
-
   const result = await unfurl(baseUrl + '/html/oembed-broken')
-
-
 
   expect(result.oEmbed).toEqual(undefined)
 })

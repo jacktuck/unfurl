@@ -49,7 +49,7 @@ export const schema = new Map([
   ['og:video:height', { entry: 'open_graph', name: 'height', parent: 'videos', type: 'number' }],
   ['og:video:type', { entry: 'open_graph', name: 'type', parent: 'videos', type: 'string' }],
   ['og:video:tag', { entry: 'open_graph', name: 'tag', parent: 'videos', type: 'string' }],
-  // oEmbed: is prepended to these fields so that it does not interfere with root title or description 
+  // oEmbed: is prepended to these fields so that it does not interfere with root title or description
   ['oEmbed:type', { entry: 'oEmbed', name: 'type', type: 'string' }],
   ['oEmbed:version', { entry: 'oEmbed', name: 'version', type: 'string' }],
   ['oEmbed:title', { entry: 'oEmbed', name: 'title', type: 'string' }],

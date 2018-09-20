@@ -14,7 +14,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// ts-jest already adds source-maps so we don't want to add them again during tests
+/* istanbul ignore next */
 if (process.env.NODE_ENV !== 'test') {
     require('source-map-support').install();
 }
@@ -145,7 +145,7 @@ function getRemoteMetadata(ctx, opts) {
                         },
                         onend: function () {
                             resolve(rez);
-                        },
+                        }
                     });
                     parser.write(data);
                     parser.end();

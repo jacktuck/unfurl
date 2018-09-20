@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as http from 'http'
 
-export default http.createServer(function(req, res) {
+export default http.createServer(function (req, res) {
   try {
     const route = req.url
 
