@@ -15,12 +15,12 @@ test('should build players[]', async () => {
   const expected = {
     players: [
       {
-        player: 'https://www.youtube.com/embed/mvSItvjFE1c',
+        url: 'https://www.youtube.com/embed/mvSItvjFE1c',
         width: 1280,
         height: 720
       },
       {
-        player: 'https://www.youtube.com/embed/mvSItvjFE1c',
+        url: 'https://www.youtube.com/embed/mvSItvjFE1c',
         width: 1280,
         height: 720
       }
