@@ -285,12 +285,9 @@ function getRemoteMetadata (ctx, opts) {
       return metadata
     }
 
-
     const oEmbedMetadata = Object.keys(ret)
       .map(k => ['oEmbed:' + k, ret[k]])
       .filter(([k, v]) => keys.includes(String(k))) // to-do: look into why TS complains if i don't String()
-
-
 
     metadata.push(...oEmbedMetadata)
     return metadata
@@ -308,14 +305,14 @@ function getMetadata (ctx, opts: Opts) {
             const favicon = resolveUrl(ctx.url, '/favicon.ico')
             metadata.push(['favicon', favicon])
           }
-  
+
           resolve(metadata)
         },
 
         onopentagname: function (tag) {
           this._tagname = tag
         },
-  
+
         ontext: function (text) {
           if (this._tagname === 'title') {
             // Makes sure we haven't already seen the title
@@ -323,12 +320,12 @@ function getMetadata (ctx, opts: Opts) {
               if (this._title === undefined) {
                 this._title = ''
               }
-  
+
               this._title += text
             }
           }
         },
-  
+
         onopentag: function (name, attr) {
           if (opts.oembed && attr.href) {
             // We will handle XML and JSON with a preference towards JSON since its more efficient for us
@@ -338,54 +335,54 @@ function getMetadata (ctx, opts: Opts) {
               }
             }
           }
-  
+
           const prop = attr.name || attr.property || attr.rel
           const val = attr.content || attr.value
-  
+
           if (this._favicon !== null) {
             let favicon
-  
+
             // If url is relative we will make it absolute
             if (attr.rel === 'shortcut icon') {
               favicon = resolveUrl(ctx.url, attr.href)
             } else if (attr.rel === 'icon') {
               favicon = resolveUrl(ctx.url, attr.href)
             }
-  
+
             if (favicon) {
               metadata.push(['favicon', favicon])
               this._favicon = null
             }
           }
-  
+
           if (prop === 'description') {
             metadata.push(['description', val])
           }
-  
+
           if (prop === 'keywords') {
             metadata.push(['keywords', val])
           }
-  
+
           if (
             !prop ||
             !val ||
             keys.includes(prop) === false
           ) {
-  
+
             return
           }
-  
+
           metadata.push([prop, val])
         },
-  
+
         onclosetag: function (tag) {
           this._tagname = ''
-  
+
           // We want to parse as little as possible so finish once we see </head>
           if (tag === 'head') {
             parser.reset()
           }
-  
+
           if (tag === 'title' && this._title !== null) {
             metadata.push(['title', this._title])
             this._title = null
@@ -435,7 +432,7 @@ function parse (ctx) {
       }
 
       let target = parsed[item.entry]
-  
+
       if (item.parent) {
         if (item.category) {
           if (!target[item.parent]) {
