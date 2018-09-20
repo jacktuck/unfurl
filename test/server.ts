@@ -16,6 +16,17 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
+    if (route === '/html/keyword-edge-cases') {
+      const html = fs.readFileSync(__dirname + '/basic/keyword-edge-cases.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
     if (route === '/html/basic') {
       const html = fs.readFileSync(__dirname + '/basic/basic.html')
 

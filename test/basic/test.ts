@@ -32,3 +32,14 @@ test('should detect last dupe of title, description and keywords', async () => {
 
   expect(result).toEqual(expected)
 })
+
+test('should detect last dupe of title, description and keywords', async () => {
+  const result = await unfurl(baseUrl + '/html/keyword-edge-cases')
+
+  const expected = {
+    favicon: 'http://localhost:9000/favicon.ico',
+    keywords: ['foo', 'bar', 'baz quix', 'foo', 'foo']
+  }
+
+  expect(result).toEqual(expected)
+})
