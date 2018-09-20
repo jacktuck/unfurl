@@ -39,7 +39,7 @@ function unfurl (url: string, opts?: Opts): Promise<Metadata> {
   // Setting defaults when not provided or not correct type
   typeof opts.oembed === 'boolean' || (opts.oembed = true)
   typeof opts.compress === 'boolean' || (opts.compress = true)
-  typeof opts.agent === 'string' || (opts.agent = 'facebookexternalhit')
+  typeof opts.userAgent === 'string' || (opts.userAgent = 'facebookexternalhit')
 
   Number.isInteger(opts.follow) || (opts.follow = 50)
   Number.isInteger(opts.timeout) || (opts.timeout = 0)
@@ -61,8 +61,8 @@ function unfurl (url: string, opts?: Opts): Promise<Metadata> {
 async function getPage (url: string, opts: Opts) {
   const res = await fetch(url, {
     headers: {
-      Accept: 'text/html, application/xhtml+xml',
-      agent: opts.agent
+      'Accept': 'text/html, application/xhtml+xml',
+      'User-Agent': opts.userAgent
     },
     timeout: opts.timeout,
     follow: opts.follow,

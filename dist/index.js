@@ -34,7 +34,7 @@ function unfurl(url, opts) {
     // Setting defaults when not provided or not correct type
     typeof opts.oembed === 'boolean' || (opts.oembed = true);
     typeof opts.compress === 'boolean' || (opts.compress = true);
-    typeof opts.agent === 'string' || (opts.agent = 'facebookexternalhit');
+    typeof opts.userAgent === 'string' || (opts.userAgent = 'facebookexternalhit');
     Number.isInteger(opts.follow) || (opts.follow = 50);
     Number.isInteger(opts.timeout) || (opts.timeout = 0);
     Number.isInteger(opts.size) || (opts.size = 0);
@@ -50,8 +50,8 @@ function getPage(url, opts) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield node_fetch_1.default(url, {
             headers: {
-                Accept: 'text/html, application/xhtml+xml',
-                agent: opts.agent
+                'Accept': 'text/html, application/xhtml+xml',
+                'User-Agent': opts.userAgent
             },
             timeout: opts.timeout,
             follow: opts.follow,

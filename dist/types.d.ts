@@ -9,8 +9,8 @@ export declare type Opts = {
     compress?: boolean;
     /** maximum response body size in bytes. 0 to disable */
     size?: number;
-    /** http(s).Agent instance, allows custom proxy, certificate, lookup, family etc. */
-    agent?: string | null;
+    /** User-Agent string is often used for content negotiation. */
+    userAgent?: string;
 };
 export declare type Metadata = {
     title: string;
