@@ -227,6 +227,17 @@ export default http.createServer(function (req, res) {
       res.end()
     }
 
+    if (route === '/encoding/html/euc-jp') {
+      const html = fs.readFileSync(__dirname + '/encoding/euc-jp.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
     if (route === '/encoding/html/4') {
       const html = fs.readFileSync(__dirname + '/encoding/html_4.html')
 
