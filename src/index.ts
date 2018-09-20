@@ -6,7 +6,7 @@
 // we should take title as 'bar' not 'foo'
 
 // ts-jest already adds source-maps so we don't want to add them again during tests
-if (!process.env.disable_source_map) {
+if (process.env.NODE_ENV !== 'test') {
   require('source-map-support').install()
 }
 
