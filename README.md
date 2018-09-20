@@ -23,7 +23,7 @@ So you know when you link to something on Slack, or Facebook, or Twitter - they 
 -  `follow?: number` - maximum redirect count. 0 to not follow redirect
 -  `compress?: boolean` - support gzip/deflate content encoding 
 -  `size?: number` - maximum response body size in bytes. 0 to disable 
--  `agent?: string | null` - http(s).Agent instance, allows custom proxy, certificate, lookup, family etc.
+-  `userAgent?: string` - User-Agent string is often used for content negotiation
 ---
 #
 ```typescript
@@ -117,8 +117,8 @@ type Metadata = {
 
 ## The who 💖
 _(If you use unfurl.js too feel free to [add your project](https://github.com/jacktuck/unfurl/edit/master/README.md))_
-
+- [vapid/vapid](https://github.com/vapid/vapid) - A template-driven content management system
 - [beeman/micro-unfurl](https://github.com/beeman/micro-unfurl) - small microservice that unfurls a URL and returns the OpenGraph meta data.
-- [probot/unfurl](https://github.com/probot/unfurl) a GitHub App built with probot that unfurls links on Issues and Pull Request discussions
+- [probot/unfurl](https://github.com/probot/unfurl) - a GitHub App built with probot that unfurls links on Issues and Pull Request discussions
 
 
