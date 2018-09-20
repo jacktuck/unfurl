@@ -16,6 +16,28 @@ export default http.createServer(function(req, res) {
       res.end()
     }
 
+    if (route === '/html/basic') {
+      const html = fs.readFileSync(__dirname + '/basic/basic.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
+    if (route === '/html/basic-duplicates') {
+      const html = fs.readFileSync(__dirname + '/basic/basic-duplicates.html')
+
+      res.writeHead(200, {
+        'Content-Length': Buffer.byteLength(html),
+        'Content-Type': `text/html`
+      })
+      res.write(html)
+      res.end()
+    }
+
     if (route === '/json/oembed.json') {
       const json = fs.readFileSync(__dirname + '/oembed/oembed.json')
 

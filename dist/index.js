@@ -168,9 +168,11 @@ function getMetadata(ctx, opts) {
         return new Promise((resolve) => {
             const parser = new htmlparser2_1.Parser({
                 onend: function () {
-                    if (this._favicon !== null) {
-                        const favicon = url_1.resolve(ctx.url, '/favicon.ico');
-                        metadata.push(['favicon', favicon]);
+                    if (this._favicon === undefined) {
+                        metadata.push(['favicon', url_1.resolve(ctx.url, '/favicon.ico')]);
+                    }
+                    else {
+                        metadata.push(['favicon', url_1.resolve(ctx.url, this._favicon)]);
                     }
                     resolve(metadata);
                 },
@@ -188,56 +190,49 @@ function getMetadata(ctx, opts) {
                         }
                     }
                 },
-                onopentag: function (name, attr) {
-                    if (opts.oembed && attr.href) {
+                onopentag: function (tagname, attribs) {
+                    if (opts.oembed && attribs.href) {
                         // We will handle XML and JSON with a preference towards JSON since its more efficient for us
-                        if (attr.type === 'text/xml+oembed' || attr.type === 'application/json+oembed') {
+                        if (tagname === 'link' && (attribs.type === 'text/xml+oembed' || attribs.type === 'application/json+oembed')) {
                             if (!ctx._oembed || ctx._oembed.type === 'text/xml+oembed') { // prefer json
-                                ctx._oembed = attr;
+                                ctx._oembed = attribs;
                             }
                         }
                     }
-                    const prop = attr.name || attr.property || attr.rel;
-                    const val = attr.content || attr.value;
-                    if (this._favicon !== null) {
-                        let favicon;
-                        // If url is relative we will make it absolute
-                        if (attr.rel === 'shortcut icon') {
-                            favicon = url_1.resolve(ctx.url, attr.href);
+                    if (tagname === 'link' && attribs.href && (attribs.rel === 'icon' || attribs.rel === 'shortcut icon')) {
+                        this._favicon = attribs.href;
+                    }
+                    let pair;
+                    if (tagname === 'meta') {
+                        if (attribs.name === 'description') {
+                            pair = ['description', attribs.content];
                         }
-                        else if (attr.rel === 'icon') {
-                            favicon = url_1.resolve(ctx.url, attr.href);
+                        else if (attribs.name === 'keywords') {
+                            let keywords = attribs.content
+                                .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or sommas
+                                .split(/,{1,}\s{0,}/); // splits on 1+ commas followed by 0+ spaces
+                            pair = ['keywords', keywords];
                         }
-                        if (favicon) {
-                            metadata.push(['favicon', favicon]);
-                            this._favicon = null;
+                        else if (attribs.property && schema_1.keys.includes(attribs.property)) {
+                            pair = [attribs.property, attribs.content];
+                        }
+                        else if (attribs.name && schema_1.keys.includes(attribs.name)) {
+                            pair = [attribs.name, attribs.content];
                         }
                     }
-                    if (prop === 'description') {
-                        metadata.push(['description', val]);
+                    if (pair) {
+                        metadata.push(pair);
                     }
-                    if (prop === 'keywords') {
-                        let keywords = val
-                            .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or sommas
-                            .split(/,{1,}\s{0,}/); // splits on 1+ commas followed by 0+ spaces
-                        metadata.push(['keywords', keywords]);
-                    }
-                    if (!prop ||
-                        !val ||
-                        schema_1.keys.includes(prop) === false) {
-                        return;
-                    }
-                    metadata.push([prop, val]);
                 },
                 onclosetag: function (tag) {
                     this._tagname = '';
+                    if (tag === 'title') {
+                        metadata.push(['title', this._title]);
+                        this._title = '';
+                    }
                     // We want to parse as little as possible so finish once we see </head>
                     if (tag === 'head') {
                         parser.reset();
-                    }
-                    if (tag === 'title' && this._title !== null) {
-                        metadata.push(['title', this._title]);
-                        this._title = null;
                     }
                 }
             }, {
