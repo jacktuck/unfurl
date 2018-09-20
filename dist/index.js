@@ -217,7 +217,10 @@ function getMetadata(ctx, opts) {
                         metadata.push(['description', val]);
                     }
                     if (prop === 'keywords') {
-                        metadata.push(['keywords', val]);
+                        let keywords = val
+                            .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or sommas
+                            .split(/,{1,}\s{0,}/); // splits on 1+ commas followed by 0+ spaces
+                        metadata.push(['keywords', keywords]);
                     }
                     if (!prop ||
                         !val ||
