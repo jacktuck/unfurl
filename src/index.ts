@@ -41,6 +41,9 @@ type Opts = {
 }
 
 type Metadata = {
+  title: string,
+  description: string,
+  keywords: string[]
   oEmbed?: {
     type: 'photo' | 'video' | 'link' | 'rich'
     version?: string
@@ -90,7 +93,7 @@ type Metadata = {
       url: string
       alt: string
     }[]
-  }
+  }[]
   open_graph: {
     title: string
     type: string
@@ -118,10 +121,10 @@ type Metadata = {
       width?: number
       tags?: string[]
     }[]
-  }
+  }[]
 }
 
-function unfurl (url: string, opts?: Opts) {
+function unfurl (url: string, opts?: Opts): Promise<Metadata> {
   if (opts === undefined) {
     opts = {}
   }
@@ -146,14 +149,14 @@ function unfurl (url: string, opts?: Opts) {
     url
   }
 
-  return <Promise<Metadata>>getPage(url, opts)
+  return getPage(url, opts)
     .then(getMetadata(ctx, opts))
     .then(getRemoteMetadata(ctx, opts))
     .then(parse(ctx))
 }
 
 async function getPage (url: string, opts: Opts) {
-  const resp = await fetch(url, {
+  const res = await fetch(url, {
     headers: {
       Accept: 'text/html, application/xhtml+xml',
       agent: opts.agent
@@ -164,35 +167,36 @@ async function getPage (url: string, opts: Opts) {
     size: opts.size
   })
 
-  const buf = await resp.buffer()
-  const ct = resp.headers.get('Content-Type')
+  const buf = await res.buffer()
+  const contentType = res.headers.get('Content-Type')
+  const contentLength = res.headers.get('Content-Length')
 
-  if (/text\/html|application\/xhtml+xml/.test(ct) === false) {
-    throw new UnexpectedError(UnexpectedError.EXPECTED_HTML)
+  if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
+    throw new UnexpectedError({ ...UnexpectedError.EXPECTED_HTML, info: { contentType, contentLength } })
   }
 
 	// no charset in content type, peek at response body for at most 1024 bytes
   let str = buf.slice(0, 1024).toString()
-  let res
+  let rg
 
-  if (ct) {
-    res = /charset=([^;]*)/i.exec(ct)
+  if (contentType) {
+    rg = /charset=([^;]*)/i.exec(contentType)
   }
 
 	// html 5
-  if (!res && str) {
-    res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
+  if (!rg && str) {
+    rg = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
   }
 
   // html 4
-  if (!res && str) {
-    res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
+  if (!rg && str) {
+    rg = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
   }
 
 	// found charset
-  if (res) {
+  if (rg) {
     const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
-    const charset = res.pop().toUpperCase()
+    const charset = rg.pop().toUpperCase()
 
     if (supported.includes(charset)) {
 
@@ -212,13 +216,14 @@ function getRemoteMetadata (ctx, opts) {
     const target = resolveUrl(ctx.url, ctx._oembed.href)
 
     const res = await fetch(target)
-    const ct = res.headers.get('content-type')
+    const contentType = res.headers.get('Content-Type')
+    const contentLength = res.headers.get('Content-Length')
 
     let ret
-  
-    if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(ct)) {
+
+    if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(contentType)) {
       ret = await res.json()
-    } else if (ctx._oembed.type === 'text/xml+oembed' && /text\/xml/.test(ct)) {
+    } else if (ctx._oembed.type === 'text/xml+oembed' && /text\/xml/.test(contentType)) {
       let data = await res.text()
 
       let rez: any = {}

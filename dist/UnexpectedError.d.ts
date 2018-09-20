@@ -7,8 +7,13 @@ export default class UnexpectedError extends Error {
         message: string;
         name: string;
     };
+    info: {
+        contentLength?: number;
+        contentType?: string;
+    };
     constructor(errorType: {
         message: string;
         name: string;
+        info?: any;
     });
 }

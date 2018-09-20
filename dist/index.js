@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // ts-jest already adds source-maps so we don't want to add them again during tests
-if (!process.env.disable_source_map) {
+if (process.env.NODE_ENV !== 'test') {
     require('source-map-support').install();
 }
 const url_1 = require("url");
@@ -48,7 +48,7 @@ function unfurl(url, opts) {
 }
 function getPage(url, opts) {
     return __awaiter(this, void 0, void 0, function* () {
-        const resp = yield node_fetch_1.default(url, {
+        const res = yield node_fetch_1.default(url, {
             headers: {
                 Accept: 'text/html, application/xhtml+xml',
                 agent: opts.agent
@@ -58,29 +58,30 @@ function getPage(url, opts) {
             compress: opts.compress,
             size: opts.size
         });
-        const buf = yield resp.buffer();
-        const ct = resp.headers.get('Content-Type');
-        if (/text\/html|application\/xhtml+xml/.test(ct) === false) {
-            throw new unexpectedError_1.default(unexpectedError_1.default.EXPECTED_HTML);
+        const buf = yield res.buffer();
+        const contentType = res.headers.get('Content-Type');
+        const contentLength = res.headers.get('Content-Length');
+        if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
+            throw new unexpectedError_1.default(Object.assign({}, unexpectedError_1.default.EXPECTED_HTML, { info: { contentType, contentLength } }));
         }
         // no charset in content type, peek at response body for at most 1024 bytes
         let str = buf.slice(0, 1024).toString();
-        let res;
-        if (ct) {
-            res = /charset=([^;]*)/i.exec(ct);
+        let rg;
+        if (contentType) {
+            rg = /charset=([^;]*)/i.exec(contentType);
         }
         // html 5
-        if (!res && str) {
-            res = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
+        if (!rg && str) {
+            rg = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
         }
         // html 4
-        if (!res && str) {
-            res = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
+        if (!rg && str) {
+            rg = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
         }
         // found charset
-        if (res) {
+        if (rg) {
             const supported = ['CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP'];
-            const charset = res.pop().toUpperCase();
+            const charset = rg.pop().toUpperCase();
             if (supported.includes(charset)) {
                 return iconv.decode(buf, charset).toString();
             }
@@ -96,21 +97,25 @@ function getRemoteMetadata(ctx, opts) {
             }
             const target = url_1.resolve(ctx.url, ctx._oembed.href);
             const res = yield node_fetch_1.default(target);
-            const ct = res.headers.get('content-type');
+            const contentType = res.headers.get('Content-Type');
+            const contentLength = res.headers.get('Content-Length');
             let ret;
-            if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(ct)) {
+            if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(contentType)) {
                 ret = yield res.json();
             }
-            else if (ctx._oembed.type === 'text/xml+oembed' && /text\/xml/.test(ct)) {
+            else if (ctx._oembed.type === 'text/xml+oembed' && /text\/xml/.test(contentType)) {
                 let data = yield res.text();
                 let rez = {};
                 ret = yield new Promise((resolve, reject) => {
                     const parser = new htmlparser2_1.Parser({
                         onopentag: function (name, attribs) {
                             if (this._is_html) {
-                                if (!rez.html)
+                                if (!rez.html) {
                                     rez.html = '';
-                                rez.html += `<${name} ${Object.entries(attribs).reduce((a, [k, v]) => !v ? a + k : a + k + '="' + v + '" ', '').trim()}>`;
+                                }
+                                rez.html += `<${name} `;
+                                rez.html += Object.keys(attribs).reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + ' ', '').trim();
+                                rez.html += '>';
                             }
                             if (name === 'html') {
                                 this._is_html = true;
@@ -149,8 +154,8 @@ function getRemoteMetadata(ctx, opts) {
             if (!ret) {
                 return metadata;
             }
-            const oEmbedMetadata = Object.entries(ret)
-                .map(([k, v]) => ['oEmbed:' + k, v])
+            const oEmbedMetadata = Object.keys(ret)
+                .map(k => ['oEmbed:' + k, ret[k]])
                 .filter(([k, v]) => schema_1.keys.includes(String(k))); // to-do: look into why TS complains if i don't String()
             metadata.push(...oEmbedMetadata);
             return metadata;

@@ -5,6 +5,7 @@ class UnexpectedError extends Error {
         super(errorType.message);
         this.name = errorType.name;
         this.stack = new Error().stack;
+        this.info = errorType.info;
     }
 }
 UnexpectedError.EXPECTED_HTML = {
