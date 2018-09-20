@@ -12,7 +12,7 @@ exports.schema = new Map([
     ['twitter:image', { entry: 'twitter_card', name: 'url', parent: 'images', type: 'url' }],
     ['twitter:image:src', { entry: 'twitter_card', name: 'url', parent: 'images', type: 'url' }],
     ['twitter:image:alt', { entry: 'twitter_card', name: 'alt', parent: 'images', type: 'string' }],
-    ['twitter:player', { entry: 'twitter_card', name: 'player', parent: 'players', type: 'string' }],
+    ['twitter:player', { entry: 'twitter_card', name: 'url', parent: 'players', type: 'string' }],
     ['twitter:player:stream', { entry: 'twitter_card', name: 'stream', parent: 'players', type: 'string' }],
     ['twitter:player:width', { entry: 'twitter_card', name: 'width', parent: 'players', type: 'number' }],
     ['twitter:player:height', { entry: 'twitter_card', name: 'height', parent: 'players', type: 'number' }],
