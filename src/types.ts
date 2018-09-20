@@ -14,8 +14,8 @@ export type Opts = {
 }
 
 export type Metadata = {
-  title: string,
-  description: string,
+  title: string
+  description: string
   keywords: string[]
   oEmbed?: {
     type: 'photo' | 'video' | 'link' | 'rich'
@@ -61,7 +61,7 @@ export type Metadata = {
         name: string
         url: string
       }
-    },
+    }
     images: {
       url: string
       alt: string
