@@ -24,6 +24,7 @@ const iconv = require("iconv-lite");
 const node_fetch_1 = require("node-fetch");
 const unexpectedError_1 = require("./unexpectedError");
 const schema_1 = require("./schema");
+const he_1 = require("he");
 function unfurl(url, opts) {
     if (opts === undefined) {
         opts = {};
@@ -235,8 +236,6 @@ function getMetadata(ctx, opts) {
                         parser.reset();
                     }
                 }
-            }, {
-                decodeEntities: true
             });
             parser.write(text);
             parser.end();
@@ -250,6 +249,13 @@ function parse(ctx) {
         let lastParent;
         for (let [metaKey, metaValue] of metadata) {
             const item = schema_1.schema.get(metaKey);
+            // decoding html entities
+            if (typeof metaValue === 'string') {
+                metaValue = he_1.default.decode(he_1.default.decode(metaValue.toString()));
+            }
+            else if (Array.isArray(metaValue)) {
+                metaValue = metaValue.map(val => he_1.default.decode(he_1.default.decode(val)));
+            }
             if (!item) {
                 parsed[metaKey] = metaValue;
                 continue;
@@ -259,10 +265,7 @@ function parse(ctx) {
                 tags.push(metaValue);
                 continue;
             }
-            if (item.type === 'string') {
-                metaValue = metaValue.toString();
-            }
-            else if (item.type === 'number') {
+            if (item.type === 'number') {
                 metaValue = parseInt(metaValue, 10);
             }
             else if (item.type === 'url') {

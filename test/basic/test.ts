@@ -1,5 +1,18 @@
 const unfurl = require('../../src/')
 import nock from 'nock'
+
+test('should handle content which is excaped badly', async () => {
+  nock('http://localhost')
+    .get('/html/double-escaped-edge-case')
+    .replyWithFile(200, __dirname + '/double escaped-edge-case.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/html/double-escaped-edge-case')
+
+  expect(result.description).toEqual('"')
+})
+
 test('should detect title, description and keywords', async () => {
   nock('http://localhost')
     .get('/html/basic')

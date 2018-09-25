@@ -299,6 +299,13 @@ function parse (ctx) {
     for (let [metaKey, metaValue] of metadata) {
       const item = schema.get(metaKey)
 
+      // decoding html entities
+      if (typeof metaValue === 'string') {
+        metaValue = he.decode(he.decode(metaValue.toString()))
+      } else if (Array.isArray(metaValue)) {
+        metaValue = metaValue.map(val => he.decode(he.decode(val)))
+      }
+
       if (!item) {
         parsed[metaKey] = metaValue
         continue
@@ -309,9 +316,6 @@ function parse (ctx) {
         tags.push(metaValue)
         continue
       }
-
-      // decoding html entities
-      metaValue = he.decode(he.decode(metaValue.toString()))
 
       if (item.type === 'number') {
         metaValue = parseInt(metaValue, 10)
