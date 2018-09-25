@@ -1,14 +1,14 @@
 const unfurl = require('../../src/')
-import TestServer from '../server'
-
-const port = process.env.port
-const baseUrl = `http://localhost:${port}`
-
-beforeAll(then => TestServer.listen(port, then))
-afterAll(then => TestServer.close(then))
+import nock from 'nock'
 
 test('should build videos[]', async () => {
-  const result = await unfurl(baseUrl + '/open_graph/videos')
+  nock('http://localhost')
+    .get('/open_graph/videos')
+    .replyWithFile(200, __dirname + '/videos.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/open_graph/videos')
   const expected = {
     videos: [
       {
@@ -46,7 +46,13 @@ test('should build videos[]', async () => {
 })
 
 test('should build images[]', async () => {
-  const result = await unfurl(baseUrl + '/open_graph/images')
+  nock('http://localhost')
+    .get('/open_graph/images')
+    .replyWithFile(200, __dirname + '/images.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/open_graph/images')
   const expected = {
     images: [
       {
@@ -76,7 +82,13 @@ test('should build images[]', async () => {
 })
 
 test('should build audio[]', async () => {
-  const result = await unfurl(baseUrl + '/open_graph/audio')
+  nock('http://localhost')
+    .get('/open_graph/audio')
+    .replyWithFile(200, __dirname + '/audio.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/open_graph/audio')
   const expected = {
     audio: [
       {
@@ -98,54 +110,26 @@ test('should build audio[]', async () => {
 })
 
 test('should quality relative urls', async () => {
-  const result = await unfurl(baseUrl + '/open_graph/relative_url')
+  nock('http://localhost')
+    .get('/open_graph/relative_url')
+    .replyWithFile(200, __dirname + '/relative_url.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/open_graph/relative_url')
   const expected = {
     images: [
       {
-        'url': 'http://localhost:9000/github-logo.png'
+        'url': 'http://localhost/github-logo.png'
       },
       {
-        'url': 'http://localhost:9000/open_graph/github-mark.png'
+        'url': 'http://localhost/open_graph/github-mark.png'
       },
       {
-        'url': 'http://localhost:9000/github-octocat.png'
+        'url': 'http://localhost/github-octocat.png'
       }
     ]
   }
 
-  // (JSON.stringify(result, null, 2))
   expect(result.open_graph).toEqual(expected)
 })
-
-// test('should build card', async () => {
-//   const result = await unfurl(baseUrl + '/twitter_card/multi')
-
-//   const expected = {
-//     apps: '{
-//       googleplay: '{
-//         id: 'com.coinbase.android',
-//         name: 'Coinbase - Buy/Sell Digital Currency'
-//       },
-//       iphone: {
-//         id: '886427730',
-//         name: 'Coinbase - Buy/Sell Digital Currency'
-//       },
-//       ipad: {
-//         id: '886427730',
-//         name: 'Coinbase - Buy/Sell Digital Currency'
-//       }
-//     },
-//     card: 'summary',
-//     creator: '@coinbase',
-//     description: 'Coinbase is a secure online platform for buying, selling, transferring, and storing digital currency.',
-//     images: [
-//       {
-//         url: 'https://www.coinbase.com/img/og-home.jpg'
-//       }
-//     ],
-//     site: '@coinbase',
-//     title: 'Coinbase - Buy/Sell Digital Currency'
-//   }
-
-//   expect(result.twitter_card).toEqual(expected)
-// })

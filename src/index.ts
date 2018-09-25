@@ -26,6 +26,7 @@ import {
 } from './schema'
 
 import { Metadata, Opts } from './types'
+import he from 'he'
 
 function unfurl (url: string, opts?: Opts): Promise<Metadata> {
   if (opts === undefined) {
@@ -280,8 +281,6 @@ function getMetadata (ctx, opts: Opts) {
             parser.reset()
           }
         }
-      }, {
-        decodeEntities: true
       })
 
       parser.write(text)
@@ -311,9 +310,10 @@ function parse (ctx) {
         continue
       }
 
-      if (item.type === 'string') {
-        metaValue = metaValue.toString()
-      } else if (item.type === 'number') {
+      // decoding html entities
+      metaValue = he.decode(he.decode(metaValue.toString()))
+
+      if (item.type === 'number') {
         metaValue = parseInt(metaValue, 10)
       } else if (item.type === 'url') {
         metaValue = resolveUrl(ctx.url, metaValue)

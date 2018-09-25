@@ -1,17 +1,35 @@
 const unfurl = require('../../src/')
-import TestServer from '../server'
+import nock from 'nock'
+test('should detect title, description and keywords', async () => {
+  nock('http://localhost')
+    .get('/html/basic')
+    .replyWithFile(200, __dirname + '/basic.html', {
+      'Content-Type': 'text/html'
+    })
 
-const port = process.env.port
-const baseUrl = `http://localhost:${port}`
+  const result = await unfurl('http://localhost/html/basic')
 
-beforeAll(then => TestServer.listen(port, then))
-afterAll(then => TestServer.close(then))
+  const expected = {
+    favicon: 'http://localhost/favicon.ico',
+    description: 'aaa',
+    keywords: ['a', 'b', 'c'],
+    title: 'ccc'
+  }
+
+  expect(result).toEqual(expected)
+})
 
 test('should detect title, description and keywords', async () => {
-  const result = await unfurl(baseUrl + '/html/basic')
+  nock('http://localhost')
+    .get('/html/basic')
+    .replyWithFile(200, __dirname + '/basic.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/html/basic')
 
   const expected = {
-    favicon: 'http://localhost:9000/favicon.ico',
+    favicon: 'http://localhost/favicon.ico',
     description: 'aaa',
     keywords: ['a', 'b', 'c'],
     title: 'ccc'
@@ -21,10 +39,16 @@ test('should detect title, description and keywords', async () => {
 })
 
 test('should detect last dupe of title, description and keywords', async () => {
-  const result = await unfurl(baseUrl + '/html/basic-duplicates')
+  nock('http://localhost')
+    .get('/html/basic-duplicates')
+    .replyWithFile(200, __dirname + '/basic-duplicates.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/html/basic-duplicates')
 
   const expected = {
-    favicon: 'http://localhost:9000/favicon.ico',
+    favicon: 'http://localhost/favicon.ico',
     description: 'aaa',
     keywords: ['a', 'b', 'c'],
     title: 'ccc'
@@ -34,10 +58,16 @@ test('should detect last dupe of title, description and keywords', async () => {
 })
 
 test('should detect last dupe of title, description and keywords', async () => {
-  const result = await unfurl(baseUrl + '/html/keyword-edge-cases')
+  nock('http://localhost')
+  .get('/html/keyword-edge-cases')
+  .replyWithFile(200, __dirname + '/keyword-edge-cases.html', {
+    'Content-Type': 'text/html'
+  })
+
+  const result = await unfurl('http://localhost/html/keyword-edge-cases')
 
   const expected = {
-    favicon: 'http://localhost:9000/favicon.ico',
+    favicon: 'http://localhost/favicon.ico',
     keywords: ['foo', 'bar', 'baz quix', 'foo', 'foo']
   }
 

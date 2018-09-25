@@ -1,20 +1,38 @@
 const unfurl = require('../../src/')
-import TestServer from '../server'
+import nock from 'nock'
 
-const port = process.env.port
-const baseUrl = `http://localhost:${port}`
+test('should noop and not throw for wrong content type', async () => {
+  nock('http://localhost')
+    .get('/oembed/image.png')
+    .reply(200, '', {
+      'Content-Type': 'image/png'
+    })
 
-beforeAll(then => TestServer.listen(port, then))
-afterAll(then => TestServer.close(then))
+  nock('http://localhost')
+    .get('/html/oembed-broken')
+    .replyWithFile(200, __dirname + '/oembed-broken.html', {
+      'Content-Type': 'text/html'
+    })
 
-test('should no-op and not throw for wrong content type', async () => {
-  const result = await unfurl(baseUrl + '/html/oembed-broken')
+  const result = await unfurl('http://localhost/html/oembed-broken')
 
   expect(result.oEmbed).toEqual(undefined)
 })
 
 test('width/height should be numbers', async () => {
-  const result: any = await unfurl(baseUrl + '/html/oembed')
+  nock('http://localhost')
+    .get('/html/oembed')
+    .replyWithFile(200, __dirname + '/oembed.html', {
+      'Content-Type': 'text/html'
+    })
+
+  nock('http://localhost')
+    .get('/json/oembed.json')
+    .replyWithFile(200, __dirname + '/oembed.json', {
+      'Content-Type': 'application/json'
+    })
+
+  const result: any = await unfurl('http://localhost/html/oembed')
 
   expect(result.oEmbed.width).toEqual(640)
   expect(result.oEmbed.height).toEqual(640)
@@ -24,7 +42,19 @@ test('width/height should be numbers', async () => {
 })
 
 test('should prefer fetching JSON oEmbed', async () => {
-  const result: any = await unfurl(baseUrl + '/html/oembed-multi')
+  nock('http://localhost')
+    .get('/html/oembed-multi')
+    .replyWithFile(200, __dirname + '/oembed-multi.html', {
+      'Content-Type': 'text/html'
+    })
+
+  nock('http://localhost')
+    .get('/json/oembed.json')
+    .replyWithFile(200, __dirname + '/oembed.json', {
+      'Content-Type': 'application/json'
+    })
+
+  const result: any = await unfurl('http://localhost/html/oembed-multi')
 
   const expected = {
     version: '1.0',
@@ -48,7 +78,19 @@ test('should prefer fetching JSON oEmbed', async () => {
 })
 
 test('should build oEmbed from JSON', async () => {
-  const result: any = await unfurl(baseUrl + '/html/oembed')
+  nock('http://localhost')
+    .get('/html/oembed')
+    .replyWithFile(200, __dirname + '/oembed.html', {
+      'Content-Type': 'text/html'
+    })
+
+  nock('http://localhost')
+    .get('/json/oembed.json')
+    .replyWithFile(200, __dirname + '/oembed.json', {
+      'Content-Type': 'application/json'
+    })
+
+  const result: any = await unfurl('http://localhost/html/oembed')
 
   const expected = {
     version: '1.0',
@@ -72,7 +114,19 @@ test('should build oEmbed from JSON', async () => {
 })
 
 test('should build oEmbed from XML', async () => {
-  const result: any = await unfurl(baseUrl + '/html/oembed-xml')
+  nock('http://localhost')
+    .get('/html/oembed-xml')
+    .replyWithFile(200, __dirname + '/oembed-xml.html', {
+      'Content-Type': 'text/html'
+    })
+
+  nock('http://localhost')
+    .get('/xml/oembed.xml')
+    .replyWithFile(200, __dirname + '/oembed.xml', {
+      'Content-Type': 'text/xml'
+    })
+
+  const result: any = await unfurl('http://localhost/html/oembed-xml')
 
   const expected = {
     html: '<iframe width="480" height="270" src="https://www.youtube.com/embed/mvSItvjFE1c?feature=oembed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>',

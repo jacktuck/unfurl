@@ -2,16 +2,17 @@ const unfurl = require('../../src/')
 import fs from 'fs'
 import http from 'http'
 import iconv from 'iconv-lite'
-import TestServer from '../server'
 
-const port = process.env.port
-const baseUrl = `http://localhost:${port}`
-
-beforeAll(then => TestServer.listen(port, then))
-afterAll(then => TestServer.close(then))
+import nock from 'nock'
 
 test('should build players[]', async () => {
-  const result = await unfurl(baseUrl + '/twitter_card/players')
+  nock('http://localhost')
+    .get('/twitter_card/players')
+    .replyWithFile(200, __dirname + '/players.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/twitter_card/players')
   const expected = {
     players: [
       {
@@ -31,7 +32,13 @@ test('should build players[]', async () => {
 })
 
 test('should build images[]', async () => {
-  const result = await unfurl(baseUrl + '/twitter_card/images')
+  nock('http://localhost')
+    .get('/twitter_card/images')
+    .replyWithFile(200, __dirname + '/images.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/twitter_card/images')
   const expected = {
     images: [
       {
@@ -49,7 +56,13 @@ test('should build images[]', async () => {
 })
 
 test('should build apps[]', async () => {
-  const result = await unfurl(baseUrl + '/twitter_card/apps')
+  nock('http://localhost')
+    .get('/twitter_card/apps')
+    .replyWithFile(200, __dirname + '/apps.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/twitter_card/apps')
   const expected = {
     apps: {
       googleplay: {
@@ -70,23 +83,29 @@ test('should build apps[]', async () => {
 })
 
 test('should quality relative urls', async () => {
-  const result = await unfurl(baseUrl + '/twitter_card/relative_url')
+  nock('http://localhost')
+    .get('/twitter_card/relative_url')
+    .replyWithFile(200, __dirname + '/relative_url.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/twitter_card/relative_url')
   const expected = {
     images: [
       {
-        url: 'http://localhost:9000/a.png',
+        url: 'http://localhost/a.png',
         alt: 'a'
       },
       {
-        url: 'http://localhost:9000/twitter_card/b.png',
+        url: 'http://localhost/twitter_card/b.png',
         alt: 'b'
       },
       {
-        url: 'http://localhost:9000/c.png',
+        url: 'http://localhost/c.png',
         alt: 'c'
       },
       {
-        url: 'http://localhost:9000/twitter_card/d.png',
+        url: 'http://localhost/twitter_card/d.png',
         alt: 'd'
       }
     ]
@@ -96,7 +115,13 @@ test('should quality relative urls', async () => {
 })
 
 test('should build card', async () => {
-  const result = await unfurl(baseUrl + '/twitter_card/multi')
+  nock('http://localhost')
+    .get('/twitter_card/multi')
+    .replyWithFile(200, __dirname + '/multi.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/twitter_card/multi')
 
   const expected = {
     apps: {
