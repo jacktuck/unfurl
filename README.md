@@ -1,4 +1,4 @@
-# Unfurl 
+# Unfurl
 
 A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protocol for Node.js (>=v6.0.0)
 
@@ -27,7 +27,7 @@ So you know when you link to something on Slack, or Facebook, or Twitter - they 
 ---
 #
 ```typescript
-const unfurl = require('./unfurl.js')
+const unfurl = require('unfurl.js')
 const result = unfurl('https://github.com/trending')
 ```
 ---
@@ -121,4 +121,12 @@ _(If you use unfurl.js too feel free to [add your project](https://github.com/ja
 - [beeman/micro-unfurl](https://github.com/beeman/micro-unfurl) - small microservice that unfurls a URL and returns the OpenGraph meta data.
 - [probot/unfurl](https://github.com/probot/unfurl) - a GitHub App built with probot that unfurls links on Issues and Pull Request discussions
 
+## Goals:
+- Be as efficient as possible when parsing metadata 
+- Support Node.js >=6 and major browsers
+- Support both XML and JSON oembed providers (JSON is preferred since it;s less expensive)
+- Be adaptable to spec changes
+- Make it trivial to add other metadata providers in the future
 
+### Credits:
+This library depends heavily on the brilliant [htmlparser2](https://github.com/fb55/htmlparser2) library for parsing HTML and XML.
