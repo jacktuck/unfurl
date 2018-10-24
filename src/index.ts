@@ -5,7 +5,7 @@
 // <title>bar</title>
 // we should take title as 'bar' not 'foo'
 
-/* istanbul ignore next */
+/* istanbul ignore next */2
 if (process.env.NODE_ENV !== 'test') {
   require('source-map-support').install()
 }
@@ -123,26 +123,26 @@ function getRemoteMetadata (ctx, opts) {
     const contentType = res.headers.get('Content-Type')
     const contentLength = res.headers.get('Content-Length')
 
-    let ret
+    let ret: any = {}
 
     if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(contentType)) {
       ret = await res.json()
     } else if (ctx._oembed.type === 'text/xml+oembed' && /text\/xml/.test(contentType)) {
       let data = await res.text()
 
-      let rez: any = {}
-
-      ret = await new Promise((resolve, reject) => {
+      await new Promise((resolve, reject) => {
         const parser = new Parser({
           onopentag: function (name, attribs) {
             if (this._is_html) {
-              if (!rez.html) {
-                rez.html = ''
+              if (!ret.html) {
+                ret.html = ''
               }
 
-              rez.html += `<${name} `
-              rez.html += Object.keys(attribs).reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + ' ', '').trim()
-              rez.html += '>'
+              ret.html += `<${name} `
+              ret.html += Object.keys(attribs)
+                .reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + ' ', '')
+                .trim()
+              ret.html += '>'
             }
 
             if (name === 'html') {
@@ -166,17 +166,17 @@ function getRemoteMetadata (ctx, opts) {
             }
 
             if (this._is_html) {
-              rez.html += this._text.trim()
-              rez.html += `</${tagname}>`
+              ret.html += this._text.trim()
+              ret.html += `</${tagname}>`
             }
 
-            rez[tagname] = this._text.trim()
+            ret[tagname] = this._text.trim()
 
             this._tagname = ''
             this._text = ''
           },
           onend: function () {
-            resolve(rez)
+            resolve()
           }
         })
 

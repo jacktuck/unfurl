@@ -7,6 +7,13 @@ A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protoco
 [![Known Vulnerabilities](https://snyk.io/test/github/jacktuck/unfurl/badge.svg?style=flat-square)](https://snyk.io/test/github/jacktuck/unfurl)
 ![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
 
+## Goals:
+- Be as efficient as possible when parsing metadata 
+- Support Node.js >=6 and major browsers
+- Support both XML and JSON oembed providers (JSON is preferred since it;s less expensive)
+- Be adaptable to spec changes
+- Make it trivial to add other metadata providers in the future.
+
 ## The what
 Unfurl _(spread out from a furled state)_ will take a `url` and some `options`, fetch the `url`, extract the metadata we care about and format the result in a saine way. It supports all major metadata providers and expanding it to work for any others should be trivial.
 
@@ -116,17 +123,9 @@ type Metadata = {
 ```
 
 ## The who 💖
+
+
 _(If you use unfurl.js too feel free to [add your project](https://github.com/jacktuck/unfurl/edit/master/README.md))_
 - [vapid/vapid](https://github.com/vapid/vapid) - A template-driven content management system
 - [beeman/micro-unfurl](https://github.com/beeman/micro-unfurl) - small microservice that unfurls a URL and returns the OpenGraph meta data.
 - [probot/unfurl](https://github.com/probot/unfurl) - a GitHub App built with probot that unfurls links on Issues and Pull Request discussions
-
-## Goals:
-- Be as efficient as possible when parsing metadata 
-- Support Node.js >=6 and major browsers
-- Support both XML and JSON oembed providers (JSON is preferred since it;s less expensive)
-- Be adaptable to spec changes
-- Make it trivial to add other metadata providers in the future
-
-### Credits:
-This library depends heavily on the brilliant [htmlparser2](https://github.com/fb55/htmlparser2) library for parsing HTML and XML.
