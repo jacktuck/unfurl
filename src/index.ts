@@ -79,7 +79,7 @@ async function getPage (url: string, opts: Opts) {
     throw new UnexpectedError({ ...UnexpectedError.EXPECTED_HTML, info: { contentType, contentLength } })
   }
 
-	// no charset in content type, peek at response body for at most 1024 bytes
+  // no charset in content type, peek at response body for at most 1024 bytes
   let str = buf.slice(0, 1024).toString()
   let rg
 
@@ -87,7 +87,7 @@ async function getPage (url: string, opts: Opts) {
     rg = /charset=([^;]*)/i.exec(contentType)
   }
 
-	// html 5
+  // html 5
   if (!rg && str) {
     rg = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
   }
@@ -97,7 +97,7 @@ async function getPage (url: string, opts: Opts) {
     rg = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
   }
 
-	// found charset
+  // found charset
   if (rg) {
     const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
     const charset = rg.pop().toUpperCase()
