@@ -18,7 +18,7 @@ So you know when you link to something on Slack, or Facebook, or Twitter - they 
 #### url - `string`
 ---
 #### opts - `object` of:
--  `oembed?: boolean` - support retreiving oembed metadata
+-  `oembed?: boolean` - support retrieving oembed metadata
 -  `timeout?  number` - req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) 
 -  `follow?: number` - maximum redirect count. 0 to not follow redirect
 -  `compress?: boolean` - support gzip/deflate content encoding 
