@@ -27,24 +27,19 @@ import {
 
 import { Metadata, Opts } from './types'
 import he from 'he'
+import { Buffer } from 'safer-buffer'
 
 function unfurl (url: string, opts?: Opts): Promise<Metadata> {
   if (opts === undefined) {
     opts = {}
   }
 
-  if (opts.constructor.name !== 'Object') {
+  if (Object.prototype.toString.call(opts) === '[object Object]') {
     throw new UnexpectedError(UnexpectedError.BAD_OPTIONS)
   }
 
   // Setting defaults when not provided or not correct type
   typeof opts.oembed === 'boolean' || (opts.oembed = true)
-  typeof opts.compress === 'boolean' || (opts.compress = true)
-  typeof opts.userAgent === 'string' || (opts.userAgent = 'facebookexternalhit')
-
-  Number.isInteger(opts.follow) || (opts.follow = 50)
-  Number.isInteger(opts.timeout) || (opts.timeout = 0)
-  Number.isInteger(opts.size) || (opts.size = 0)
 
   const ctx: {
     url?: string,
@@ -64,14 +59,10 @@ async function getPage (url: string, opts: Opts) {
     headers: {
       'Accept': 'text/html, application/xhtml+xml',
       'User-Agent': opts.userAgent
-    },
-    timeout: opts.timeout,
-    follow: opts.follow,
-    compress: opts.compress,
-    size: opts.size
+    }
   })
 
-  const buf = await res.buffer()
+  const buf = await Buffer.from(res.text(), 'text')
   const contentType = res.headers.get('Content-Type')
   const contentLength = res.headers.get('Content-Length')
 
@@ -79,31 +70,30 @@ async function getPage (url: string, opts: Opts) {
     throw new UnexpectedError({ ...UnexpectedError.EXPECTED_HTML, info: { contentType, contentLength } })
   }
 
-  // no charset in content type, peek at response body for at most 1024 bytes
-  let str = buf.slice(0, 1024).toString()
-  let rg
+  // peek charset in content type, peek at response body for at most 1024 bytes
+  let peek = buf.slice(0, 1024).toString()
+  let match
 
   if (contentType) {
-    rg = /charset=([^;]*)/i.exec(contentType)
+    match = /charset=([^;]*)/i.exec(contentType)
   }
 
   // html 5
-  if (!rg && str) {
-    rg = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
+  if (!match && peek) {
+    match = /<meta.+?charset=(['"])(.+?)\1/i.exec(peek)
   }
 
   // html 4
-  if (!rg && str) {
-    rg = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
+  if (!match && peek) {
+    match = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(peek)
   }
 
   // found charset
-  if (rg) {
-    const supported = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
-    const charset = rg.pop().toUpperCase()
+  if (match) {
+    const supported: string[] = [ 'CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP' ]
+    const charset = match.pop().toUpperCase()
 
     if (supported.includes(charset)) {
-
       return iconv.decode(buf, charset).toString()
     }
   }
@@ -252,7 +242,7 @@ function getMetadata (ctx, opts: Opts) {
               pair = ['description', attribs.content]
             } else if (attribs.name === 'keywords') {
               let keywords = attribs.content
-                .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or sommas
+                .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or commas
                 .split(/,{1,}\s{0,}/) // splits on 1+ commas followed by 0+ spaces
 
               pair = ['keywords', keywords]

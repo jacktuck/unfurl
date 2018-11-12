@@ -7,11 +7,12 @@
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "dist/index.js",
   "dependencies": {
-    "cross-fetch": "^2.2.2",
+    "cross-fetch": "^2.2.3",
     "debug": "^3.1.0",
     "he": "^1.2.0",
     "htmlparser2": "^3.9.2",
     "iconv-lite": "^0.4.24",
+    "safer-buffer": "^2.1.2",
     "url": "^0.11.0"
   },
   "devDependencies": {
@@ -38,9 +39,10 @@
   "scripts": {
     "test": "port=9000 jest --verbose --runInBand --coverage --coveragePathIgnorePatterns '/test/'",
     "travis": "port=9000 jest --verbose --runInBand --coverage --coverageReporters=text-lcov --coveragePathIgnorePatterns '/test/' | coveralls",
-    "start": "node dist/index.js",
-    "watch": "tsc -w --outDir dist",
-    "build": "tsc --outDir dist"
+    "start": "node dist/nodejs/index.js",
+    "build_browser": "tsc -p tsconfig.browser.json",
+    "build_nodejs": "tsc -p tsconfig.nodejs.json",
+    "build": "npm run build_browser && npm run build_nodejs"
   },
   "keywords": [
     "oembed",

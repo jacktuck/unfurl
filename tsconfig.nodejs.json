@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "outDir": "dist/nodejs",
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "lib": ["es2017"],
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true
+  },
+  "include": [
+    "src/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

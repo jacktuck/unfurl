@@ -14,14 +14,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/* istanbul ignore next */
+/* istanbul ignore next */ 2;
 if (process.env.NODE_ENV !== 'test') {
     require('source-map-support').install();
 }
 const url_1 = require("url");
 const htmlparser2_1 = require("htmlparser2");
 const iconv = require("iconv-lite");
-const node_fetch_1 = require("node-fetch");
+const cross_fetch_1 = require("cross-fetch");
 const unexpectedError_1 = require("./unexpectedError");
 const schema_1 = require("./schema");
 const he_1 = require("he");
@@ -29,16 +29,11 @@ function unfurl(url, opts) {
     if (opts === undefined) {
         opts = {};
     }
-    if (opts.constructor.name !== 'Object') {
+    if (Object.prototype.toString.call(opts) === '[object Object]') {
         throw new unexpectedError_1.default(unexpectedError_1.default.BAD_OPTIONS);
     }
     // Setting defaults when not provided or not correct type
     typeof opts.oembed === 'boolean' || (opts.oembed = true);
-    typeof opts.compress === 'boolean' || (opts.compress = true);
-    typeof opts.userAgent === 'string' || (opts.userAgent = 'facebookexternalhit');
-    Number.isInteger(opts.follow) || (opts.follow = 50);
-    Number.isInteger(opts.timeout) || (opts.timeout = 0);
-    Number.isInteger(opts.size) || (opts.size = 0);
     const ctx = {
         url
     };
@@ -49,17 +44,13 @@ function unfurl(url, opts) {
 }
 function getPage(url, opts) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield node_fetch_1.default(url, {
+        const res = yield cross_fetch_1.default(url, {
             headers: {
                 'Accept': 'text/html, application/xhtml+xml',
                 'User-Agent': opts.userAgent
-            },
-            timeout: opts.timeout,
-            follow: opts.follow,
-            compress: opts.compress,
-            size: opts.size
+            }
         });
-        const buf = yield res.buffer();
+        const buf = yield res.arrayBuffer();
         const contentType = res.headers.get('Content-Type');
         const contentLength = res.headers.get('Content-Length');
         if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
@@ -97,26 +88,27 @@ function getRemoteMetadata(ctx, opts) {
                 return metadata;
             }
             const target = url_1.resolve(ctx.url, ctx._oembed.href);
-            const res = yield node_fetch_1.default(target);
+            const res = yield cross_fetch_1.default(target);
             const contentType = res.headers.get('Content-Type');
             const contentLength = res.headers.get('Content-Length');
-            let ret;
+            let ret = {};
             if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(contentType)) {
                 ret = yield res.json();
             }
             else if (ctx._oembed.type === 'text/xml+oembed' && /text\/xml/.test(contentType)) {
                 let data = yield res.text();
-                let rez = {};
-                ret = yield new Promise((resolve, reject) => {
+                yield new Promise((resolve, reject) => {
                     const parser = new htmlparser2_1.Parser({
                         onopentag: function (name, attribs) {
                             if (this._is_html) {
-                                if (!rez.html) {
-                                    rez.html = '';
+                                if (!ret.html) {
+                                    ret.html = '';
                                 }
-                                rez.html += `<${name} `;
-                                rez.html += Object.keys(attribs).reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + ' ', '').trim();
-                                rez.html += '>';
+                                ret.html += `<${name} `;
+                                ret.html += Object.keys(attribs)
+                                    .reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + ' ', '')
+                                    .trim();
+                                ret.html += '>';
                             }
                             if (name === 'html') {
                                 this._is_html = true;
@@ -137,15 +129,15 @@ function getRemoteMetadata(ctx, opts) {
                                 return;
                             }
                             if (this._is_html) {
-                                rez.html += this._text.trim();
-                                rez.html += `</${tagname}>`;
+                                ret.html += this._text.trim();
+                                ret.html += `</${tagname}>`;
                             }
-                            rez[tagname] = this._text.trim();
+                            ret[tagname] = this._text.trim();
                             this._tagname = '';
                             this._text = '';
                         },
                         onend: function () {
-                            resolve(rez);
+                            resolve();
                         }
                     });
                     parser.write(data);
@@ -210,7 +202,7 @@ function getMetadata(ctx, opts) {
                         }
                         else if (attribs.name === 'keywords') {
                             let keywords = attribs.content
-                                .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or sommas
+                                .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or commas
                                 .split(/,{1,}\s{0,}/); // splits on 1+ commas followed by 0+ spaces
                             pair = ['keywords', keywords];
                         }
