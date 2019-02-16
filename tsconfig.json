@@ -2,7 +2,7 @@
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "lib": ["es2017"],
+    "lib": ["es7", "DOM"],
     "target": "es6",
     "module": "commonjs",
     "declaration": true
