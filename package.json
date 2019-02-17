@@ -7,7 +7,6 @@
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "dist/index.js",
   "dependencies": {
-    "@types/isomorphic-fetch": "0.0.35",
     "cross-fetch": "^3.0.1",
     "debug": "^3.1.0",
     "he": "^1.2.0",
