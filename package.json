@@ -3,11 +3,11 @@
   "engines": {
     "node": ">=6.0.0"
   },
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "Scraper for oEmbed, Twitter Cards and Open Graph metadata - fast and Promise-based",
   "main": "dist/index.js",
   "dependencies": {
-    "cross-fetch": "^3.0.1",
+    "cross-fetch": "^3.0.4",
     "debug": "^3.1.0",
     "he": "^1.2.0",
     "htmlparser2": "^3.9.2",
@@ -31,7 +31,7 @@
     "tsc": "^1.20150623.0",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.0.3",
+    "typescript": "^3.5.3",
     "typescript-eslint-parser": "^18.0.0"
   },
   "scripts": {

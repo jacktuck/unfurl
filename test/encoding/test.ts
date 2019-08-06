@@ -1,4 +1,4 @@
-const unfurl = require('../../src/')
+import { unfurl } from '../../src/'
 
 import fs from 'fs'
 import nock from 'nock'

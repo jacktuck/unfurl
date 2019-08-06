@@ -1,12 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 /* istanbul ignore next */
 if (process.env.NODE_ENV !== "test") {
@@ -41,131 +33,128 @@ function unfurl(url, opts) {
         .then(getRemoteMetadata(ctx, opts))
         .then(parse(ctx));
 }
-function getPage(url, opts) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const res = yield cross_fetch_1.default(url, {
-            headers: {
-                Accept: "text/html, application/xhtml+xml",
-                "User-Agent": opts.userAgent
-            }
-        });
-        const buf = Buffer.from(yield res.arrayBuffer());
-        const contentType = res.headers.get("Content-Type");
-        const contentLength = res.headers.get("Content-Length");
-        if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
-            throw new unexpectedError_1.default(Object.assign({}, unexpectedError_1.default.EXPECTED_HTML, { info: { contentType, contentLength } }));
+exports.unfurl = unfurl;
+async function getPage(url, opts) {
+    const res = await cross_fetch_1.default(url, {
+        headers: {
+            Accept: "text/html, application/xhtml+xml",
+            "User-Agent": opts.userAgent
         }
-        // no charset in content type, peek at response body for at most 1024 bytes
-        let str = buf.slice(0, 1024).toString();
-        let rg;
-        if (contentType) {
-            rg = /charset=([^;]*)/i.exec(contentType);
-        }
-        // html 5
-        if (!rg && str) {
-            rg = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
-        }
-        // html 4
-        if (!rg && str) {
-            rg = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
-        }
-        // found charset
-        if (rg) {
-            const supported = [
-                "CP932",
-                "CP936",
-                "CP949",
-                "CP950",
-                "GB2312",
-                "GBK",
-                "GB18030",
-                "BIG5",
-                "SHIFT_JIS",
-                "EUC-JP"
-            ];
-            const charset = rg.pop().toUpperCase();
-            if (supported.includes(charset)) {
-                return iconv_lite_1.decode(buf, charset).toString();
-            }
-        }
-        return buf.toString();
     });
+    const buf = Buffer.from(await res.arrayBuffer());
+    const contentType = res.headers.get("Content-Type");
+    const contentLength = res.headers.get("Content-Length");
+    if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
+        throw new unexpectedError_1.default(Object.assign({}, unexpectedError_1.default.EXPECTED_HTML, { info: { contentType, contentLength } }));
+    }
+    // no charset in content type, peek at response body for at most 1024 bytes
+    let str = buf.slice(0, 1024).toString();
+    let rg;
+    if (contentType) {
+        rg = /charset=([^;]*)/i.exec(contentType);
+    }
+    // html 5
+    if (!rg && str) {
+        rg = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
+    }
+    // html 4
+    if (!rg && str) {
+        rg = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
+    }
+    // found charset
+    if (rg) {
+        const supported = [
+            "CP932",
+            "CP936",
+            "CP949",
+            "CP950",
+            "GB2312",
+            "GBK",
+            "GB18030",
+            "BIG5",
+            "SHIFT_JIS",
+            "EUC-JP"
+        ];
+        const charset = rg.pop().toUpperCase();
+        if (supported.includes(charset)) {
+            return iconv_lite_1.decode(buf, charset).toString();
+        }
+    }
+    return buf.toString();
 }
 function getRemoteMetadata(ctx, opts) {
-    return function (metadata) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!ctx._oembed) {
-                return metadata;
-            }
-            const target = url_1.resolve(ctx.url, ctx._oembed.href);
-            const res = yield cross_fetch_1.default(target);
-            const contentType = res.headers.get("Content-Type");
-            const contentLength = res.headers.get("Content-Length");
-            let ret;
-            if (ctx._oembed.type === "application/json+oembed" &&
-                /application\/json/.test(contentType)) {
-                ret = yield res.json();
-            }
-            else if (ctx._oembed.type === "text/xml+oembed" &&
-                /text\/xml/.test(contentType)) {
-                let data = yield res.text();
-                let content = {};
-                ret = yield new Promise((resolve, reject) => {
-                    const parser = new htmlparser2_1.Parser({
-                        onopentag: function (name, attribs) {
-                            if (this._is_html) {
-                                if (!content.html) {
-                                    content.html = "";
-                                }
-                                content.html += `<${name} `;
-                                content.html += Object.keys(attribs)
-                                    .reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + " ", "")
-                                    .trim();
-                                content.html += ">";
-                            }
-                            if (name === "html") {
-                                this._is_html = true;
-                            }
-                            this._tagname = name;
-                        },
-                        ontext: function (text) {
-                            if (!this._text)
-                                this._text = "";
-                            this._text += text;
-                        },
-                        onclosetag: function (tagname) {
-                            if (tagname === "oembed") {
-                                return;
-                            }
-                            if (tagname === "html") {
-                                this._is_html = false;
-                                return;
-                            }
-                            if (this._is_html) {
-                                content.html += this._text.trim();
-                                content.html += `</${tagname}>`;
-                            }
-                            content[tagname] = this._text.trim();
-                            this._tagname = "";
-                            this._text = "";
-                        },
-                        onend: function () {
-                            resolve(content);
-                        }
-                    });
-                    parser.write(data);
-                    parser.end();
-                });
-            }
-            if (!ret) {
-                return metadata;
-            }
-            const oEmbedMetadata = Object.keys(ret)
-                .map(k => ["oEmbed:" + k, ret[k]])
-                .filter(([k, v]) => schema_1.keys.includes(String(k)));
-            metadata.push(...oEmbedMetadata);
+    return async function (metadata) {
+        if (!ctx._oembed) {
             return metadata;
-        });
+        }
+        const target = url_1.resolve(ctx.url, ctx._oembed.href);
+        const res = await cross_fetch_1.default(target);
+        const contentType = res.headers.get("Content-Type");
+        const contentLength = res.headers.get("Content-Length");
+        let ret;
+        if (ctx._oembed.type === "application/json+oembed" &&
+            /application\/json/.test(contentType)) {
+            ret = await res.json();
+        }
+        else if (ctx._oembed.type === "text/xml+oembed" &&
+            /text\/xml/.test(contentType)) {
+            let data = await res.text();
+            let content = {};
+            ret = await new Promise((resolve, reject) => {
+                const parser = new htmlparser2_1.Parser({
+                    onopentag: function (name, attribs) {
+                        if (this._is_html) {
+                            if (!content.html) {
+                                content.html = "";
+                            }
+                            content.html += `<${name} `;
+                            content.html += Object.keys(attribs)
+                                .reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + " ", "")
+                                .trim();
+                            content.html += ">";
+                        }
+                        if (name === "html") {
+                            this._is_html = true;
+                        }
+                        this._tagname = name;
+                    },
+                    ontext: function (text) {
+                        if (!this._text)
+                            this._text = "";
+                        this._text += text;
+                    },
+                    onclosetag: function (tagname) {
+                        if (tagname === "oembed") {
+                            return;
+                        }
+                        if (tagname === "html") {
+                            this._is_html = false;
+                            return;
+                        }
+                        if (this._is_html) {
+                            content.html += this._text.trim();
+                            content.html += `</${tagname}>`;
+                        }
+                        content[tagname] = this._text.trim();
+                        this._tagname = "";
+                        this._text = "";
+                    },
+                    onend: function () {
+                        resolve(content);
+                    }
+                });
+                parser.write(data);
+                parser.end();
+            });
+        }
+        if (!ret) {
+            return metadata;
+        }
+        const oEmbedMetadata = Object.keys(ret)
+            .map(k => ["oEmbed:" + k, ret[k]])
+            .filter(([k, v]) => schema_1.keys.includes(String(k)));
+        metadata.push(...oEmbedMetadata);
+        return metadata;
     };
 }
 function getMetadata(ctx, opts) {
@@ -320,5 +309,4 @@ function parse(ctx) {
         return parsed;
     };
 }
-module.exports = unfurl;
 //# sourceMappingURL=index.js.map

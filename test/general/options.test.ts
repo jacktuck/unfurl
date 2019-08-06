@@ -4,7 +4,7 @@ import iconv from 'iconv-lite'
 
 import nock from 'nock'
 
-const unfurl = require('../../src/')
+import { unfurl } from '../../src/'
 import UnexpectedError from '../../src/unexpectedError'
 
 test('should throw bad options error', async () => {

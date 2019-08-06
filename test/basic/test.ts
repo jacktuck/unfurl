@@ -1,4 +1,4 @@
-const unfurl = require('../../src/')
+import { unfurl } from '../../src/'
 import nock from 'nock'
 
 test('should handle content which is excaped badly', async () => {

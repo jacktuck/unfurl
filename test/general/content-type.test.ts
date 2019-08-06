@@ -2,7 +2,7 @@ import fs from 'fs'
 import http from 'http'
 import iconv from 'iconv-lite'
 
-const unfurl = require('../../src/')
+import { unfurl } from '../../src/'
 import UnexpectedError from '../../src/unexpectedError'
 
 import nock from 'nock'

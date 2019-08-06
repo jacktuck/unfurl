@@ -389,4 +389,4 @@ function parse(ctx) {
   };
 }
 
-module.exports = unfurl;
+export { unfurl }
