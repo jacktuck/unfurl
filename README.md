@@ -27,9 +27,7 @@ So you know when you link to something on Slack, or Facebook, or Twitter - they 
 ---
 #
 ```typescript
-import { unfurl } from './unfurl.js'
-// const { unfurl } = require('./unfurl.js') also works
-
+import { unfurl } from 'unfurl.js'
 const result = unfurl('https://github.com/trending')
 ```
 ---
