@@ -1,6 +1,6 @@
 # Unfurl 
 
-A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protocol for Node.js (>=v6.0.0)
+A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protocol for Node.js (>=v8.0.0)
 
 [![Travis CI](https://img.shields.io/travis/jacktuck/unfurl.svg?style=flat-square)](https://travis-ci.org/jacktuck/unfurl)
 [![Coverage Status](https://img.shields.io/coveralls/jacktuck/unfurl.svg?style=flat-square)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
