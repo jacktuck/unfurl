@@ -23,16 +23,15 @@ function unfurl(url: string, opts?: Opts): Promise<Metadata> {
 
   typeof opts.oembed === "boolean" || (opts.oembed = true);
   typeof opts.compress === "boolean" || (opts.compress = true);
-  typeof opts.userAgent === "string" ||
-    (opts.userAgent = "facebookexternalhit");
+  typeof opts.userAgent === "string" || (opts.userAgent = "facebookexternalhit");
 
   Number.isInteger(opts.follow) || (opts.follow = 50);
   Number.isInteger(opts.timeout) || (opts.timeout = 0);
   Number.isInteger(opts.size) || (opts.size = 0);
 
   const ctx: {
-    url?: string,
-    oembedUrl?: string
+    url?: string;
+    oembedUrl?: string;
   } = {
     url
   };
@@ -82,18 +81,7 @@ async function getPage(url: string, opts: Opts) {
 
   // found charset
   if (rg) {
-    const supported = [
-      "CP932",
-      "CP936",
-      "CP949",
-      "CP950",
-      "GB2312",
-      "GBK",
-      "GB18030",
-      "BIG5",
-      "SHIFT_JIS",
-      "EUC-JP"
-    ];
+    const supported = ["CP932", "CP936", "CP949", "CP950", "GB2312", "GBK", "GB18030", "BIG5", "SHIFT_JIS", "EUC-JP"];
     const charset = rg.pop().toUpperCase();
 
     if (supported.includes(charset)) {
@@ -118,15 +106,9 @@ function getRemoteMetadata(ctx, opts) {
 
     let ret;
 
-    if (
-      ctx._oembed.type === "application/json+oembed" &&
-      /application\/json/.test(contentType)
-    ) {
+    if (ctx._oembed.type === "application/json+oembed" && /application\/json/.test(contentType)) {
       ret = await res.json();
-    } else if (
-      ctx._oembed.type === "text/xml+oembed" &&
-      /text\/xml/.test(contentType)
-    ) {
+    } else if (ctx._oembed.type === "text/xml+oembed" && /text\/xml/.test(contentType)) {
       let data = await res.text();
 
       let content: any = {};
@@ -141,11 +123,7 @@ function getRemoteMetadata(ctx, opts) {
 
               content.html += `<${name} `;
               content.html += Object.keys(attribs)
-                .reduce(
-                  (str, k) =>
-                    str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + " ",
-                  ""
-                )
+                .reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + " ", "")
                 .trim();
               content.html += ">";
             }
@@ -241,8 +219,7 @@ function getMetadata(ctx, opts: Opts) {
             // handle XML and JSON with a preference towards JSON since its more efficient for us
             if (
               tagname === "link" &&
-              (attribs.type === "text/xml+oembed" ||
-                attribs.type === "application/json+oembed")
+              (attribs.type === "text/xml+oembed" || attribs.type === "application/json+oembed")
             ) {
               if (!ctx._oembed || ctx._oembed.type === "text/xml+oembed") {
                 // prefer json
@@ -251,11 +228,7 @@ function getMetadata(ctx, opts: Opts) {
             }
           }
 
-          if (
-            tagname === "link" &&
-            attribs.href &&
-            (attribs.rel === "icon" || attribs.rel === "shortcut icon")
-          ) {
+          if (tagname === "link" && attribs.href && (attribs.rel === "icon" || attribs.rel === "shortcut icon")) {
             this._favicon = attribs.href;
           }
 
@@ -333,7 +306,7 @@ function parse(ctx) {
 
       if (item.type === "number") {
         metaValue = parseInt(metaValue, 10);
-      } else if (item.type === "url") {
+      } else if (item.type === "url" && metaValue) {
         metaValue = resolveUrl(ctx.url, metaValue);
       }
 
@@ -389,4 +362,4 @@ function parse(ctx) {
   };
 }
 
-export { unfurl }
+export { unfurl };
