@@ -41,6 +41,28 @@ test('width/height should be numbers', async () => {
   expect(result.oEmbed.thumbnails[0].height).toEqual(200)
 })
 
+test('should decode entities in OEmbed URL', async () => {
+  nock('http://localhost')
+    .get('/html/oembed')
+    .replyWithFile(200, __dirname + '/oembed-entities.html', {
+      'Content-Type': 'text/html'
+    })
+
+  nock('http://localhost')
+    .get('/oembed-service?format=json&file=/json/oembed.json')
+    .replyWithFile(200, __dirname + '/oembed.json', {
+      'Content-Type': 'application/json'
+    })
+
+  const result: any = await unfurl('http://localhost/html/oembed')
+
+  expect(result.oEmbed.width).toEqual(640)
+  expect(result.oEmbed.height).toEqual(640)
+
+  expect(result.oEmbed.thumbnails[0].width).toEqual(200)
+  expect(result.oEmbed.thumbnails[0].height).toEqual(200)
+})
+
 test('should prefer fetching JSON oEmbed', async () => {
   nock('http://localhost')
     .get('/html/oembed-multi')
