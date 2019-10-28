@@ -98,7 +98,7 @@ function getRemoteMetadata(ctx, opts) {
       return metadata;
     }
 
-    const target = resolveUrl(ctx.url, ctx._oembed.href);
+    const target = resolveUrl(ctx.url, he_decode(ctx._oembed.href));
 
     const res = await fetch(target);
     const contentType = res.headers.get("Content-Type");
