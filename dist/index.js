@@ -44,7 +44,7 @@ async function getPage(url, opts) {
     const contentType = res.headers.get("Content-Type");
     const contentLength = res.headers.get("Content-Length");
     if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
-        throw new unexpectedError_1.default(Object.assign({}, unexpectedError_1.default.EXPECTED_HTML, { info: { contentType, contentLength } }));
+        throw new unexpectedError_1.default(Object.assign(Object.assign({}, unexpectedError_1.default.EXPECTED_HTML), { info: { contentType, contentLength } }));
     }
     // no charset in content type, peek at response body for at most 1024 bytes
     let str = buf.slice(0, 1024).toString();
@@ -75,7 +75,7 @@ function getRemoteMetadata(ctx, opts) {
         if (!ctx._oembed) {
             return metadata;
         }
-        const target = url_1.resolve(ctx.url, ctx._oembed.href);
+        const target = url_1.resolve(ctx.url, he_1.decode(ctx._oembed.href));
         const res = await cross_fetch_1.default(target);
         const contentType = res.headers.get("Content-Type");
         const contentLength = res.headers.get("Content-Length");
@@ -287,7 +287,7 @@ function parse(ctx) {
             target[item.name] || (target[item.name] = metaValue);
         }
         if (tags.length && parsed.open_graph.videos) {
-            parsed.open_graph.videos = parsed.open_graph.videos.map(obj => (Object.assign({}, obj, { tags })));
+            parsed.open_graph.videos = parsed.open_graph.videos.map(obj => (Object.assign(Object.assign({}, obj), { tags })));
         }
         return parsed;
     };
