@@ -8,7 +8,6 @@ class UnexpectedError extends Error {
         this.info = errorType.info;
     }
 }
-exports.default = UnexpectedError;
 UnexpectedError.EXPECTED_HTML = {
     message: 'Wrong content type header - "text/html" or "application/xhtml+xml" was expected',
     name: 'WRONG_CONTENT_TYPE'
@@ -17,4 +16,5 @@ UnexpectedError.BAD_OPTIONS = {
     message: 'Bad options (see Opts), options must be an Object',
     name: 'BAD_OPTIONS'
 };
+exports.default = UnexpectedError;
 //# sourceMappingURL=unexpectedError.js.map
