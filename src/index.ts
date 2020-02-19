@@ -108,7 +108,7 @@ function getRemoteMetadata(ctx, opts) {
 
     if (ctx._oembed.type === "application/json+oembed" && /application\/json/.test(contentType)) {
       ret = await res.json();
-    } else if (ctx._oembed.type === "text/xml+oembed" && /text\/xml/.test(contentType)) {
+    } else if (ctx._oembed.type === "text/xml+oembed" && /(text|application)\/xml/.test(contentType)) {
       let data = await res.text();
 
       let content: any = {};
