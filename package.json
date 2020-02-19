@@ -18,21 +18,13 @@
     "@types/jest": "^23.3.2",
     "@types/node-fetch": "^2.1.6",
     "coveralls": "^3.0.2",
-    "eslint": "^5.5.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^7.0.1",
-    "eslint-plugin-promise": "^4.0.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "eslint-plugin-typescript": "^0.12.0",
     "jest": "^23.6.0",
     "nock": "^10.0.0",
     "ts-jest": "^23.1.4",
     "tsc": "^1.20150623.0",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.5.3",
-    "typescript-eslint-parser": "^18.0.0"
+    "typescript": "^3.5.3"
   },
   "scripts": {
     "lint": "tslint -p tsconfig.json",
