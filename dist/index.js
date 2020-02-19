@@ -38,13 +38,17 @@ async function getPage(url, opts) {
         headers: {
             Accept: "text/html, application/xhtml+xml",
             "User-Agent": opts.userAgent
-        }
+        },
+        // @ts-ignore
+        size: opts.size,
+        follow: opts.follow,
+        timeout: opts.timeout
     });
     const buf = Buffer.from(await res.arrayBuffer());
     const contentType = res.headers.get("Content-Type");
     const contentLength = res.headers.get("Content-Length");
     if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
-        throw new unexpectedError_1.default(Object.assign(Object.assign({}, unexpectedError_1.default.EXPECTED_HTML), { info: { contentType, contentLength } }));
+        throw new unexpectedError_1.default(Object.assign({}, unexpectedError_1.default.EXPECTED_HTML, { info: { contentType, contentLength } }));
     }
     // no charset in content type, peek at response body for at most 1024 bytes
     let str = buf.slice(0, 1024).toString();
@@ -83,7 +87,7 @@ function getRemoteMetadata(ctx, opts) {
         if (ctx._oembed.type === "application/json+oembed" && /application\/json/.test(contentType)) {
             ret = await res.json();
         }
-        else if (ctx._oembed.type === "text/xml+oembed" && /text\/xml/.test(contentType)) {
+        else if (ctx._oembed.type === "text/xml+oembed" && /(text|application)\/xml/.test(contentType)) {
             let data = await res.text();
             let content = {};
             ret = await new Promise((resolve, reject) => {
@@ -287,7 +291,7 @@ function parse(ctx) {
             target[item.name] || (target[item.name] = metaValue);
         }
         if (tags.length && parsed.open_graph.videos) {
-            parsed.open_graph.videos = parsed.open_graph.videos.map(obj => (Object.assign(Object.assign({}, obj), { tags })));
+            parsed.open_graph.videos = parsed.open_graph.videos.map(obj => (Object.assign({}, obj, { tags })));
         }
         return parsed;
     };
