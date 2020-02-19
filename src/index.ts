@@ -47,9 +47,13 @@ async function getPage(url: string, opts: Opts) {
     headers: {
       Accept: "text/html, application/xhtml+xml",
       "User-Agent": opts.userAgent
-    }
+    },        
+    // @ts-ignore
+    size: opts.size,
+    follow: opts.follow,
+    timeout: opts.timeout
   });
-
+  
   const buf = Buffer.from(await res.arrayBuffer());
   const contentType = res.headers.get("Content-Type");
   const contentLength = res.headers.get("Content-Length");
