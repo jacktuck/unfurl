@@ -1,8 +1,3 @@
-/* istanbul ignore next */
-if (process.env.NODE_ENV !== 'test') {
-  require('source-map-support').install()
-}
-
 import { parse as parseUrl, resolve as resolveUrl } from 'url'
 import { Parser } from 'htmlparser2'
 import fetch from 'cross-fetch'
