@@ -2,10 +2,10 @@
 
 A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protocol for Node.js (>=v8.0.0)
 
-[![Travis CI](https://img.shields.io/travis/jacktuck/unfurl.svg?style=flat-square)](https://travis-ci.org/jacktuck/unfurl)
-[![Coverage Status](https://img.shields.io/coveralls/jacktuck/unfurl.svg?style=flat-square)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
+[![Travis CI](https://img.shields.io/travis/jacktuck/unfurl?style=flat-square)](https://travis-ci.org/jacktuck/unfurl)
+[![Coverage Status](https://img.shields.io/coveralls/jacktuck/unfurl?style=flat-square)](https://coveralls.io/github/jacktuck/unfurl?branch=master)
 [![Known Vulnerabilities](https://snyk.io/test/github/jacktuck/unfurl/badge.svg?style=flat-square)](https://snyk.io/test/github/jacktuck/unfurl)
-![NPM](https://img.shields.io/npm/v/unfurl.js.svg?style=flat-square)
+[![npm](https://img.shields.io/npm/v/unfurl.js?style=flat-square)](https://www.npmjs.com/package/unfurl.js)
 
 ## The what
 Unfurl _(spread out from a furled state)_ will take a `url` and some `options`, fetch the `url`, extract the metadata we care about and format the result in a saine way. It supports all major metadata providers and expanding it to work for any others should be trivial.
@@ -14,6 +14,15 @@ Unfurl _(spread out from a furled state)_ will take a `url` and some `options`, 
 So you know when you link to something on Slack, or Facebook, or Twitter - they typically show a preview of the link. To do so they have crawled the linked website for metadata and enriched the link by providing more context about it. Which usually entails grabbing its title, description and image/player embed.
 
 ## The how
+### Setup
+```bash
+npm i -S unfurl.js
+
+or
+
+yarn add unfurl.js
+```
+
 ### `unfurl(url [, opts])`
 #### url - `string`
 ---
