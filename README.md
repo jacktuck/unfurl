@@ -14,13 +14,8 @@ Unfurl _(spread out from a furled state)_ will take a `url` and some `options`, 
 So you know when you link to something on Slack, or Facebook, or Twitter - they typically show a preview of the link. To do so they have crawled the linked website for metadata and enriched the link by providing more context about it. Which usually entails grabbing its title, description and image/player embed.
 
 ## The how
-### Setup
 ```bash
-npm i -S unfurl.js
-
-or
-
-yarn add unfurl.js
+npm install unfurl.js
 ```
 
 ### `unfurl(url [, opts])`
