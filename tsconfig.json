@@ -5,7 +5,8 @@
     "sourceMap": true,
     "lib": ["es2017"],
     "module": "commonjs",
-    "target": "es2017"
+    "target": "es2017",
+    "declaration": true
   },
   "include": [
     "src/*.ts"
