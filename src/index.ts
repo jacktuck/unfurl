@@ -268,7 +268,9 @@ function getMetadata (ctx, opts: Opts) {
           }
 
           // We want to parse as little as possible so finish once we see </head>
-          if (tag === 'head') {
+          // if we have not seen a title tag within the head, we scan the entire
+          // document instead
+          if (tag === 'head' && this._title) {
             parser.reset()
           }
         }
