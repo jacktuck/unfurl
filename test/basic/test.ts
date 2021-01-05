@@ -32,6 +32,25 @@ test('should detect title, description and keywords', async () => {
   expect(result).toEqual(expected)
 })
 
+test('should detect title, description and keywords even when they are in the body', async () => {
+  nock('http://localhost')
+    .get('/html/basic-body')
+    .replyWithFile(200, __dirname + '/basic-body.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/html/basic-body')
+
+  const expected = {
+    favicon: 'http://localhost/favicon.ico',
+    description: 'aaa',
+    keywords: ['a', 'b', 'c'],
+    title: 'ccc'
+  }
+
+  expect(result).toEqual(expected)
+})
+
 test('should detect title, description and keywords', async () => {
   nock('http://localhost')
     .get('/html/basic')
