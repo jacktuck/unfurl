@@ -1,0 +1,7 @@
+{
+  "error": {
+      "code": 403,
+      "message": "SSL is required to perform this operation.",
+      "status": "PERMISSION_DENIED"
+  }
+}
