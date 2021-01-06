@@ -102,11 +102,23 @@ function getRemoteMetadata (ctx, opts) {
       return metadata
     }
 
-    const target = resolveUrl(ctx.url, he_decode(ctx._oembed.href))
+    let target = resolveUrl(ctx.url, he_decode(ctx._oembed.href))
+    const targeturl = new URL(target)
 
-    const res = await fetch(target)
-    const contentType = res.headers.get('Content-Type')
-    const contentLength = res.headers.get('Content-Length')
+    let res = await fetch(target)
+    let contentType = res.headers.get('Content-Type')
+    let contentLength = res.headers.get('Content-Length')
+    const status = res.status
+
+    if (status === 403 && targeturl.protocol === 'http:') {
+      // try again using HTTPS
+      targeturl.protocol = 'https:'
+      target = targeturl.href
+
+      res = await fetch(target)
+      contentType = res.headers.get('Content-Type')
+      contentLength = res.headers.get('Content-Length')
+    }
 
     let ret
 
@@ -231,7 +243,6 @@ function getMetadata (ctx, opts: Opts) {
               }
             }
           }
-
           if (tagname === 'link' && attribs.href && (attribs.rel === 'icon' || attribs.rel === 'shortcut icon')) {
             this._favicon = attribs.href
           }
