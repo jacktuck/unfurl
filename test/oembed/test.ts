@@ -99,6 +99,30 @@ test('should prefer fetching JSON oEmbed', async () => {
   expect(result.oEmbed).toEqual(expected)
 })
 
+test('should upgrade to HTTPS if needed', async () => {
+  nock('http://localhost')
+    .get('/html/oembed-http')
+    .replyWithFile(200, __dirname + '/oembed-http.html', {
+      'Content-Type': 'text/html'
+    })
+
+  nock('http://localhost')
+    .get('/json/oembed.json')
+    .replyWithFile(403, __dirname + '/oembed-error.json', {
+      'Content-Type': 'application/json'
+    })
+
+  nock('https://localhost')
+    .get('/json/oembed.json')
+    .replyWithFile(200, __dirname + '/oembed.json', {
+      'Content-Type': 'application/json'
+    })
+
+  const result: any = await unfurl('http://localhost/html/oembed-http')
+
+  expect(result.oEmbed.version).toEqual('1.0')
+})
+
 test('should build oEmbed from JSON', async () => {
   nock('http://localhost')
     .get('/html/oembed')
