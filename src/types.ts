@@ -17,7 +17,7 @@ export type Metadata = {
   title: string
   description: string
   keywords: string[]
-  favicon?: string
+  favicon: string
   oEmbed?: {
     type: 'photo' | 'video' | 'link' | 'rich'
     version?: string
