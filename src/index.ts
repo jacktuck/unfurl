@@ -250,9 +250,9 @@ function getMetadata (ctx, opts: Opts) {
           let pair
 
           if (tagname === 'meta') {
-            if (attribs.name === 'description') {
+            if (attribs.name === 'description' && attribs.content) {
               pair = ['description', attribs.content]
-            } else if (attribs.name === 'keywords') {
+            } else if (attribs.name === 'keywords' && attribs.content) {
               let keywords = attribs.content
                 .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or sommas
                 .split(/,{1,}\s{0,}/) // splits on 1+ commas followed by 0+ spaces
