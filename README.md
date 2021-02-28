@@ -38,6 +38,10 @@ const result = unfurl('https://github.com/trending')
 #### result is `<Promise<Metadata>>`
 ```typescript
 type Metadata = {
+  title: string
+  description: string
+  keywords: string[]
+  favicon: string
   oEmbed?: {
     type: 'photo' | 'video' | 'link' | 'rich'
     version?: string
@@ -47,11 +51,11 @@ type Metadata = {
     provider_name?: string
     provider_url?: string
     cache_age?: number
-    thumbnails?: {
+    thumbnails?: [{
       url?: string
       width?: number
       height?: number
-    }[]
+    }]
   }
   twitter_card: {
     card: string
@@ -82,7 +86,7 @@ type Metadata = {
         name: string
         url: string
       }
-    },
+    }
     images: {
       url: string
       alt: string
@@ -102,7 +106,7 @@ type Metadata = {
     audio?: {
       url: string
       secure_url?: string
-      type: string 
+      type: string
     }[]
     description?: string
     determiner?: string

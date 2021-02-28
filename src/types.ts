@@ -67,7 +67,7 @@ export type Metadata = {
       url: string
       alt: string
     }[]
-  }[]
+  }
   open_graph: {
     title: string
     type: string
@@ -95,5 +95,5 @@ export type Metadata = {
       width?: number
       tags?: string[]
     }[]
-  }[]
+  }
 }
