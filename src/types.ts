@@ -14,10 +14,10 @@ export type Opts = {
 }
 
 export type Metadata = {
-  title: string
-  description: string
-  keywords: string[]
-  favicon: string
+  title?: string
+  description?: string
+  keywords?: string[]
+  favicon?: string
   oEmbed?: {
     type: 'photo' | 'video' | 'link' | 'rich'
     version?: string
@@ -67,7 +67,7 @@ export type Metadata = {
       url: string
       alt: string
     }[]
-  }[]
+  }
   open_graph: {
     title: string
     type: string
@@ -95,5 +95,5 @@ export type Metadata = {
       width?: number
       tags?: string[]
     }[]
-  }[]
+  }
 }
