@@ -14,10 +14,10 @@ export type Opts = {
 }
 
 export type Metadata = {
-  title: string
-  description: string
-  keywords: string[]
-  favicon: string
+  title?: string
+  description?: string
+  keywords?: string[]
+  favicon?: string
   oEmbed?: {
     type: 'photo' | 'video' | 'link' | 'rich'
     version?: string
