@@ -203,6 +203,8 @@ function getMetadata (ctx, opts: Opts) {
 
     return new Promise(resolve => {
       const parser: any = new Parser({
+        _nodes_from_root: 0,
+
         onend: function () {
           if (this._favicon === undefined) {
             metadata.push(['favicon', resolveUrl(ctx.url, '/favicon.ico')])
@@ -231,6 +233,8 @@ function getMetadata (ctx, opts: Opts) {
         },
 
         onopentag: function (tagname, attribs) {
+          this._nodes_from_root++
+
           if (opts.oembed && attribs.href) {
             // handle XML and JSON with a preference towards JSON since its more efficient for us
             if (
@@ -271,9 +275,10 @@ function getMetadata (ctx, opts: Opts) {
         },
 
         onclosetag: function (tag) {
+          this._nodes_from_root--
           this._tagname = ''
 
-          if (tag === 'title') {
+          if (this._nodes_from_root <= 2 && tag === 'title') {
             metadata.push(['title', this._title])
             this._title = ''
           }
