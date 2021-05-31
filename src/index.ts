@@ -58,10 +58,24 @@ async function getPage (url: string, opts: Opts) {
   const contentType = res.headers.get('Content-Type')
   const contentLength = res.headers.get('Content-Length')
 
+  if (res.status !== 200) {
+    throw new UnexpectedError({
+      ...UnexpectedError.BAD_HTTP_STATUS,
+      info: {
+        url,
+        httpStatus: res.status
+      }
+    })
+  }
+
   if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
     throw new UnexpectedError({
       ...UnexpectedError.EXPECTED_HTML,
-      info: { contentType, contentLength }
+      info: {
+        url,
+        contentType,
+        contentLength
+      }
     })
   }
 

@@ -1,7 +1,7 @@
 import { unfurl } from '../../src/'
 import nock from 'nock'
 
-test('should handle content which is excaped badly', async () => {
+test('should handle content which is escaped badly', async () => {
   nock('http://localhost')
     .get('/html/double-escaped-edge-case')
     .replyWithFile(200, __dirname + '/double escaped-edge-case.html', {
