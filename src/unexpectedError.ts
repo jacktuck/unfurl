@@ -9,9 +9,15 @@ export default class UnexpectedError extends Error {
     name: 'BAD_OPTIONS'
   }
 
+  static BAD_HTTP_STATUS = {
+    message: 'Error in http request (http status not OK)',
+    name: 'BAD_HTTP_STATUS'
+  }
+
   info: {
     contentLength?: number,
-    contentType?: string
+    contentType?: string,
+    httpStatus?: string
   }
 
   constructor (errorType: { message: string, name: string, info? }) {

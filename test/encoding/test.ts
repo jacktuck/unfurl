@@ -8,8 +8,6 @@ test('should detect GB2312 charset (HTML 4) and convert to UTF-8', async () => {
     .get('/html4/gb2312')
     .replyWithFile(200, __dirname + '/html_4.html', { 'Content-Type': 'text/html' })
 
-    // require('http').get('http://localhost/html4/gb2312', console.log)
-
   const result = await unfurl('http://localhost/html4/gb2312')
 
   const expected = {
