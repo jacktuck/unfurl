@@ -24,6 +24,7 @@ test('should detect title, description and keywords', async () => {
 
   const expected = {
     favicon: 'http://localhost/favicon.ico',
+    author: 'abc',
     description: 'aaa',
     keywords: ['a', 'b', 'c'],
     title: 'ccc'
@@ -62,6 +63,7 @@ test('should detect title, description and keywords', async () => {
 
   const expected = {
     favicon: 'http://localhost/favicon.ico',
+    author: 'abc',
     description: 'aaa',
     keywords: ['a', 'b', 'c'],
     title: 'ccc'
