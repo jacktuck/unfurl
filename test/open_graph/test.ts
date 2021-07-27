@@ -133,3 +133,27 @@ test('should quality relative urls', async () => {
 
   expect(result.open_graph).toEqual(expected)
 })
+
+test('should build article[]', async () => {
+  nock('http://localhost')
+    .get('/open_graph/article')
+    .replyWithFile(200, __dirname + '/article.html', {
+      'Content-Type': 'text/html'
+    })
+
+  const result = await unfurl('http://localhost/open_graph/article')
+  const expected = {
+    published_time: "2021-07-20T05:30:22+00:00",
+    modified_time: "2021-07-20T06:30:22+00:00",
+    expiration_time: "2021-08-20T05:30:22+00:00",
+    author: "abc",
+    section: "def",
+    tags: [
+      "a",
+      "b",
+      "c"
+    ]
+  }
+
+  expect(result.article).toEqual(expected)
+})
