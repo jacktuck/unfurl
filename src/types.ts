@@ -18,6 +18,7 @@ export type Metadata = {
   description?: string
   keywords?: string[]
   favicon?: string
+  author?: string
   oEmbed?: {
     type: 'photo' | 'video' | 'link' | 'rich'
     version?: string
