@@ -119,14 +119,14 @@ type Metadata = {
       width?: number
       tags?: string[]
     }[]
-  }
-  article: {
-    published_time?: string
-    modified_time?: string
-    expiration_time?: string
-    author?: string
-    section?: string
-    tags?: string[]
+    article: {
+      published_time?: string
+      modified_time?: string
+      expiration_time?: string
+      author?: string
+      section?: string
+      tags?: string[]
+    }
   }
 }
 ```

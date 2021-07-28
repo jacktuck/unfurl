@@ -143,17 +143,22 @@ test('should build article[]', async () => {
 
   const result = await unfurl('http://localhost/open_graph/article')
   const expected = {
-    published_time: "2021-07-20T05:30:22+00:00",
-    modified_time: "2021-07-20T06:30:22+00:00",
-    expiration_time: "2021-08-20T05:30:22+00:00",
-    author: "abc",
-    section: "def",
-    tags: [
-      "a",
-      "b",
-      "c"
+    type: "article",
+    articles: [
+      {
+        published_time: "2021-07-20T05:30:22+00:00",
+        modified_time: "2021-07-20T06:30:22+00:00",
+        expiration_time: "2021-08-20T05:30:22+00:00",
+        author: "abc",
+        section: "def",
+        tags: [
+          "a",
+          "b",
+          "c"
+        ]
+      }
     ]
   }
 
-  expect(result.article).toEqual(expected)
+  expect(result.open_graph).toEqual(expected)
 })

@@ -400,8 +400,11 @@ function parse (ctx) {
         tags: ogVideoTags
       }))
     }
-    if (articleTags.length && parsed.article) {
-      parsed.article.tags = articleTags
+    if (articleTags.length && parsed.open_graph.articles) {
+      parsed.open_graph.articles = parsed.open_graph.articles.map(obj => ({
+        ...obj,
+        tags: articleTags
+      }))
     }
 
     return parsed
