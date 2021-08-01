@@ -318,7 +318,8 @@ function parse (ctx) {
   return function (metadata) {
     const parsed: any = {}
 
-    let tags = []
+    let ogVideoTags = []
+    let articleTags = []
     let lastParent
 
     for (let [metaKey, metaValue] of metadata) {
@@ -338,7 +339,11 @@ function parse (ctx) {
 
       // special case for video tags which we want to map to each video object
       if (metaKey === 'og:video:tag') {
-        tags.push(metaValue)
+        ogVideoTags.push(metaValue)
+        continue
+      }
+      if (metaKey === 'article:tag') {
+        articleTags.push(metaValue)
         continue
       }
 
@@ -389,10 +394,16 @@ function parse (ctx) {
       target[item.name] || (target[item.name] = metaValue)
     }
 
-    if (tags.length && parsed.open_graph.videos) {
+    if (ogVideoTags.length && parsed.open_graph.videos) {
       parsed.open_graph.videos = parsed.open_graph.videos.map(obj => ({
         ...obj,
-        tags
+        tags: ogVideoTags
+      }))
+    }
+    if (articleTags.length && parsed.open_graph.articles) {
+      parsed.open_graph.articles = parsed.open_graph.articles.map(obj => ({
+        ...obj,
+        tags: articleTags
       }))
     }
 
