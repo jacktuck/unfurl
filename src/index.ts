@@ -3,9 +3,9 @@ if (process.env.NODE_ENV !== 'test') {
   require('source-map-support').install()
 }
 
-import { parse as parseUrl, resolve as resolveUrl } from 'url'
+import { URL } from 'url'
 import { Parser } from 'htmlparser2'
-import fetch from 'cross-fetch'
+import fetch from 'node-fetch'
 import UnexpectedError from './unexpectedError'
 import { schema, keys } from './schema'
 import { Metadata, Opts } from './types'
@@ -42,8 +42,8 @@ function unfurl (url: string, opts?: Opts): Promise<Metadata> {
     .then(parse(ctx))
 }
 
-async function getPage (url: string, opts: Opts) {
-  const res = await fetch(url, {
+async function getPage (url, opts: Opts) {
+  const res = await fetch(new URL(url), {
     headers: {
       Accept: 'text/html, application/xhtml+xml',
       'User-Agent': opts.userAgent
@@ -116,20 +116,18 @@ function getRemoteMetadata (ctx, opts) {
       return metadata
     }
 
-    let target = resolveUrl(ctx.url, he_decode(ctx._oembed.href))
-    const targeturl = new URL(target)
+    const target = new URL(he_decode(ctx._oembed.href), ctx.url)
 
-    let res = await fetch(target)
+    let res = await fetch(target.href)
     let contentType = res.headers.get('Content-Type')
     let contentLength = res.headers.get('Content-Length')
     const status = res.status
 
-    if (status === 403 && targeturl.protocol === 'http:') {
+    if (status === 403 && target.protocol === 'http:') {
       // try again using HTTPS
-      targeturl.protocol = 'https:'
-      target = targeturl.href
+      target.protocol = 'https:'
 
-      res = await fetch(target)
+      res = await fetch(target.href)
       contentType = res.headers.get('Content-Type')
       contentLength = res.headers.get('Content-Length')
     }
@@ -221,9 +219,9 @@ function getMetadata (ctx, opts: Opts) {
 
         onend: function () {
           if (this._favicon === undefined) {
-            metadata.push(['favicon', resolveUrl(ctx.url, '/favicon.ico')])
+            metadata.push(['favicon', new URL('/favicon.ico', ctx.url).href])
           } else {
-            metadata.push(['favicon', resolveUrl(ctx.url, this._favicon)])
+            metadata.push(['favicon', new URL(this._favicon, ctx.url).href])
           }
 
           resolve(metadata)
@@ -350,7 +348,7 @@ function parse (ctx) {
       if (item.type === 'number') {
         metaValue = parseInt(metaValue, 10)
       } else if (item.type === 'url' && metaValue) {
-        metaValue = resolveUrl(ctx.url, metaValue)
+        metaValue = new URL(metaValue, ctx.url).href
       }
 
       if (parsed[item.entry] === undefined) {
