@@ -277,9 +277,11 @@ function getMetadata (ctx, opts: Opts) {
 
               pair = ['keywords', keywords]
             } else if (attribs.property && keys.includes(attribs.property)) {
-              pair = [attribs.property, attribs.content]
+              const content = attribs.content || attribs.value
+              pair = [attribs.property, content]
             } else if (attribs.name && keys.includes(attribs.name)) {
-              pair = [attribs.name, attribs.content]
+              const content = attribs.content || attribs.value
+              pair = [attribs.name, content]
             }
           }
 
