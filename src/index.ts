@@ -30,7 +30,7 @@ function unfurl (url: string, opts?: Opts): Promise<Metadata> {
   Number.isInteger(opts.size) || (opts.size = 0)
 
   const ctx: {
-    url?: string;
+    url: string;
     oembedUrl?: string;
   } = {
     url
@@ -42,17 +42,23 @@ function unfurl (url: string, opts?: Opts): Promise<Metadata> {
     .then(parse(ctx))
 }
 
-async function getPage (url, opts: Opts) {
-  const res = await fetch(new URL(url), {
-    headers: {
-      Accept: 'text/html, application/xhtml+xml',
-      'User-Agent': opts.userAgent
-    },
-    // @ts-ignore
-    size: opts.size,
-    follow: opts.follow,
-    timeout: opts.timeout
-  })
+async function getPage (url: string, opts: Opts) {
+  const res = await (() => {
+    if (opts.fetch) {
+      return opts.fetch(url)
+    } else {
+      return fetch(new URL(url), {
+        headers: {
+          Accept: 'text/html, application/xhtml+xml',
+          'User-Agent': opts.userAgent
+        },
+        // @ts-ignore
+        size: opts.size,
+        follow: opts.follow,
+        timeout: opts.timeout
+      })
+    }
+  })()
 
   const buf = Buffer.from(await res.arrayBuffer())
   const contentType = res.headers.get('Content-Type')

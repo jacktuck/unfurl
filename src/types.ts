@@ -11,6 +11,8 @@ export type Opts = {
   size?: number
   /** User-Agent string is often used for content negotiation */
   userAgent?: string
+  /** Custom fetch implementation */
+  fetch?: (url: string) => Promise<any /* Response */>
 }
 
 export type Metadata = {
@@ -87,6 +89,7 @@ export type Metadata = {
     }[]
     description?: string
     determiner?: string
+    site_name?: string
     locale: string
     locale_alt: string
     videos: {
