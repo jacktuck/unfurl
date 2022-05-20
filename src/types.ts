@@ -89,6 +89,7 @@ export type Metadata = {
     }[]
     description?: string
     determiner?: string
+    site_name?: string
     locale: string
     locale_alt: string
     videos: {
