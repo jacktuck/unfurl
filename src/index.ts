@@ -1,7 +1,4 @@
-/* istanbul ignore next */
-if (process.env.NODE_ENV !== 'test') {
-  require('source-map-support').install()
-}
+import 'source-map-support'
 
 import { URL } from 'url'
 import { Parser } from 'htmlparser2'
@@ -9,8 +6,8 @@ import fetch from 'node-fetch'
 import UnexpectedError from './unexpectedError'
 import { schema, keys } from './schema'
 import { Metadata, Opts } from './types'
-import { decode as he_decode } from 'he'
-import { decode as iconv_decode } from 'iconv-lite'
+import he from 'he'
+import iconv from 'iconv-lite'
 
 function unfurl (url: string, opts?: Opts): Promise<Metadata> {
   if (opts === undefined) {
@@ -109,7 +106,7 @@ async function getPage (url: string, opts: Opts) {
     const charset = rg.pop().toUpperCase()
 
     if (supported.includes(charset)) {
-      return iconv_decode(buf, charset).toString()
+      return iconv.decode(buf, charset).toString()
     }
   }
 
@@ -122,7 +119,7 @@ function getRemoteMetadata (ctx, opts) {
       return metadata
     }
 
-    const target = new URL(he_decode(ctx._oembed.href), ctx.url)
+    const target = new URL(he.decode(ctx._oembed.href), ctx.url)
 
     let res = await fetch(target.href)
     let contentType = res.headers.get('Content-Type')
@@ -333,9 +330,9 @@ function parse (ctx) {
 
       // decoding html entities
       if (typeof metaValue === 'string') {
-        metaValue = he_decode(he_decode(metaValue.toString()))
+        metaValue = he.decode(he.decode(metaValue.toString()))
       } else if (Array.isArray(metaValue)) {
-        metaValue = metaValue.map(val => he_decode(he_decode(val)))
+        metaValue = metaValue.map(val => he.decode(he.decode(val)))
       }
 
       if (!item) {
