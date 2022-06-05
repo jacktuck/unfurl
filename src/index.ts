@@ -3,7 +3,6 @@ if (process.env.NODE_ENV !== 'test') {
   require('source-map-support').install()
 }
 
-import { URL } from 'url'
 import { Parser } from 'htmlparser2'
 import fetch from 'node-fetch'
 import UnexpectedError from './unexpectedError'
