@@ -1,4 +1,4 @@
-import 'source-map-support'
+import 'source-map-support/register'
 
 import { URL } from 'url'
 import { Parser } from 'htmlparser2'
