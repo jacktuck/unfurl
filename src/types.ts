@@ -11,6 +11,8 @@ export type Opts = {
   size?: number
   /** User-Agent string is often used for content negotiation */
   userAgent?: string
+  /** Accept-Language string used for fetching data in specific langauges */
+  acceptLanguage?: string
   /** Custom fetch implementation */
   fetch?: (url: string) => Promise<any /* Response */>
 }

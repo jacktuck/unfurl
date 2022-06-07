@@ -50,7 +50,8 @@ async function getPage (url: string, opts: Opts) {
       return fetch(new URL(url), {
         headers: {
           Accept: 'text/html, application/xhtml+xml',
-          'User-Agent': opts.userAgent
+          'User-Agent': opts.userAgent,
+          'Accept-Language': opts.acceptLanguage
         },
         // @ts-ignore
         size: opts.size,
