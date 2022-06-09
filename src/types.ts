@@ -1,3 +1,5 @@
+import { Headers } from 'node-fetch'
+
 export type Opts = {
   /** support retreiving oembed metadata */
   oembed?: boolean
@@ -9,10 +11,8 @@ export type Opts = {
   compress?: boolean
   /** maximum response body size in bytes. 0 to disable */
   size?: number
-  /** User-Agent string is often used for content negotiation */
-  userAgent?: string
-  /** Accept-Language string used for fetching data in specific langauges */
-  acceptLanguage?: string
+  /** map of request headers, overrides the defaults */
+  headers?: Headers
   /** Custom fetch implementation */
   fetch?: (url: string) => Promise<any /* Response */>
 }

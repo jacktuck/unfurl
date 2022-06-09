@@ -12,6 +12,11 @@ import { Metadata, Opts } from './types'
 import { decode as he_decode } from 'he'
 import { decode as iconv_decode } from 'iconv-lite'
 
+const DEFAULT_HEADERS = {
+  'Accept': 'text/html, application/xhtml+xml',
+  'User-Agent': 'facebookexternalhit'
+}
+
 function unfurl (url: string, opts?: Opts): Promise<Metadata> {
   if (opts === undefined) {
     opts = {}
@@ -23,7 +28,7 @@ function unfurl (url: string, opts?: Opts): Promise<Metadata> {
 
   typeof opts.oembed === 'boolean' || (opts.oembed = true)
   typeof opts.compress === 'boolean' || (opts.compress = true)
-  typeof opts.userAgent === 'string' || (opts.userAgent = 'facebookexternalhit')
+  typeof opts.headers === 'object' || (opts.headers = DEFAULT_HEADERS)
 
   Number.isInteger(opts.follow) || (opts.follow = 50)
   Number.isInteger(opts.timeout) || (opts.timeout = 0)
@@ -48,11 +53,7 @@ async function getPage (url: string, opts: Opts) {
       return opts.fetch(url)
     } else {
       return fetch(new URL(url), {
-        headers: {
-          Accept: 'text/html, application/xhtml+xml',
-          'User-Agent': opts.userAgent,
-          'Accept-Language': opts.acceptLanguage
-        },
+        headers: opts.headers,
         // @ts-ignore
         size: opts.size,
         follow: opts.follow,
