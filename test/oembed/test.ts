@@ -196,3 +196,32 @@ test('should build oEmbed from XML', async () => {
 
   expect(result.oEmbed).toEqual(expected)
 })
+
+test('should build oEmbed from XML with CDATA', async () => {
+  nock('http://localhost')
+    .get('/html/oembed-xml-cdata')
+    .replyWithFile(200, __dirname + '/oembed-xml-cdata.html', {
+      'Content-Type': 'text/html'
+    })
+
+  nock('http://localhost')
+    .get('/xml/oembed-cdata.xml')
+    .replyWithFile(200, __dirname + '/oembed-cdata.xml', {
+      'Content-Type': 'text/xml'
+    })
+
+  const result: any = await unfurl('http://localhost/html/oembed-xml-cdata')
+
+  const expected = {
+    height: 400,
+    title: "Bugle 179 - Playas gon play by The Bugle",
+    type: "rich",
+    version: "1.0",
+    width: 100,
+    html: '<iframe width="100%" height="400" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F34019569&show_artwork=true"></iframe>',
+  }
+
+  expect(result.oEmbed).toEqual(expected)
+})
+
+

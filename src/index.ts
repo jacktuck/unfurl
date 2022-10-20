@@ -170,7 +170,18 @@ function getRemoteMetadata (ctx, opts) {
           },
           ontext: function (text) {
             if (!this._text) this._text = ''
-            this._text += text
+
+            if (this._tagname === 'html' && text) {
+              if (!content.html) {
+                content.html = ''
+              }
+              content.html += text.trim()
+                .replace(/&gt;/ig, '>')
+                .replace(/&lt;/ig, '<')
+                .replace(/(?:^<!\[CDATA\[)|(?:\]\]>$)/ig, '')
+            } else {
+              this._text += text
+            }
           },
           onclosetag: function (tagname) {
             if (tagname === 'oembed') {
