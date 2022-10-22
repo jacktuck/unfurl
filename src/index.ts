@@ -13,6 +13,15 @@ if (process.env.NODE_ENV !== "test") {
   installSourceMapSupport();
 }
 
+type ParserContext = {
+  isHtml?: boolean;
+  isOembed?: boolean;
+  favicon?: string;
+  text: string;
+  title?: string;
+  tagName?: string;
+};
+
 function unfurl(url: string, opts?: Opts): Promise<Metadata> {
   if (opts === undefined) {
     opts = {};
@@ -31,17 +40,10 @@ function unfurl(url: string, opts?: Opts): Promise<Metadata> {
   Number.isInteger(opts.timeout) || (opts.timeout = 0);
   Number.isInteger(opts.size) || (opts.size = 0);
 
-  const ctx: {
-    url: string;
-    oembedUrl?: string;
-  } = {
-    url,
-  };
-
   return getPage(url, opts)
-    .then(getMetadata(ctx, opts))
-    .then(getRemoteMetadata(ctx))
-    .then(parse(ctx));
+    .then(getMetadata(url, opts))
+    .then(getRemoteMetadata(url))
+    .then(parse(url));
 }
 
 async function getPage(url: string, opts: Opts) {
@@ -124,13 +126,13 @@ async function getPage(url: string, opts: Opts) {
   return buf.toString();
 }
 
-function getRemoteMetadata(ctx) {
-  return async function (metadata) {
-    if (!ctx._oembed) {
+function getRemoteMetadata(url: string) {
+  return async function ({ oembed, metadata }) {
+    if (!oembed) {
       return metadata;
     }
 
-    const target = new URL(he_decode(ctx._oembed.href), ctx.url);
+    const target = new URL(he_decode(oembed.href), url);
 
     let res = await fetch(target.href);
     let contentType = res.headers.get("Content-Type");
@@ -147,71 +149,88 @@ function getRemoteMetadata(ctx) {
     let ret;
 
     if (
-      ctx._oembed.type === "application/json+oembed" &&
+      oembed.type === "application/json+oembed" &&
       /application\/json/.test(contentType)
     ) {
       ret = await res.json();
     } else if (
-      ctx._oembed.type === "text/xml+oembed" &&
+      oembed.type === "text/xml+oembed" &&
       /(text|application)\/xml/.test(contentType)
     ) {
       const data = await res.text();
-
       const content: { [key: string]: string } = {};
 
+      const parserContext: ParserContext = { text: "" };
+
       ret = await new Promise((resolve) => {
-        const parser = new Parser({
-          onopentag: function (name, attribs) {
-            if (this._is_html) {
-              if (!content.html) {
-                content.html = "";
+        const parser = new Parser(
+          {
+            oncdataend: () => {
+              if (
+                !content.html &&
+                parserContext.text.trim().startsWith("<") &&
+                parserContext.text.trim().endsWith(">")
+              ) {
+                content.html = parserContext.text.trim();
+              }
+            },
+            // eslint-disable-next-line
+            onopentag: function (name: string, attribs: any) {
+              if (parserContext.isHtml) {
+                if (!content.html) {
+                  content.html = "";
+                }
+
+                content.html += `<${name} `;
+                content.html += Object.keys(attribs)
+                  .reduce(
+                    (str, k) =>
+                      str +
+                      (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) +
+                      " ",
+                    ""
+                  )
+                  .trim();
+                content.html += ">";
               }
 
-              content.html += `<${name} `;
-              content.html += Object.keys(attribs)
-                .reduce(
-                  (str, k) =>
-                    str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + " ",
-                  ""
-                )
-                .trim();
-              content.html += ">";
-            }
+              if (name === "html") {
+                parserContext.isHtml = true;
+              }
 
-            if (name === "html") {
-              this._is_html = true;
-            }
+              parserContext.tagName = name;
+            },
+            ontext: function (text: string) {
+              parserContext.text += text;
+            },
+            onclosetag: function (tagname: string) {
+              if (tagname === "oembed") {
+                return;
+              }
 
-            this._tagname = name;
+              if (tagname === "html") {
+                parserContext.isHtml = false;
+                return;
+              }
+
+              if (parserContext.isHtml) {
+                content.html += parserContext.text.trim();
+                content.html += `</${tagname}>`;
+              }
+
+              content[tagname] = parserContext.text.trim();
+
+              parserContext.tagName = "";
+              parserContext.text = "";
+            },
+            onend: function () {
+              resolve(content);
+            },
           },
-          ontext: function (text) {
-            if (!this._text) this._text = "";
-            this._text += text;
-          },
-          onclosetag: function (tagname) {
-            if (tagname === "oembed") {
-              return;
-            }
-
-            if (tagname === "html") {
-              this._is_html = false;
-              return;
-            }
-
-            if (this._is_html) {
-              content.html += this._text.trim();
-              content.html += `</${tagname}>`;
-            }
-
-            content[tagname] = this._text.trim();
-
-            this._tagname = "";
-            this._text = "";
-          },
-          onend: function () {
-            resolve(content);
-          },
-        });
+          {
+            recognizeCDATA: true,
+          }
+        );
 
         parser.write(data);
         parser.end();
@@ -231,37 +250,42 @@ function getRemoteMetadata(ctx) {
   };
 }
 
-function getMetadata(ctx, opts: Opts) {
-  return function (text) {
+function getMetadata(url: string, opts: Opts) {
+  return function (text: string) {
     const metadata = [];
+    const parserContext: ParserContext = { text: "" };
+
+    let oembed: { type?: string; href?: string };
+    let distanceFromRoot = 0;
 
     return new Promise((resolve) => {
       const parser = new Parser({
-        _nodes_from_root: 0,
-
         onend: function () {
-          if (this._favicon === undefined) {
-            metadata.push(["favicon", new URL("/favicon.ico", ctx.url).href]);
+          if (parserContext.favicon === undefined) {
+            metadata.push(["favicon", new URL("/favicon.ico", url).href]);
           } else {
-            metadata.push(["favicon", new URL(this._favicon, ctx.url).href]);
+            metadata.push([
+              "favicon",
+              new URL(parserContext.favicon, url).href,
+            ]);
           }
 
-          resolve(metadata);
+          resolve({ oembed, metadata });
         },
 
-        onopentagname: function (tag) {
-          this._tagname = tag;
+        onopentagname: function (tag: string) {
+          parserContext.tagName = tag;
         },
 
-        ontext: function (text) {
-          if (this._tagname === "title") {
+        ontext: function (text: string) {
+          if (parserContext.tagName === "title") {
             // makes sure we haven't already seen the title
-            if (this._title !== null) {
-              if (this._title === undefined) {
-                this._title = "";
+            if (parserContext.title !== null) {
+              if (parserContext.title === undefined) {
+                parserContext.title = "";
               }
 
-              this._title += text;
+              parserContext.title += text;
             }
           }
         },
@@ -270,7 +294,7 @@ function getMetadata(ctx, opts: Opts) {
           tagname: string,
           attribs: { [key: string]: string }
         ) {
-          this._nodes_from_root++;
+          distanceFromRoot++;
 
           if (opts.oembed && attribs.href) {
             // handle XML and JSON with a preference towards JSON since its more efficient for us
@@ -279,9 +303,9 @@ function getMetadata(ctx, opts: Opts) {
               (attribs.type === "text/xml+oembed" ||
                 attribs.type === "application/json+oembed")
             ) {
-              if (!ctx._oembed || ctx._oembed.type === "text/xml+oembed") {
+              if (!oembed || oembed.type === "text/xml+oembed") {
                 // prefer json
-                ctx._oembed = attribs;
+                oembed = attribs;
               }
             }
           }
@@ -290,7 +314,7 @@ function getMetadata(ctx, opts: Opts) {
             attribs.href &&
             (attribs.rel === "icon" || attribs.rel === "shortcut icon")
           ) {
-            this._favicon = attribs.href;
+            parserContext.favicon = attribs.href;
           }
 
           let pair: [string, string | string[]];
@@ -321,18 +345,18 @@ function getMetadata(ctx, opts: Opts) {
         },
 
         onclosetag: function (tag: string) {
-          this._nodes_from_root--;
-          this._tagname = "";
+          distanceFromRoot--;
+          parserContext.tagName = "";
 
-          if (this._nodes_from_root <= 2 && tag === "title") {
-            metadata.push(["title", this._title]);
-            this._title = "";
+          if (distanceFromRoot <= 2 && tag === "title") {
+            metadata.push(["title", parserContext.title]);
+            parserContext.title = "";
           }
 
           // We want to parse as little as possible so finish once we see </head>
           // if we have not seen a title tag within the head, we scan the entire
           // document instead
-          if (tag === "head" && this._title) {
+          if (tag === "head" && parserContext.title) {
             parser.reset();
           }
         },
@@ -348,9 +372,9 @@ function parse(ctx) {
   return function (metadata) {
     // eslint-disable-next-line
     const parsed: any = {};
-
     const ogVideoTags = [];
     const articleTags = [];
+
     let lastParent;
 
     for (const meta of metadata) {

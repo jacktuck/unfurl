@@ -10,7 +10,7 @@
   "dependencies": {
     "debug": "^3.1.0",
     "he": "^1.2.0",
-    "htmlparser2": "^3.9.2",
+    "htmlparser2": "^8.0.1",
     "iconv-lite": "^0.4.24",
     "node-fetch": "^2.6.7",
     "source-map-support": "^0.5.9"

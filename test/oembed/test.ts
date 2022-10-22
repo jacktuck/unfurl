@@ -194,3 +194,30 @@ test("should build oEmbed from XML", async () => {
 
   expect(result.oEmbed).toEqual(expected);
 });
+
+test("should build oEmbed from XML with CDATA", async () => {
+  nock("http://localhost")
+    .get("/html/oembed-xml-cdata")
+    .replyWithFile(200, __dirname + "/oembed-xml-cdata.html", {
+      "Content-Type": "text/html",
+    });
+
+  nock("http://localhost")
+    .get("/xml/oembed-cdata.xml")
+    .replyWithFile(200, __dirname + "/oembed-cdata.xml", {
+      "Content-Type": "text/xml",
+    });
+
+  const result = await unfurl("http://localhost/html/oembed-xml-cdata");
+
+  const expected = {
+    height: 450,
+    title: "The Bugle",
+    type: "rich",
+    version: "1.0",
+    width: 100,
+    html: '<iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Fusers%2F9818871&show_artwork=true"></iframe>',
+  };
+
+  expect(result.oEmbed).toEqual(expected);
+});
