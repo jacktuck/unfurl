@@ -1,77 +1,74 @@
+import { install as installSourceMapSupport } from "source-map-support";
+import { URL } from "url";
+import { Parser } from "htmlparser2";
+import fetch from "node-fetch";
+import UnexpectedError from "./unexpectedError";
+import { schema, keys } from "./schema";
+import { Metadata, Opts } from "./types";
+import { decode as he_decode } from "he";
+import { decode as iconv_decode } from "iconv-lite";
+
 /* istanbul ignore next */
-if (process.env.NODE_ENV !== 'test') {
-  require('source-map-support').install()
+if (process.env.NODE_ENV !== "test") {
+  installSourceMapSupport();
 }
 
-import { URL } from 'url'
-import { Parser } from 'htmlparser2'
-import fetch from 'node-fetch'
-import UnexpectedError from './unexpectedError'
-import { schema, keys } from './schema'
-import { Metadata, Opts } from './types'
-import { decode as he_decode } from 'he'
-import { decode as iconv_decode } from 'iconv-lite'
-
-function unfurl (url: string, opts?: Opts): Promise<Metadata> {
+function unfurl(url: string, opts?: Opts): Promise<Metadata> {
   if (opts === undefined) {
-    opts = {}
+    opts = {};
   }
 
-  if (opts.constructor.name !== 'Object') {
-    throw new UnexpectedError(UnexpectedError.BAD_OPTIONS)
+  if (opts.constructor.name !== "Object") {
+    throw new UnexpectedError(UnexpectedError.BAD_OPTIONS);
   }
 
-  typeof opts.oembed === 'boolean' || (opts.oembed = true)
-  typeof opts.compress === 'boolean' || (opts.compress = true)
-  typeof opts.userAgent === 'string' || (opts.userAgent = 'facebookexternalhit')
+  typeof opts.oembed === "boolean" || (opts.oembed = true);
+  typeof opts.compress === "boolean" || (opts.compress = true);
+  typeof opts.userAgent === "string" ||
+    (opts.userAgent = "facebookexternalhit");
 
-  Number.isInteger(opts.follow) || (opts.follow = 50)
-  Number.isInteger(opts.timeout) || (opts.timeout = 0)
-  Number.isInteger(opts.size) || (opts.size = 0)
+  Number.isInteger(opts.follow) || (opts.follow = 50);
+  Number.isInteger(opts.timeout) || (opts.timeout = 0);
+  Number.isInteger(opts.size) || (opts.size = 0);
 
   const ctx: {
     url: string;
     oembedUrl?: string;
   } = {
-    url
-  }
+    url,
+  };
 
   return getPage(url, opts)
     .then(getMetadata(ctx, opts))
-    .then(getRemoteMetadata(ctx, opts))
-    .then(parse(ctx))
+    .then(getRemoteMetadata(ctx))
+    .then(parse(ctx));
 }
 
-async function getPage (url: string, opts: Opts) {
-  const res = await (() => {
-    if (opts.fetch) {
-      return opts.fetch(url)
-    } else {
-      return fetch(new URL(url), {
+async function getPage(url: string, opts: Opts) {
+  const res = await (opts.fetch
+    ? opts.fetch(url)
+    : fetch(new URL(url), {
         headers: {
-          Accept: 'text/html, application/xhtml+xml',
-          'User-Agent': opts.userAgent
+          Accept: "text/html, application/xhtml+xml",
+          "User-Agent": opts.userAgent,
         },
-        // @ts-ignore
         size: opts.size,
         follow: opts.follow,
-        timeout: opts.timeout
-      })
-    }
-  })()
+        timeout: opts.timeout,
+      }));
 
-  const buf = Buffer.from(await res.arrayBuffer())
-  const contentType = res.headers.get('Content-Type')
-  const contentLength = res.headers.get('Content-Length')
+  const buf = Buffer.from(await res.arrayBuffer());
+  const contentType = res.headers.get("Content-Type");
+  const contentLength = res.headers.get("Content-Length");
 
   if (res.status !== 200) {
     throw new UnexpectedError({
       ...UnexpectedError.BAD_HTTP_STATUS,
       info: {
         url,
-        httpStatus: res.status
-      }
-    })
+        httpStatus: res.status,
+      },
+    });
   }
 
   if (/text\/html|application\/xhtml+xml/.test(contentType) === false) {
@@ -80,341 +77,372 @@ async function getPage (url: string, opts: Opts) {
       info: {
         url,
         contentType,
-        contentLength
-      }
-    })
+        contentLength,
+      },
+    });
   }
 
   // no charset in content type, peek at response body for at most 1024 bytes
-  let str = buf.slice(0, 1024).toString()
-  let rg
+  const str = buf.slice(0, 1024).toString();
+  let rg;
 
   if (contentType) {
-    rg = /charset=([^;]*)/i.exec(contentType)
+    rg = /charset=([^;]*)/i.exec(contentType);
   }
 
   // html 5
   if (!rg && str) {
-    rg = /<meta.+?charset=(['"])(.+?)\1/i.exec(str)
+    rg = /<meta.+?charset=(['"])(.+?)\1/i.exec(str);
   }
 
   // html 4
   if (!rg && str) {
-    rg = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str)
+    rg = /<meta.+?content=["'].+;\s?charset=(.+?)["']/i.exec(str);
   }
 
   // found charset
   if (rg) {
-    const supported = ['CP932', 'CP936', 'CP949', 'CP950', 'GB2312', 'GBK', 'GB18030', 'BIG5', 'SHIFT_JIS', 'EUC-JP']
-    const charset = rg.pop().toUpperCase()
+    const supported = [
+      "CP932",
+      "CP936",
+      "CP949",
+      "CP950",
+      "GB2312",
+      "GBK",
+      "GB18030",
+      "BIG5",
+      "SHIFT_JIS",
+      "EUC-JP",
+    ];
+    const charset = rg.pop().toUpperCase();
 
     if (supported.includes(charset)) {
-      return iconv_decode(buf, charset).toString()
+      return iconv_decode(buf, charset).toString();
     }
   }
 
-  return buf.toString()
+  return buf.toString();
 }
 
-function getRemoteMetadata (ctx, opts) {
+function getRemoteMetadata(ctx) {
   return async function (metadata) {
     if (!ctx._oembed) {
-      return metadata
+      return metadata;
     }
 
-    const target = new URL(he_decode(ctx._oembed.href), ctx.url)
+    const target = new URL(he_decode(ctx._oembed.href), ctx.url);
 
-    let res = await fetch(target.href)
-    let contentType = res.headers.get('Content-Type')
-    let contentLength = res.headers.get('Content-Length')
-    const status = res.status
+    let res = await fetch(target.href);
+    let contentType = res.headers.get("Content-Type");
+    const status = res.status;
 
-    if (status === 403 && target.protocol === 'http:') {
+    if (status === 403 && target.protocol === "http:") {
       // try again using HTTPS
-      target.protocol = 'https:'
+      target.protocol = "https:";
 
-      res = await fetch(target.href)
-      contentType = res.headers.get('Content-Type')
-      contentLength = res.headers.get('Content-Length')
+      res = await fetch(target.href);
+      contentType = res.headers.get("Content-Type");
     }
 
-    let ret
+    let ret;
 
-    if (ctx._oembed.type === 'application/json+oembed' && /application\/json/.test(contentType)) {
-      ret = await res.json()
-    } else if (ctx._oembed.type === 'text/xml+oembed' && /(text|application)\/xml/.test(contentType)) {
-      let data = await res.text()
+    if (
+      ctx._oembed.type === "application/json+oembed" &&
+      /application\/json/.test(contentType)
+    ) {
+      ret = await res.json();
+    } else if (
+      ctx._oembed.type === "text/xml+oembed" &&
+      /(text|application)\/xml/.test(contentType)
+    ) {
+      const data = await res.text();
 
-      let content: any = {}
+      const content: { [key: string]: string } = {};
 
-      ret = await new Promise((resolve, reject) => {
+      ret = await new Promise((resolve) => {
         const parser = new Parser({
           onopentag: function (name, attribs) {
             if (this._is_html) {
               if (!content.html) {
-                content.html = ''
+                content.html = "";
               }
 
-              content.html += `<${name} `
+              content.html += `<${name} `;
               content.html += Object.keys(attribs)
-                .reduce((str, k) => str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + ' ', '')
-                .trim()
-              content.html += '>'
+                .reduce(
+                  (str, k) =>
+                    str + (attribs[k] ? `${k}="${attribs[k]}"` : `${k}`) + " ",
+                  ""
+                )
+                .trim();
+              content.html += ">";
             }
 
-            if (name === 'html') {
-              this._is_html = true
+            if (name === "html") {
+              this._is_html = true;
             }
 
-            this._tagname = name
+            this._tagname = name;
           },
           ontext: function (text) {
-            if (!this._text) this._text = ''
-            this._text += text
+            if (!this._text) this._text = "";
+            this._text += text;
           },
           onclosetag: function (tagname) {
-            if (tagname === 'oembed') {
-              return
+            if (tagname === "oembed") {
+              return;
             }
 
-            if (tagname === 'html') {
-              this._is_html = false
-              return
+            if (tagname === "html") {
+              this._is_html = false;
+              return;
             }
 
             if (this._is_html) {
-              content.html += this._text.trim()
-              content.html += `</${tagname}>`
+              content.html += this._text.trim();
+              content.html += `</${tagname}>`;
             }
 
-            content[tagname] = this._text.trim()
+            content[tagname] = this._text.trim();
 
-            this._tagname = ''
-            this._text = ''
+            this._tagname = "";
+            this._text = "";
           },
           onend: function () {
-            resolve(content)
-          }
-        })
+            resolve(content);
+          },
+        });
 
-        parser.write(data)
-        parser.end()
-      })
+        parser.write(data);
+        parser.end();
+      });
     }
 
     if (!ret) {
-      return metadata
+      return metadata;
     }
 
     const oEmbedMetadata = Object.keys(ret)
-      .map(k => ['oEmbed:' + k, ret[k]])
-      .filter(([k, v]) => keys.includes(String(k)))
+      .map((k) => ["oEmbed:" + k, ret[k]])
+      .filter(([k]) => keys.includes(String(k)));
 
-    metadata.push(...oEmbedMetadata)
-    return metadata
-  }
+    metadata.push(...oEmbedMetadata);
+    return metadata;
+  };
 }
 
-function getMetadata (ctx, opts: Opts) {
+function getMetadata(ctx, opts: Opts) {
   return function (text) {
-    const metadata = []
+    const metadata = [];
 
-    return new Promise(resolve => {
-      const parser: any = new Parser({
+    return new Promise((resolve) => {
+      const parser = new Parser({
         _nodes_from_root: 0,
 
         onend: function () {
           if (this._favicon === undefined) {
-            metadata.push(['favicon', new URL('/favicon.ico', ctx.url).href])
+            metadata.push(["favicon", new URL("/favicon.ico", ctx.url).href]);
           } else {
-            metadata.push(['favicon', new URL(this._favicon, ctx.url).href])
+            metadata.push(["favicon", new URL(this._favicon, ctx.url).href]);
           }
 
-          resolve(metadata)
+          resolve(metadata);
         },
 
         onopentagname: function (tag) {
-          this._tagname = tag
+          this._tagname = tag;
         },
 
         ontext: function (text) {
-          if (this._tagname === 'title') {
+          if (this._tagname === "title") {
             // makes sure we haven't already seen the title
             if (this._title !== null) {
               if (this._title === undefined) {
-                this._title = ''
+                this._title = "";
               }
 
-              this._title += text
+              this._title += text;
             }
           }
         },
 
-        onopentag: function (tagname, attribs) {
-          this._nodes_from_root++
+        onopentag: function (
+          tagname: string,
+          attribs: { [key: string]: string }
+        ) {
+          this._nodes_from_root++;
 
           if (opts.oembed && attribs.href) {
             // handle XML and JSON with a preference towards JSON since its more efficient for us
             if (
-              tagname === 'link' &&
-              (attribs.type === 'text/xml+oembed' || attribs.type === 'application/json+oembed')
+              tagname === "link" &&
+              (attribs.type === "text/xml+oembed" ||
+                attribs.type === "application/json+oembed")
             ) {
-              if (!ctx._oembed || ctx._oembed.type === 'text/xml+oembed') {
+              if (!ctx._oembed || ctx._oembed.type === "text/xml+oembed") {
                 // prefer json
-                ctx._oembed = attribs
+                ctx._oembed = attribs;
               }
             }
           }
-          if (tagname === 'link' && attribs.href && (attribs.rel === 'icon' || attribs.rel === 'shortcut icon')) {
-            this._favicon = attribs.href
+          if (
+            tagname === "link" &&
+            attribs.href &&
+            (attribs.rel === "icon" || attribs.rel === "shortcut icon")
+          ) {
+            this._favicon = attribs.href;
           }
 
-          let pair
+          let pair: [string, string | string[]];
 
-          if (tagname === 'meta') {
-            if (attribs.name === 'description' && attribs.content) {
-              pair = ['description', attribs.content]
-            } else if (attribs.name === 'author' && attribs.content) {
-              pair = ['author', attribs.content]
-            } else if (attribs.name === 'keywords' && attribs.content) {
-              let keywords = attribs.content
-                .replace(/^[,\s]{1,}|[,\s]{1,}$/g, '') // gets rid of trailing space or sommas
-                .split(/,{1,}\s{0,}/) // splits on 1+ commas followed by 0+ spaces
+          if (tagname === "meta") {
+            if (attribs.name === "description" && attribs.content) {
+              pair = ["description", attribs.content];
+            } else if (attribs.name === "author" && attribs.content) {
+              pair = ["author", attribs.content];
+            } else if (attribs.name === "keywords" && attribs.content) {
+              const keywords = attribs.content
+                .replace(/^[,\s]{1,}|[,\s]{1,}$/g, "") // gets rid of trailing space or sommas
+                .split(/,{1,}\s{0,}/); // splits on 1+ commas followed by 0+ spaces
 
-              pair = ['keywords', keywords]
+              pair = ["keywords", keywords];
             } else if (attribs.property && keys.includes(attribs.property)) {
-              const content = attribs.content || attribs.value
-              pair = [attribs.property, content]
+              const content = attribs.content || attribs.value;
+              pair = [attribs.property, content];
             } else if (attribs.name && keys.includes(attribs.name)) {
-              const content = attribs.content || attribs.value
-              pair = [attribs.name, content]
+              const content = attribs.content || attribs.value;
+              pair = [attribs.name, content];
             }
           }
 
           if (pair) {
-            metadata.push(pair)
+            metadata.push(pair);
           }
         },
 
-        onclosetag: function (tag) {
-          this._nodes_from_root--
-          this._tagname = ''
+        onclosetag: function (tag: string) {
+          this._nodes_from_root--;
+          this._tagname = "";
 
-          if (this._nodes_from_root <= 2 && tag === 'title') {
-            metadata.push(['title', this._title])
-            this._title = ''
+          if (this._nodes_from_root <= 2 && tag === "title") {
+            metadata.push(["title", this._title]);
+            this._title = "";
           }
 
           // We want to parse as little as possible so finish once we see </head>
           // if we have not seen a title tag within the head, we scan the entire
           // document instead
-          if (tag === 'head' && this._title) {
-            parser.reset()
+          if (tag === "head" && this._title) {
+            parser.reset();
           }
-        }
-      })
+        },
+      });
 
-      parser.write(text)
-      parser.end()
-    })
-  }
+      parser.write(text);
+      parser.end();
+    });
+  };
 }
 
-function parse (ctx) {
+function parse(ctx) {
   return function (metadata) {
-    const parsed: any = {}
+    // eslint-disable-next-line
+    const parsed: any = {};
 
-    let ogVideoTags = []
-    let articleTags = []
-    let lastParent
+    const ogVideoTags = [];
+    const articleTags = [];
+    let lastParent;
 
-    for (let [metaKey, metaValue] of metadata) {
-      const item = schema.get(metaKey)
+    for (const meta of metadata) {
+      const metaKey = meta[0];
+      let metaValue = meta[1];
+
+      const item = schema.get(metaKey);
 
       // decoding html entities
-      if (typeof metaValue === 'string') {
-        metaValue = he_decode(he_decode(metaValue.toString()))
+      if (typeof metaValue === "string") {
+        metaValue = he_decode(he_decode(metaValue.toString()));
       } else if (Array.isArray(metaValue)) {
-        metaValue = metaValue.map(val => he_decode(he_decode(val)))
+        metaValue = metaValue.map((val) => he_decode(he_decode(val)));
       }
 
       if (!item) {
-        parsed[metaKey] = metaValue
-        continue
+        parsed[metaKey] = metaValue;
+        continue;
       }
 
       // special case for video tags which we want to map to each video object
-      if (metaKey === 'og:video:tag') {
-        ogVideoTags.push(metaValue)
-        continue
+      if (metaKey === "og:video:tag") {
+        ogVideoTags.push(metaValue);
+        continue;
       }
-      if (metaKey === 'article:tag') {
-        articleTags.push(metaValue)
-        continue
+      if (metaKey === "article:tag") {
+        articleTags.push(metaValue);
+        continue;
       }
 
-      if (item.type === 'number') {
-        metaValue = parseInt(metaValue, 10)
-      } else if (item.type === 'url' && metaValue) {
-        metaValue = new URL(metaValue, ctx.url).href
+      if (item.type === "number") {
+        metaValue = parseInt(metaValue, 10);
+      } else if (item.type === "url" && metaValue) {
+        metaValue = new URL(metaValue, ctx.url).href;
       }
 
       if (parsed[item.entry] === undefined) {
-        parsed[item.entry] = {}
+        parsed[item.entry] = {};
       }
 
-      let target = parsed[item.entry]
+      let target = parsed[item.entry];
 
       if (item.parent) {
         if (item.category) {
           if (!target[item.parent]) {
-            target[item.parent] = {}
+            target[item.parent] = {};
           }
 
           if (!target[item.parent][item.category]) {
-            target[item.parent][item.category] = {}
+            target[item.parent][item.category] = {};
           }
 
-          target = target[item.parent][item.category]
+          target = target[item.parent][item.category];
         } else {
           if (Array.isArray(target[item.parent]) === false) {
-            target[item.parent] = []
+            target[item.parent] = [];
           }
 
           if (!target[item.parent][target[item.parent].length - 1]) {
-            target[item.parent].push({})
+            target[item.parent].push({});
           } else if (
             (!lastParent || item.parent === lastParent) &&
             target[item.parent][target[item.parent].length - 1] &&
             target[item.parent][target[item.parent].length - 1][item.name]
           ) {
-            target[item.parent].push({})
+            target[item.parent].push({});
           }
 
-          lastParent = item.parent
-          target = target[item.parent][target[item.parent].length - 1]
+          lastParent = item.parent;
+          target = target[item.parent][target[item.parent].length - 1];
         }
       }
 
       // some fields map to the same name so once nicwe have one stick with it
-      target[item.name] || (target[item.name] = metaValue)
+      target[item.name] || (target[item.name] = metaValue);
     }
 
     if (ogVideoTags.length && parsed.open_graph.videos) {
-      parsed.open_graph.videos = parsed.open_graph.videos.map(obj => ({
+      parsed.open_graph.videos = parsed.open_graph.videos.map((obj) => ({
         ...obj,
-        tags: ogVideoTags
-      }))
+        tags: ogVideoTags,
+      }));
     }
     if (articleTags.length && parsed.open_graph.articles) {
-      parsed.open_graph.articles = parsed.open_graph.articles.map(obj => ({
+      parsed.open_graph.articles = parsed.open_graph.articles.map((obj) => ({
         ...obj,
-        tags: articleTags
-      }))
+        tags: articleTags,
+      }));
     }
 
-    return parsed
-  }
+    return parsed;
+  };
 }
 
-export { unfurl }
+export { unfurl };
