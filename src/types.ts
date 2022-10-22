@@ -1,111 +1,115 @@
 export type Opts = {
   /** support retreiving oembed metadata */
-  oembed?: boolean
+  oembed?: boolean;
   /** req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) */
-  timeout?: number
+  timeout?: number;
   /** maximum redirect count. 0 to not follow redirect */
-  follow?: number
+  follow?: number;
   /** support gzip/deflate content encoding */
-  compress?: boolean
+  compress?: boolean;
   /** maximum response body size in bytes. 0 to disable */
-  size?: number
+  size?: number;
   /** User-Agent string is often used for content negotiation */
-  userAgent?: string
+  userAgent?: string;
   /** Custom fetch implementation */
-  fetch?: (url: string) => Promise<any /* Response */>
-}
+  fetch?: (url: string) => Promise<any /* Response */>; // eslint-disable-line
+};
 
 export type Metadata = {
-  title?: string
-  description?: string
-  keywords?: string[]
-  favicon?: string
-  author?: string
+  title?: string;
+  description?: string;
+  keywords?: string[];
+  favicon?: string;
+  author?: string;
   oEmbed?: {
-    type: 'photo' | 'video' | 'link' | 'rich'
-    version?: string
-    title?: string
-    author_name?: string
-    author_url?: string
-    provider_name?: string
-    provider_url?: string
-    cache_age?: number
-    thumbnails?: [{
-      url?: string
-      width?: number
-      height?: number
-    }]
-  }
+    type: "photo" | "video" | "link" | "rich";
+    width?: number;
+    height?: number;
+    version?: string;
+    title?: string;
+    author_name?: string;
+    author_url?: string;
+    provider_name?: string;
+    provider_url?: string;
+    cache_age?: number;
+    thumbnails?: [
+      {
+        url?: string;
+        width?: number;
+        height?: number;
+      }
+    ];
+  };
   twitter_card: {
-    card: string
-    site?: string
-    creator?: string
-    creator_id?: string
-    title?: string
-    description?: string
+    card: string;
+    site?: string;
+    creator?: string;
+    creator_id?: string;
+    title?: string;
+    description?: string;
     players?: {
-      url: string
-      stream?: string
-      height?: number
-      width?: number
-    }[]
+      url: string;
+      stream?: string;
+      height?: number;
+      width?: number;
+    }[];
     apps: {
       iphone: {
-        id: string
-        name: string
-        url: string
-      }
+        id: string;
+        name: string;
+        url: string;
+      };
       ipad: {
-        id: string
-        name: string
-        url: string
-      }
+        id: string;
+        name: string;
+        url: string;
+      };
       googleplay: {
-        id: string
-        name: string
-        url: string
-      }
-    }
+        id: string;
+        name: string;
+        url: string;
+      };
+    };
     images: {
-      url: string
-      alt: string
-    }[]
-  }
+      url: string;
+      alt: string;
+    }[];
+  };
   open_graph: {
-    title: string
-    type: string
+    title: string;
+    type: string;
     images?: {
-      url: string
-      secure_url?: string
-      type: string
-      width: number
-      height: number
-    }[]
-    url?: string
+      url: string;
+      secure_url?: string;
+      type: string;
+      width: number;
+      height: number;
+    }[];
+    url?: string;
     audio?: {
-      url: string
-      secure_url?: string
-      type: string
-    }[]
-    description?: string
-    determiner?: string
-    site_name?: string
-    locale: string
-    locale_alt: string
+      url: string;
+      secure_url?: string;
+      type: string;
+    }[];
+    description?: string;
+    determiner?: string;
+    site_name?: string;
+    locale: string;
+    locale_alt: string;
     videos: {
-      url: string
-      stream?: string
-      height?: number
-      width?: number
-      tags?: string[]
-    }[]
+      url: string;
+      stream?: string;
+      height?: number;
+      width?: number;
+      tags?: string[];
+    }[];
     article: {
-      published_time?: string
-      modified_time?: string
-      expiration_time?: string
-      author?: string
-      section?: string
-      tags?: string[]
-    }
-  }
-}
+      published_time?: string;
+      modified_time?: string;
+      expiration_time?: string;
+      author?: string;
+      section?: string;
+      tags?: string[];
+    };
+  };
+};

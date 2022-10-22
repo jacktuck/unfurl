@@ -1,17 +1,15 @@
 {
   "compilerOptions": {
+    "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "sourceMap": true,
     "lib": ["es2017"],
     "module": "commonjs",
     "target": "es2017",
-    "declaration": true
+    "declaration": true,
+    "typeRoots": ["node_modules/@types", "src/typings"]
   },
-  "include": [
-    "src/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src/*.ts"],
+  "exclude": ["node_modules"]
 }
