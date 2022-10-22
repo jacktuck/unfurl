@@ -1,15 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <oembed>
-  <version type="float">1.0</version>
-  <type>rich</type>
-  <provider-name>SoundCloud</provider-name>
-  <provider-url>https://soundcloud.com</provider-url>
-  <height type="integer">400</height>
-  <width>100%</width>
-  <title>Bugle 179 - Playas gon play by The Bugle</title>
-  <description>This week - oh PIPA, Republican't candidates and Craptain Italia. Remember to #savethebugle at http://www.thebuglepodcast.com</description>
-  <thumbnail-url>https://i1.sndcdn.com/artworks-000017079411-pgm0ii-t500x500.jpg</thumbnail-url>
-  <html>&lt;![CDATA[&lt;iframe width="100%" height="400" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?visual=true&amp;url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F34019569&amp;show_artwork=true"&gt;&lt;/iframe&gt;]]&gt;</html>
-  <author-name>The Bugle</author-name>
-  <author-url>https://soundcloud.com/the-bugle</author-url>
+<link type="text/css" rel="stylesheet" id="dark-mode-custom-link"/>
+<link type="text/css" rel="stylesheet" id="dark-mode-general-link"/>
+<style lang="en" type="text/css" id="dark-mode-custom-style"/>
+<style lang="en" type="text/css" id="dark-mode-native-style"/>
+<style lang="en" type="text/css" id="dark-mode-native-sheet"/>
+<version type="float">1.0</version>
+<type>rich</type>
+<provider-name>SoundCloud</provider-name>
+<provider-url>https://soundcloud.com</provider-url>
+<height type="integer">450</height>
+<width>100%</width>
+<title>The Bugle</title>
+<description>The Bugle is the ultimate pan-global audio home of international satire. The show is a weekly eruption of comedic comment about the world’s most, and least, important news stories.</description>
+<thumbnail-url>https://i1.sndcdn.com/avatars-000036816294-7qogzv-t500x500.jpg</thumbnail-url>
+<html><![CDATA[<iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Fusers%2F9818871&show_artwork=true"></iframe>]]></html>
+<author-name>The Bugle</author-name>
+<author-url>https://soundcloud.com/the-bugle</author-url>
 </oembed>

@@ -213,12 +213,12 @@ test('should build oEmbed from XML with CDATA', async () => {
   const result: any = await unfurl('http://localhost/html/oembed-xml-cdata')
 
   const expected = {
-    height: 400,
-    title: "Bugle 179 - Playas gon play by The Bugle",
+    height: 450,
+    title: "The Bugle",
     type: "rich",
     version: "1.0",
     width: 100,
-    html: '<iframe width="100%" height="400" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F34019569&show_artwork=true"></iframe>',
+    html: '<iframe width=\"100%\" height=\"450\" scrolling=\"no\" frameborder=\"no\" src=\"https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Fusers%2F9818871&show_artwork=true\"></iframe>',
   }
 
   expect(result.oEmbed).toEqual(expected)
