@@ -23,7 +23,6 @@ type ParserContext = {
 };
 
 function unfurl(url: string, opts?: Opts): Promise<Metadata> {
-
   if (opts === undefined) {
     opts = {};
   }
@@ -372,7 +371,7 @@ function getMetadata(url: string, opts: Opts) {
   };
 }
 
-function parse(ctx) {
+function parse(url: string) {
   return function (metadata) {
     // eslint-disable-next-line
     const parsed: any = {};
@@ -412,7 +411,7 @@ function parse(ctx) {
       if (item.type === "number") {
         metaValue = parseInt(metaValue, 10);
       } else if (item.type === "url" && metaValue) {
-        metaValue = new URL(metaValue, ctx.url).href;
+        metaValue = new URL(metaValue, url).href;
       }
 
       if (parsed[item.entry] === undefined) {
