@@ -16,6 +16,11 @@ type ParserContext = {
   tagName?: string;
 };
 
+const defaultHeaders = {
+  Accept: "text/html, application/xhtml+xml",
+  "User-Agent": "facebookexternalhit",
+};
+
 function unfurl(url: string, opts?: Opts): Promise<Metadata> {
   if (opts === undefined) {
     opts = {};
@@ -27,8 +32,7 @@ function unfurl(url: string, opts?: Opts): Promise<Metadata> {
 
   typeof opts.oembed === "boolean" || (opts.oembed = true);
   typeof opts.compress === "boolean" || (opts.compress = true);
-  typeof opts.userAgent === "string" ||
-    (opts.userAgent = "facebookexternalhit");
+  typeof opts.headers === "object" || (opts.headers = defaultHeaders);
 
   Number.isInteger(opts.follow) || (opts.follow = 50);
   Number.isInteger(opts.timeout) || (opts.timeout = 0);
@@ -44,10 +48,7 @@ async function getPage(url: string, opts: Opts) {
   const res = await (opts.fetch
     ? opts.fetch(url)
     : fetch(new URL(url), {
-        headers: {
-          Accept: "text/html, application/xhtml+xml",
-          "User-Agent": opts.userAgent,
-        },
+        headers: opts.headers,
         size: opts.size,
         follow: opts.follow,
         timeout: opts.timeout,
