@@ -36,6 +36,7 @@ http
         res.end(JSON.stringify(data));
       })
       .catch((err) => {
+        console.error(err);
         res.writeHead(500, err);
         res.end();
       });
