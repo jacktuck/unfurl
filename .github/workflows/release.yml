@@ -3,21 +3,25 @@ name: release
 on:
   push:
     branches:
-      - 'master'
+      - "master"
     tags-ignore:
-      - '*.*.*'
+      - "*.*.*"
 
 jobs:
   test:
     name: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["lts/-1", "lts/*", "current"]
     steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 17
-    - run: npm ci
-    - run: npm test
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm test
 
   release:
     name: release
