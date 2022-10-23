@@ -1,3 +1,4 @@
+import { HeadersInit } from "node-fetch";
 export type Opts = {
   /** support retreiving oembed metadata */
   oembed?: boolean;
@@ -9,8 +10,8 @@ export type Opts = {
   compress?: boolean;
   /** maximum response body size in bytes. 0 to disable */
   size?: number;
-  /** User-Agent string is often used for content negotiation */
-  userAgent?: string;
+  /** map of request headers, overrides the defaults */
+  headers?: HeadersInit;
   /** Custom fetch implementation */
   fetch?: (url: string) => Promise<any /* Response */>; // eslint-disable-line
 };
