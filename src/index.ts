@@ -23,6 +23,7 @@ type ParserContext = {
 };
 
 function unfurl(url: string, opts?: Opts): Promise<Metadata> {
+
   if (opts === undefined) {
     opts = {};
   }
@@ -157,7 +158,10 @@ function getRemoteMetadata(url: string) {
       oembed.type === "text/xml+oembed" &&
       /(text|application)\/xml/.test(contentType)
     ) {
-      const data = await res.text();
+      const data = (await res.text())
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<");
+
       const content: { [key: string]: string } = {};
 
       const parserContext: ParserContext = { text: "" };
