@@ -7,6 +7,9 @@ A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protoco
 [![Known Vulnerabilities](https://snyk.io/test/github/jacktuck/unfurl/badge.svg?style=flat-square)](https://snyk.io/test/github/jacktuck/unfurl)
 [![npm](https://img.shields.io/npm/v/unfurl.js?style=flat-square)](https://www.npmjs.com/package/unfurl.js)
 
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/jacktuck)
+
 ## The what
 Unfurl _(spread out from a furled state)_ will take a `url` and some `options`, fetch the `url`, extract the metadata we care about and format the result in a saine way. It supports all major metadata providers and expanding it to work for any others should be trivial.
 
