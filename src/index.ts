@@ -1,4 +1,3 @@
-import { install as installSourceMapSupport } from "source-map-support";
 import { URL } from "url";
 import { Parser } from "htmlparser2";
 import fetch from "node-fetch";
@@ -7,11 +6,6 @@ import { schema, keys } from "./schema";
 import { Metadata, Opts } from "./types";
 import { decode as he_decode } from "he";
 import { decode as iconv_decode } from "iconv-lite";
-
-/* istanbul ignore next */
-if (process.env.NODE_ENV !== "test") {
-  installSourceMapSupport();
-}
 
 type ParserContext = {
   isHtml?: boolean;
