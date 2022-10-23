@@ -27,7 +27,15 @@ npm install unfurl.js
 -  `follow?: number` - maximum redirect count. 0 to not follow redirect
 -  `compress?: boolean` - support gzip/deflate content encoding 
 -  `size?: number` - maximum response body size in bytes. 0 to disable 
--  `userAgent?: string` - User-Agent string is often used for content negotiation
+-  `headers?: Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>` - map of request headers, overrides the defaults
+
+Default headers:
+```
+{
+  'Accept': 'text/html, application/xhtml+xml',
+  'User-Agent': 'facebookexternalhit'
+}
+```
 ---
 #
 ```typescript
