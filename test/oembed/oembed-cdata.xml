@@ -1,0 +1,19 @@
+<oembed>
+<link type="text/css" rel="stylesheet" id="dark-mode-custom-link"/>
+<link type="text/css" rel="stylesheet" id="dark-mode-general-link"/>
+<style lang="en" type="text/css" id="dark-mode-custom-style"/>
+<style lang="en" type="text/css" id="dark-mode-native-style"/>
+<style lang="en" type="text/css" id="dark-mode-native-sheet"/>
+<version type="float">1.0</version>
+<type>rich</type>
+<provider-name>SoundCloud</provider-name>
+<provider-url>https://soundcloud.com</provider-url>
+<height type="integer">450</height>
+<width>100%</width>
+<title>The Bugle</title>
+<description>The Bugle is the ultimate pan-global audio home of international satire. The show is a weekly eruption of comedic comment about the world’s most, and least, important news stories.</description>
+<thumbnail-url>https://i1.sndcdn.com/avatars-000036816294-7qogzv-t500x500.jpg</thumbnail-url>
+<html><![CDATA[<iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Fusers%2F9818871&show_artwork=true"></iframe>]]></html>
+<author-name>The Bugle</author-name>
+<author-url>https://soundcloud.com/the-bugle</author-url>
+</oembed>
