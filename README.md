@@ -11,7 +11,7 @@ A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protoco
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/jacktuck)
 
 ## The what
-Unfurl _(spread out from a furled state)_ will take a `url` and some `options`, fetch the `url`, extract the metadata we care about and format the result in a saine way. It supports all major metadata providers and expanding it to work for any others should be trivial.
+Unfurl _(spread out from a furled state)_ will take a `url` and some `options`, fetch the `url`, extract the metadata we care about and format the result in a sane way. It supports all major metadata providers and expanding it to work for any others should be trivial.
 
 ## The why
 So you know when you link to something on Slack, or Facebook, or Twitter - they typically show a preview of the link. To do so they have crawled the linked website for metadata and enriched the link by providing more context about it. Which usually entails grabbing its title, description and image/player embed.
