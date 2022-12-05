@@ -85,6 +85,7 @@ export type Metadata = {
       type: string;
       width: number;
       height: number;
+      alt?: string;
     }[];
     url?: string;
     audio?: {
