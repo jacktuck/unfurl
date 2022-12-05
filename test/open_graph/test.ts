@@ -49,6 +49,7 @@ test("should build images[]", async () => {
         type: "image/png",
         width: 1200,
         height: 1200,
+        alt: "The Github logo.",
       },
       {
         url: "https://assets-cdn.github.com/images/modules/open_graph/github-mark.png",
@@ -61,6 +62,7 @@ test("should build images[]", async () => {
         type: "image/png",
         width: 1200,
         height: 620,
+        alt: "The Github octocat.",
       },
     ],
   };

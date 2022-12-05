@@ -168,6 +168,10 @@ export const schema = new Map([
     { entry: "open_graph", name: "height", parent: "images", type: "number" },
   ],
   [
+    "og:image:alt",
+    { entry: "open_graph", name: "alt", parent: "images", type: "string" },
+  ],
+  [
     "og:image:type",
     { entry: "open_graph", name: "type", parent: "images", type: "string" },
   ],
