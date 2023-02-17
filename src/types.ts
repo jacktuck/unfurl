@@ -22,6 +22,7 @@ export type Metadata = {
   keywords?: string[];
   favicon?: string;
   author?: string;
+  theme_color?: string;
   oEmbed?: {
     type: "photo" | "video" | "link" | "rich";
     width?: number;

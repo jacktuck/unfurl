@@ -322,6 +322,8 @@ function getMetadata(url: string, opts: Opts) {
               pair = ["description", attribs.content];
             } else if (attribs.name === "author" && attribs.content) {
               pair = ["author", attribs.content];
+            } else if (attribs.name === "theme-color" && attribs.content) {
+              pair = ["theme_color", attribs.content];
             } else if (attribs.name === "keywords" && attribs.content) {
               const keywords = attribs.content
                 .replace(/^[,\s]{1,}|[,\s]{1,}$/g, "") // gets rid of trailing space or sommas
