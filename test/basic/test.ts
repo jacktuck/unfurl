@@ -28,6 +28,7 @@ test("should detect title, description and keywords", async () => {
     description: "aaa",
     keywords: ["a", "b", "c"],
     title: "ccc",
+    theme_color: "#ff00ff",
   };
 
   expect(result).toEqual(expected);
@@ -67,6 +68,7 @@ test("should detect title, description and keywords", async () => {
     description: "aaa",
     keywords: ["a", "b", "c"],
     title: "ccc",
+    theme_color: "#ff00ff",
   };
 
   expect(result).toEqual(expected);
