@@ -469,4 +469,4 @@ function parse(url: string) {
   };
 }
 
-export { unfurl };
+export { unfurl, Metadata, UnexpectedError };
