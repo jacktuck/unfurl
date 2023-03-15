@@ -469,4 +469,5 @@ function parse(url: string) {
   };
 }
 
-export { unfurl, Metadata, UnexpectedError };
+export { unfurl };
+export type { Metadata, UnexpectedError };
