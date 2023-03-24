@@ -14,6 +14,7 @@ type ParserContext = {
   text: string;
   title?: string;
   tagName?: string;
+  canonical_url?: string;
 };
 
 const defaultHeaders = {
@@ -268,6 +269,13 @@ function getMetadata(url: string, opts: Opts) {
             ]);
           }
 
+          if (parserContext.canonical_url) {
+            metadata.push([
+              "canonical_url",
+              new URL(parserContext.canonical_url, url).href,
+            ]);
+          }
+
           resolve({ oembed, metadata });
         },
 
@@ -313,6 +321,14 @@ function getMetadata(url: string, opts: Opts) {
             (attribs.rel === "icon" || attribs.rel === "shortcut icon")
           ) {
             parserContext.favicon = attribs.href;
+          }
+
+          if (
+            tagname === "link" &&
+            attribs.href &&
+            attribs.rel === "canonical"
+          ) {
+            parserContext.canonical_url = attribs.href;
           }
 
           let pair: [string, string | string[]];
