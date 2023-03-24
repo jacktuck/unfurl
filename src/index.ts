@@ -464,7 +464,7 @@ function parse(url: string) {
         }
       }
 
-      // some fields map to the same name so once nicwe have one stick with it
+      // some fields map to the same name so once we have one stick with it
       target[item.name] || (target[item.name] = metaValue);
     }
 

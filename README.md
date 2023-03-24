@@ -1,4 +1,4 @@
-# Unfurl 
+# Unfurl
 
 A metadata scraper with support for oEmbed, Twitter Cards and Open Graph Protocol for Node.js (>=v8.0.0)
 
@@ -26,10 +26,10 @@ npm install unfurl.js
 ---
 #### opts - `object` of:
 -  `oembed?: boolean` - support retrieving oembed metadata
--  `timeout?  number` - req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) 
+-  `timeout?  number` - req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies)
 -  `follow?: number` - maximum redirect count. 0 to not follow redirect
--  `compress?: boolean` - support gzip/deflate content encoding 
--  `size?: number` - maximum response body size in bytes. 0 to disable 
+-  `compress?: boolean` - support gzip/deflate content encoding
+-  `size?: number` - maximum response body size in bytes. 0 to disable
 -  `headers?: Headers | Record<string, string> | Iterable<readonly [string, string]> | Iterable<Iterable<string>>` - map of request headers, overrides the defaults
 
 Default headers:
