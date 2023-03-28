@@ -13,7 +13,7 @@ test("should handle content which is escaped badly", async () => {
   expect(result.description).toEqual('"');
 });
 
-test("should detect title, description and keywords", async () => {
+test("should detect title, description, keywords and canonical URL", async () => {
   nock("http://localhost")
     .get("/html/basic")
     .replyWithFile(200, __dirname + "/basic.html", {
@@ -29,12 +29,13 @@ test("should detect title, description and keywords", async () => {
     keywords: ["a", "b", "c"],
     title: "ccc",
     theme_color: "#ff00ff",
+    canonical_url: "https://ccc.website.test/basic/",
   };
 
   expect(result).toEqual(expected);
 });
 
-test("should detect title, description and keywords even when they are in the body", async () => {
+test("should detect title, description, keywords and canonical URL even when they are in the body", async () => {
   nock("http://localhost")
     .get("/html/basic-body")
     .replyWithFile(200, __dirname + "/basic-body.html", {
@@ -48,6 +49,7 @@ test("should detect title, description and keywords even when they are in the bo
     description: "aaa",
     keywords: ["a", "b", "c"],
     title: "ccc",
+    canonical_url: "http://ccc.website.test/basic/",
   };
 
   expect(result).toEqual(expected);
