@@ -23,6 +23,7 @@ export type Metadata = {
   favicon?: string;
   author?: string;
   theme_color?: string;
+  canonical_url?: string;
   oEmbed?: {
     type: "photo" | "video" | "link" | "rich";
     width?: number;
