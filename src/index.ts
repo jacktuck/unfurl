@@ -1,6 +1,6 @@
 import { URL } from "url";
 import { Parser } from "htmlparser2";
-import fetch from "node-fetch";
+import nodeFetch from "node-fetch";
 import UnexpectedError from "./unexpectedError";
 import { schema, keys } from "./schema";
 import { Metadata, Opts } from "./types";
@@ -41,14 +41,14 @@ function unfurl(url: string, opts?: Opts): Promise<Metadata> {
 
   return getPage(url, opts)
     .then(getMetadata(url, opts))
-    .then(getRemoteMetadata(url))
+    .then(getRemoteMetadata(url, opts))
     .then(parse(url));
 }
 
 async function getPage(url: string, opts: Opts) {
   const res = await (opts.fetch
     ? opts.fetch(url)
-    : fetch(new URL(url), {
+    : nodeFetch(new URL(url), {
         headers: opts.headers,
         size: opts.size,
         follow: opts.follow,
@@ -122,7 +122,7 @@ async function getPage(url: string, opts: Opts) {
   return buf.toString();
 }
 
-function getRemoteMetadata(url: string) {
+function getRemoteMetadata(url: string, { fetch = nodeFetch }: Opts) {
   return async function ({ oembed, metadata }) {
     if (!oembed) {
       return metadata;
