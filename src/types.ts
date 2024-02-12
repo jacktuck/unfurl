@@ -116,29 +116,29 @@ type OEmbedBase = {
       height?: number;
     }
   ];
-}
+};
 
 type OEmbedPhoto = OEmbedBase & {
   type: "photo";
   url: string;
   width: number;
   height: number;
-}
+};
 
 type OEmbedVideo = OEmbedBase & {
   type: "video";
   html: string;
   width: number;
   height: number;
-}
+};
 
 type OEmbedLink = OEmbedBase & {
   type: "link";
-}
+};
 
 type OEmbedRich = OEmbedBase & {
   type: "rich";
   html: string;
   width: number;
   height: number;
-}
+};
