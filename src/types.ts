@@ -24,25 +24,7 @@ export type Metadata = {
   author?: string;
   theme_color?: string;
   canonical_url?: string;
-  oEmbed?: {
-    type: "photo" | "video" | "link" | "rich";
-    width?: number;
-    height?: number;
-    version?: string;
-    title?: string;
-    author_name?: string;
-    author_url?: string;
-    provider_name?: string;
-    provider_url?: string;
-    cache_age?: number;
-    thumbnails?: [
-      {
-        url?: string;
-        width?: number;
-        height?: number;
-      }
-    ];
-  };
+  oEmbed?: OEmbedPhoto | OEmbedVideo | OEmbedLink | OEmbedRich;
   twitter_card: {
     card: string;
     site?: string;
@@ -116,4 +98,47 @@ export type Metadata = {
       tags?: string[];
     };
   };
+};
+
+type OEmbedBase = {
+  type: "photo" | "video" | "link" | "rich";
+  version: string;
+  title?: string;
+  author_name?: string;
+  author_url?: string;
+  provider_name?: string;
+  provider_url?: string;
+  cache_age?: number;
+  thumbnails?: [
+    {
+      url?: string;
+      width?: number;
+      height?: number;
+    }
+  ];
+};
+
+type OEmbedPhoto = OEmbedBase & {
+  type: "photo";
+  url: string;
+  width: number;
+  height: number;
+};
+
+type OEmbedVideo = OEmbedBase & {
+  type: "video";
+  html: string;
+  width: number;
+  height: number;
+};
+
+type OEmbedLink = OEmbedBase & {
+  type: "link";
+};
+
+type OEmbedRich = OEmbedBase & {
+  type: "rich";
+  html: string;
+  width: number;
+  height: number;
 };

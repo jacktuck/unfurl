@@ -32,11 +32,15 @@ test("width/height should be numbers", async () => {
 
   const result = await unfurl("http://localhost/html/oembed");
 
-  expect(result.oEmbed.width).toEqual(640);
-  expect(result.oEmbed.height).toEqual(640);
+  expect(result.oEmbed?.type).toEqual("video");
+  const oEmbed =
+    result.oEmbed?.type === "video" ? result.oEmbed : (result.oEmbed as never);
 
-  expect(result.oEmbed.thumbnails[0].width).toEqual(200);
-  expect(result.oEmbed.thumbnails[0].height).toEqual(200);
+  expect(oEmbed.width).toEqual(640);
+  expect(oEmbed.height).toEqual(640);
+
+  expect(oEmbed.thumbnails?.[0].width).toEqual(200);
+  expect(oEmbed.thumbnails?.[0].height).toEqual(200);
 });
 
 test("should decode entities in OEmbed URL", async () => {
@@ -54,11 +58,15 @@ test("should decode entities in OEmbed URL", async () => {
 
   const result = await unfurl("http://localhost/html/oembed");
 
-  expect(result.oEmbed.width).toEqual(640);
-  expect(result.oEmbed.height).toEqual(640);
+  expect(result.oEmbed?.type).toEqual("video");
+  const oEmbed =
+    result.oEmbed?.type === "video" ? result.oEmbed : (result.oEmbed as never);
 
-  expect(result.oEmbed.thumbnails[0].width).toEqual(200);
-  expect(result.oEmbed.thumbnails[0].height).toEqual(200);
+  expect(oEmbed.width).toEqual(640);
+  expect(oEmbed.height).toEqual(640);
+
+  expect(oEmbed.thumbnails?.[0].width).toEqual(200);
+  expect(oEmbed.thumbnails?.[0].height).toEqual(200);
 });
 
 test("should prefer fetching JSON oEmbed", async () => {
@@ -118,7 +126,7 @@ test("should upgrade to HTTPS if needed", async () => {
 
   const result = await unfurl("http://localhost/html/oembed-http");
 
-  expect(result.oEmbed.version).toEqual("1.0");
+  expect(result.oEmbed?.version).toEqual("1.0");
 });
 
 test("should build oEmbed from JSON", async () => {
