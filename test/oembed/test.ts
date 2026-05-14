@@ -12,7 +12,9 @@ test("should noop and not throw for wrong content type", async () => {
       "Content-Type": "text/html",
     });
 
-  const result = await unfurl("http://localhost/html/oembed-broken");
+  const result = await unfurl("http://localhost/html/oembed-broken", {
+    allowPrivateIPs: true,
+  });
 
   expect(result.oEmbed).toEqual(undefined);
 });
@@ -30,7 +32,9 @@ test("width/height should be numbers", async () => {
       "Content-Type": "application/json",
     });
 
-  const result = await unfurl("http://localhost/html/oembed");
+  const result = await unfurl("http://localhost/html/oembed", {
+    allowPrivateIPs: true,
+  });
 
   expect(result.oEmbed?.type).toEqual("video");
   const oEmbed =
@@ -56,7 +60,9 @@ test("should decode entities in OEmbed URL", async () => {
       "Content-Type": "application/json",
     });
 
-  const result = await unfurl("http://localhost/html/oembed");
+  const result = await unfurl("http://localhost/html/oembed", {
+    allowPrivateIPs: true,
+  });
 
   expect(result.oEmbed?.type).toEqual("video");
   const oEmbed =
@@ -82,7 +88,9 @@ test("should prefer fetching JSON oEmbed", async () => {
       "Content-Type": "application/json",
     });
 
-  const result = await unfurl("http://localhost/html/oembed-multi");
+  const result = await unfurl("http://localhost/html/oembed-multi", {
+    allowPrivateIPs: true,
+  });
 
   const expected = {
     version: "1.0",
@@ -124,7 +132,9 @@ test("should upgrade to HTTPS if needed", async () => {
       "Content-Type": "application/json",
     });
 
-  const result = await unfurl("http://localhost/html/oembed-http");
+  const result = await unfurl("http://localhost/html/oembed-http", {
+    allowPrivateIPs: true,
+  });
 
   expect(result.oEmbed?.version).toEqual("1.0");
 });
@@ -142,7 +152,9 @@ test("should build oEmbed from JSON", async () => {
       "Content-Type": "application/json",
     });
 
-  const result = await unfurl("http://localhost/html/oembed");
+  const result = await unfurl("http://localhost/html/oembed", {
+    allowPrivateIPs: true,
+  });
 
   const expected = {
     version: "1.0",
@@ -178,7 +190,9 @@ test("should build oEmbed from XML", async () => {
       "Content-Type": "text/xml",
     });
 
-  const result = await unfurl("http://localhost/html/oembed-xml");
+  const result = await unfurl("http://localhost/html/oembed-xml", {
+    allowPrivateIPs: true,
+  });
 
   const expected = {
     html: '<iframe width="480" height="270" src="https://www.youtube.com/embed/mvSItvjFE1c?feature=oembed" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>',
@@ -216,7 +230,9 @@ test("should build oEmbed from XML with CDATA", async () => {
       "Content-Type": "text/xml",
     });
 
-  const result = await unfurl("http://localhost/html/oembed-xml-cdata");
+  const result = await unfurl("http://localhost/html/oembed-xml-cdata", {
+    allowPrivateIPs: true,
+  });
 
   const expected = {
     height: 450,

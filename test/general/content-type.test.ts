@@ -9,7 +9,7 @@ test("should throw bad content type error", async () => {
       "Content-Type": "image/png",
     });
 
-    await unfurl("http://localhost/image");
+    await unfurl("http://localhost/image", { allowPrivateIPs: true });
   } catch (err) {
     expect(err.name).toEqual(UnexpectedError.EXPECTED_HTML.name);
     expect(err.message).toEqual(UnexpectedError.EXPECTED_HTML.message);

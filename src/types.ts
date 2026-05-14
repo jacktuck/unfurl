@@ -1,5 +1,6 @@
 import { HeadersInit } from "node-fetch";
 export type Opts = {
+  allowPrivateIPs?: boolean;
   /** support retreiving oembed metadata */
   oembed?: boolean;
   /** req/res timeout in ms, it resets on redirect. 0 to disable (OS limit applies) */

@@ -23,6 +23,7 @@ test("should respect oembed", async () => {
 
   const result = await unfurl("http://localhost/html/oembed", {
     oembed: false,
+    allowPrivateIPs: true,
   });
 
   expect(result.oEmbed).toEqual(undefined);

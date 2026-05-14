@@ -5,9 +5,9 @@ import UnexpectedError from "../../src/unexpectedError";
 test("should throw if status code not 200", () => {
   nock("http://localhost").get("/html/return-404").reply(404);
 
-  return expect(unfurl("http://localhost/html/return-404")).rejects.toThrow(
-    new UnexpectedError(UnexpectedError.BAD_HTTP_STATUS)
-  );
+  return expect(
+    unfurl("http://localhost/html/return-404", { allowPrivateIPs: true })
+  ).rejects.toThrow(new UnexpectedError(UnexpectedError.BAD_HTTP_STATUS));
 });
 
 test("should not throw if status code is 200", async () => {
@@ -16,6 +16,6 @@ test("should not throw if status code is 200", async () => {
   });
 
   return expect(
-    unfurl("http://localhost/html/return-200")
+    unfurl("http://localhost/html/return-200", { allowPrivateIPs: true })
   ).resolves.toBeTruthy();
 });

@@ -5,7 +5,9 @@ test("should not throw when provided non-ascii url", async () => {
 
   let err;
   try {
-    await unfurl("http://localhost/日本語urlってどうよ");
+    await unfurl("http://localhost/日本語urlってどうよ", {
+      allowPrivateIPs: true,
+    });
   } catch (e) {
     err = e;
   } finally {

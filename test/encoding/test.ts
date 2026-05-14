@@ -9,7 +9,9 @@ test("should detect GB2312 charset (HTML 4) and convert to UTF-8", async () => {
       "Content-Type": "text/html",
     });
 
-  const result = await unfurl("http://localhost/html4/gb2312");
+  const result = await unfurl("http://localhost/html4/gb2312", {
+    allowPrivateIPs: true,
+  });
 
   const expected = {
     description:
@@ -28,7 +30,9 @@ test("should detect GB2312 charset (HTML 5) and convert to UTF-8", async () => {
       "Content-Type": "text/html",
     });
 
-  const result = await unfurl("http://localhost/html5/gb2312");
+  const result = await unfurl("http://localhost/html5/gb2312", {
+    allowPrivateIPs: true,
+  });
 
   const expected = {
     description:
@@ -47,7 +51,9 @@ test("should detect EUC-JP charset (HTML 5) and convert to UTF-8", async () => {
       "Content-Type": "text/html",
     });
 
-  const result = await unfurl("http://localhost/html5/euc-jp");
+  const result = await unfurl("http://localhost/html5/euc-jp", {
+    allowPrivateIPs: true,
+  });
 
   const expected = {
     description:
